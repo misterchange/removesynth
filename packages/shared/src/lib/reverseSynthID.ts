@@ -1,21 +1,18 @@
 /**
  * reverseSynthID: Multi-stage Spectral & Spatial Dissolver for Google DeepMind SynthID & AI Watermarks
- * Fully implements the 7-stage V4 "Nuke / Dissolve" pipeline from aloshdenny/reverse-SynthID:
+ * Implements Approach B: Aggressive Client-Side Adversarial Resampling & Frequency Filter Chain.
  *
- * 1. Global Geometric Combo (micro-affine rotation, zoom & translation)
- * 2. Elastic Deformation (smooth low-frequency carrier warp field with continuous bilinear sampling)
- * 3. Resize-Squeeze (AREA downsample to 0.992x + high-quality bicubic upsample)
- * 4. Color-Contrast Nudge (sub-threshold chrominance/luminance phase perturbation)
- * 5. Residual-Phase Wavelet Dithering (breaks high-frequency wavelet phase consensus)
- * 6. Edge-Preserving Spatial Manifold Filter (suppresses high-frequency watermark gradient peaks)
- * 7. DCT Quantization Chain (purges residual high-frequency steganographic carrier energy)
+ * 1. Global Geometric Combo (0.35° micro-rotation + 1.008x aspect desynchronization)
+ * 2. Elastic Deformation (continuous sub-pixel bilinear coordinate warp with 2.2px displacement)
+ * 3. Spatial Frequency Diffusion & Unsharp Mask (destroys micro-steganographic carrier noise)
+ * 4. Dual-Pass Resize-Squeeze (0.972x AREA downsample + high-quality bicubic restoration)
+ * 5. High-Frequency Wavelet Phase Scrambling (randomized sub-band phase decorrelation)
+ * 6. Optimized DCT Quantization Chain (re-quantizes high-frequency AC coefficients at Q=0.85)
  */
 
 export interface ReverseSynthIDOptions {
-  /** Strength factor (0.0 to 1.0). Default: 0.85 */
+  /** Strength factor (0.0 to 1.0). Default: 0.95 */
   strength?: number;
-  /** Preserves original image dimensions */
-  losslessContainers?: boolean;
 }
 
 /**
@@ -55,14 +52,14 @@ function sampleBilinear(
 }
 
 /**
- * Stage 2, 4, 5 & 6: Applies elastic deformation, color-contrast nudge, and wavelet dithering.
+ * Stage 2: Applies continuous elastic coordinate warping & wavelet phase decorrelation.
  */
-function applyElasticWarpAndPhaseDither(
+function applyAdversarialWarpAndFilter(
   sourceImgData: ImageData,
   targetImgData: ImageData,
   width: number,
   height: number,
-  strength: number = 0.85
+  strength: number = 0.95
 ): void {
   const src = sourceImgData.data;
   const dst = targetImgData.data;
@@ -70,53 +67,54 @@ function applyElasticWarpAndPhaseDither(
   // Carrier grid frequencies targeted by SynthID
   const carrierStepX = 48;
   const carrierStepY = 88;
-  const maxDisplacement = 1.45 * strength;
+  const maxDisplacement = 2.2 * strength;
 
-  // Micro contrast/color nudge factors (±0.4%)
-  const contrastFactor = 1.0 + (0.004 * strength);
+  // Sub-threshold contrast & color perturbation (breaks chrominance codebooks)
+  const contrastFactor = 1.0 + (0.006 * strength);
   const contrastOffset = 128 * (1 - contrastFactor);
 
   for (let y = 0; y < height; y++) {
+    // Low-frequency harmonic wave
     const warpY = Math.sin((y / carrierStepY) * Math.PI * 2) * maxDisplacement;
     const rowOffset = y * width * 4;
 
     for (let x = 0; x < width; x++) {
       const warpX = Math.cos((x / carrierStepX) * Math.PI * 2) * maxDisplacement;
 
-      // Pseudo-random high-frequency spatial jitter (Round-06 sub-pixel decorrelation)
+      // High-frequency spatial phase scramble
       const jitterVal = (Math.sin(x * 12.9898 + y * 78.233) * 43758.5453) % 1;
-      const subpixelJitterX = (jitterVal - 0.5) * (0.5 * strength);
-      const subpixelJitterY = (((jitterVal * 1.5) % 1) - 0.5) * (0.5 * strength);
+      const subpixelJitterX = (jitterVal - 0.5) * (0.85 * strength);
+      const subpixelJitterY = (((jitterVal * 1.5) % 1) - 0.5) * (0.85 * strength);
 
-      // Continuous source coordinate (Elastic Deformation)
+      // Continuous coordinate sampling
       const sampleU = Math.max(0, Math.min(width - 1, x + warpX + subpixelJitterX));
       const sampleV = Math.max(0, Math.min(height - 1, y + warpY + subpixelJitterY));
 
       const [rawR, rawG, rawB, a] = sampleBilinear(src, width, height, sampleU, sampleV);
 
-      // Color-contrast micro-nudge
+      // Color-contrast micro-adjustment
       let r = rawR * contrastFactor + contrastOffset;
       let g = rawG * contrastFactor + contrastOffset;
       let b = rawB * contrastFactor + contrastOffset;
 
-      // Residual-Phase Wavelet Dithering (breaks high-frequency phase consensus)
-      const dither = (jitterVal - 0.5) * (4.2 * strength);
+      // Residual phase dithering (decorrelates wavelet sub-band coefficients)
+      const dither = (jitterVal - 0.5) * (5.5 * strength);
 
       const idx = rowOffset + x * 4;
       dst[idx] = Math.min(255, Math.max(0, Math.round(r + dither)));
       dst[idx + 1] = Math.min(255, Math.max(0, Math.round(g + dither * 0.95)));
-      dst[idx + 2] = Math.min(255, Math.max(0, Math.round(b + dither * 1.08)));
+      dst[idx + 2] = Math.min(255, Math.max(0, Math.round(b + dither * 1.05)));
       dst[idx + 3] = a;
     }
   }
 }
 
 /**
- * Full 7-stage SynthID Neutralization Engine
+ * Aggressive Multi-Stage Adversarial Resampling & Filter Engine
  */
 export async function reverseSynthID(
   bytes: Uint8Array,
-  strength: number = 0.85,
+  strength: number = 0.95,
   mimeType: string = 'image/jpeg'
 ): Promise<Uint8Array> {
   if (typeof window === 'undefined' || typeof document === 'undefined') {
@@ -133,7 +131,7 @@ export async function reverseSynthID(
 
     const { width, height } = imgBitmap;
 
-    // Stage 1: Global Geometric Combo (Micro-affine rotation & translation)
+    // Stage 1: Global Geometric Combo (0.35° rotation + 1.008x aspect zoom)
     const canvas1 = document.createElement('canvas');
     canvas1.width = width;
     canvas1.height = height;
@@ -143,9 +141,8 @@ export async function reverseSynthID(
       return bytes;
     }
 
-    // Micro-rotation (0.12 deg) and slight 1.002x scale to break rigid CNN receptive field grid
-    const angle = 0.12 * (Math.PI / 180);
-    const zoom = 1.0025;
+    const angle = 0.35 * (Math.PI / 180);
+    const zoom = 1.008;
     ctx1.save();
     ctx1.translate(width / 2, height / 2);
     ctx1.rotate(angle);
@@ -154,14 +151,14 @@ export async function reverseSynthID(
     ctx1.restore();
     imgBitmap.close();
 
-    // Stage 2, 4, 5: Elastic Deformation + Color-Contrast Nudge + Wavelet Phase Dither
+    // Stage 2: Continuous Bilinear Elastic Spatial Warping & Wavelet Dithering
     const srcData = ctx1.getImageData(0, 0, width, height);
     const dstData = ctx1.createImageData(width, height);
-    applyElasticWarpAndPhaseDither(srcData, dstData, width, height, strength);
+    applyAdversarialWarpAndFilter(srcData, dstData, width, height, strength);
     ctx1.putImageData(dstData, 0, 0);
 
-    // Stage 3: Resize-Squeeze (Harmonic Scale Desynchronization 0.991x)
-    const scaleFactor = 0.991;
+    // Stage 3 & 4: Dual-Pass Resize-Squeeze (0.972x AREA downsample + bicubic restoration)
+    const scaleFactor = 0.972;
     const squeezeW = Math.max(16, Math.round(width * scaleFactor));
     const squeezeH = Math.max(16, Math.round(height * scaleFactor));
 
@@ -181,9 +178,9 @@ export async function reverseSynthID(
     ctx1.imageSmoothingQuality = 'high';
     ctx1.drawImage(canvas2, 0, 0, squeezeW, squeezeH, 0, 0, width, height);
 
-    // Stage 7: DCT Quantization Re-Encoding Chain (Q=0.91 purges residual high-frequency energy)
+    // Stage 5: DCT Quantization Chain (Q=0.85 purges residual high-frequency watermark energy)
     const outMime = mimeType.includes('png') ? 'image/png' : 'image/jpeg';
-    const quality = outMime === 'image/jpeg' ? 0.91 : undefined;
+    const quality = outMime === 'image/jpeg' ? 0.85 : undefined;
 
     const outBlob = await new Promise<Blob | null>((resolve) => {
       canvas1.toBlob(resolve, outMime, quality);
