@@ -1,0 +1,725 @@
+---
+import Base from '../layouts/Base.astro';
+import Jitter from '@removesynth/shared/components/Jitter.astro';
+import Faq from '@removesynth/shared/components/Faq.astro';
+import { faqSchema, breadcrumbSchema, type FaqItem } from '@removesynth/shared/lib/faq';
+import { SITE } from '../site';
+
+const title = 'Social Media Safe Zones: Reels, TikTok & Shorts Guide';
+const description =
+  'Interactive safe zone simulator for Instagram Reels, TikTok, YouTube Shorts, and Stories. Preview overlays to prevent app UI from obstructing your text.';
+
+const faqs: FaqItem[] = [
+  {
+    q: 'What is a social media video safe zone?',
+    a: 'A safe zone is the visible screen area in short-form video apps (Reels, TikTok, Shorts) where your critical content (text captions, logos, product callouts, and faces) will NOT be obstructed by app UI elements like the right-side engagement buttons (Like, Comment, Share), bottom captions and usernames, or top navigation headers.',
+  },
+  {
+    q: 'What are the exact safe zone dimensions for Instagram Reels?',
+    a: 'Instagram Reels are 1080 x 1920 pixels (9:16). The safe zone leaves a 160 px buffer at the top (profile/audio headers), a 440 px buffer at the bottom (usernames, audio ticker, multi-line captions), and a 130 px buffer on the right side (action buttons). Furthermore, when viewed in the feed, Reels are cropped to 1080 x 1350 (4:5), and on your profile grid, they are cropped to 1080 x 1080 (1:1).',
+  },
+  {
+    q: 'What is the TikTok safe zone for text and captions?',
+    a: 'TikTok videos are 1080 x 1920 pixels. The right side requires a 140 px safe margin to clear the creator avatar, follow button, like, comment, bookmark, share icons, and the rotating sound vinyl. The bottom requires a 480 px buffer to clear long captions, sound titles, and search pills.',
+  },
+  {
+    q: 'How do YouTube Shorts safe zones differ from Instagram and TikTok?',
+    a: 'YouTube Shorts have a top bar of approximately 140 px (search and menu icons) and a bottom buffer of 420 px (channel handle, red Subscribe button, and audio attribution). The right-hand column occupies roughly 130 px with engagement buttons (thumbs up/down, comments, share, remix).',
+  },
+  {
+    q: 'How do I use the downloadable transparent PNG safe zone template in CapCut or Premiere Pro?',
+    a: 'Click the "Download PNG Template" button to export a 1080 x 1920 transparent PNG guide. In your video editing software (Adobe Premiere, CapCut, Final Cut Pro, or DaVinci Resolve), import the PNG onto the top video track above your clips. Lock the track while positioning your titles and graphics inside the green safe boundary, then mute or delete the guide track before final rendering.',
+  },
+  {
+    q: 'Are my uploaded videos or images sent to a server?',
+    a: 'No. All video playback, canvas scaling, and overlay rendering executes 100% locally in your browser using HTML5 Video and Canvas APIs. Your video files never leave your computer or phone.',
+  },
+];
+
+const canonicalUrl = `${SITE.url}/social-media-safe-zones/`;
+
+const singleSchemaGraph = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'WebPage',
+      '@id': canonicalUrl,
+      url: canonicalUrl,
+      name: title,
+      description,
+      inLanguage: 'en-US',
+      isPartOf: {
+        '@type': 'WebSite',
+        '@id': `${SITE.url}/#website`,
+        name: SITE.name,
+        url: SITE.url,
+      },
+      breadcrumb: {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE.url}/` },
+          { '@type': 'ListItem', position: 2, name: 'Tools', item: `${SITE.url}/tools/` },
+          { '@type': 'ListItem', position: 3, name: 'Social Media Safe Zones', item: canonicalUrl },
+        ],
+      },
+    },
+    {
+      '@type': ['SoftwareApplication', 'WebApplication'],
+      name: 'Social Media Safe Zones Simulator',
+      url: canonicalUrl,
+      applicationCategory: 'MultimediaApplication',
+      operatingSystem: 'Any (web browser)',
+      offers: {
+        '@type': 'Offer',
+        price: '0',
+        priceCurrency: 'USD',
+      },
+      description,
+      featureList: [
+        'Instagram Reels 9:16, 4:5, and 1:1 safe zone overlays',
+        'TikTok caption and engagement UI danger zone simulator',
+        'YouTube Shorts subscribe and header overlay preview',
+        'Downloadable transparent 1080x1920 PNG editing templates',
+        '100 percent in-browser execution with zero video uploads',
+      ],
+    },
+    {
+      '@type': 'HowTo',
+      name: 'How to Check Social Media Video Safe Zones for Reels and TikTok',
+      description: 'Step-by-step instructions to test short-form 9:16 videos against mobile app UI obstructions.',
+      step: [
+        {
+          '@type': 'HowToStep',
+          position: 1,
+          name: 'Upload video or image draft',
+          text: 'Drag and drop your 9:16 short-form video or still frame into the simulator.',
+        },
+        {
+          '@type': 'HowToStep',
+          position: 2,
+          name: 'Toggle platform UI overlays',
+          text: 'Switch between Instagram Reels, TikTok, YouTube Shorts, and Snapchat overlays.',
+        },
+        {
+          '@type': 'HowToStep',
+          position: 3,
+          name: 'Inspect text and graphics placement',
+          text: 'Verify that captions, key visual subjects, and text calls-to-action remain inside green safe areas.',
+        },
+        {
+          '@type': 'HowToStep',
+          position: 4,
+          name: 'Download PNG editing template',
+          text: 'Export the 1080x1920 transparent overlay template to use as a guide track in Premiere Pro or CapCut.',
+        },
+      ],
+    },
+    {
+      '@type': 'FAQPage',
+      mainEntity: faqs.map((f) => ({
+        '@type': 'Question',
+        name: f.q,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: f.a,
+        },
+      })),
+    },
+  ],
+};
+---
+
+<Base title={title} description={description} schema={singleSchemaGraph}>
+  <section class="hero">
+    <div class="container">
+      <span class="eyebrow">Creator Tool • 100% In-Browser • Universal 2026 UI Specs</span>
+      <h1>Social Media <span class="accent">Safe Zones Checker</span></h1>
+      <p class="lead">
+        Simulate real app interfaces for Instagram Reels, TikTok, YouTube Shorts, Snapchat, Facebook, and LinkedIn.
+        Never let engagement buttons, usernames, or captions cover your titles, logos, or faces.
+      </p>
+
+      <!-- Safe Zone Tool Stage -->
+      <div class="tool-stage">
+        <Jitter side="left" />
+        <div class="sz-tool" id="sz-tool">
+          
+          <!-- Category Filter Bar -->
+          <div class="category-bar">
+            <span class="cat-label">Format:</span>
+            <div class="cat-pills" id="cat-pills">
+              <button type="button" class="cat-pill active" data-cat="all">All Formats</button>
+              <button type="button" class="cat-pill" data-cat="vertical"> 9:16 Short-Form</button>
+              <button type="button" class="cat-pill" data-cat="horizontal"> 16:9 Landscape</button>
+              <button type="button" class="cat-pill" data-cat="feed"> 4:5 &amp; 1:1 Feeds</button>
+            </div>
+          </div>
+
+          <!-- Platform Selector Tabs -->
+          <div class="platform-scroll">
+            <div class="platform-grid" id="platform-grid">
+              <!-- Vertical Short-Form -->
+              <button type="button" class="pf-card active" data-id="ig-reels" data-cat="vertical" data-ratio="9/16" data-w="1080" data-h="1920">
+                <span class="pf-badge pf-ig">IG Reels</span>
+                <span class="pf-name">Instagram Reels</span>
+                <span class="pf-meta">1080×1920 (9:16)</span>
+              </button>
+
+              <button type="button" class="pf-card" data-id="tiktok" data-cat="vertical" data-ratio="9/16" data-w="1080" data-h="1920">
+                <span class="pf-badge pf-tt">TikTok</span>
+                <span class="pf-name">TikTok In-Feed</span>
+                <span class="pf-meta">1080×1920 (9:16)</span>
+              </button>
+
+              <button type="button" class="pf-card" data-id="yt-shorts" data-cat="vertical" data-ratio="9/16" data-w="1080" data-h="1920">
+                <span class="pf-badge pf-yt">Shorts</span>
+                <span class="pf-name">YouTube Shorts</span>
+                <span class="pf-meta">1080×1920 (9:16)</span>
+              </button>
+
+              <button type="button" class="pf-card" data-id="fb-reels" data-cat="vertical" data-ratio="9/16" data-w="1080" data-h="1920">
+                <span class="pf-badge pf-fb">FB Reels</span>
+                <span class="pf-name">Facebook Reels</span>
+                <span class="pf-meta">1080×1920 (9:16)</span>
+              </button>
+
+              <button type="button" class="pf-card" data-id="snapchat" data-cat="vertical" data-ratio="9/16" data-w="1080" data-h="1920">
+                <span class="pf-badge pf-snap">Snapchat</span>
+                <span class="pf-name">Snap Spotlight</span>
+                <span class="pf-meta">1080×1920 (9:16)</span>
+              </button>
+
+              <button type="button" class="pf-card" data-id="pin-idea" data-cat="vertical" data-ratio="9/16" data-w="1080" data-h="1920">
+                <span class="pf-badge pf-pin">Pinterest</span>
+                <span class="pf-name">Pinterest Idea Pin</span>
+                <span class="pf-meta">1080×1920 (9:16)</span>
+              </button>
+
+              <!-- Horizontal Landscape -->
+              <button type="button" class="pf-card" data-id="yt-video" data-cat="horizontal" data-ratio="16/9" data-w="1920" data-h="1080">
+                <span class="pf-badge pf-yt">YouTube</span>
+                <span class="pf-name">YouTube 16:9 Video</span>
+                <span class="pf-meta">1920×1080 (16:9)</span>
+              </button>
+
+              <button type="button" class="pf-card" data-id="tv-safe" data-cat="horizontal" data-ratio="16/9" data-w="1920" data-h="1080">
+                <span class="pf-badge pf-tv">Broadcast</span>
+                <span class="pf-name">TV Action/Title Safe</span>
+                <span class="pf-meta">80% &amp; 90% Title Safe</span>
+              </button>
+
+              <!-- Feed & Carousels -->
+              <button type="button" class="pf-card" data-id="ig-portrait" data-cat="feed" data-ratio="4/5" data-w="1080" data-h="1350">
+                <span class="pf-badge pf-ig">IG 4:5</span>
+                <span class="pf-name">Instagram Portrait</span>
+                <span class="pf-meta">1080×1350 (4:5)</span>
+              </button>
+
+              <button type="button" class="pf-card" data-id="ig-square" data-cat="feed" data-ratio="1/1" data-w="1080" data-h="1080">
+                <span class="pf-badge pf-ig">IG 1:1</span>
+                <span class="pf-name">Instagram Square</span>
+                <span class="pf-meta">1080×1080 (1:1)</span>
+              </button>
+
+              <button type="button" class="pf-card" data-id="li-feed" data-cat="feed" data-ratio="4/5" data-w="1080" data-h="1350">
+                <span class="pf-badge pf-li">LinkedIn</span>
+                <span class="pf-name">LinkedIn Carousel/Post</span>
+                <span class="pf-meta">1080×1350 (4:5)</span>
+              </button>
+
+              <button type="button" class="pf-card" data-id="x-feed" data-cat="feed" data-ratio="16/9" data-w="1920" data-h="1080">
+                <span class="pf-badge pf-x">X / Twitter</span>
+                <span class="pf-name">X Video &amp; Media</span>
+                <span class="pf-meta">1920×1080 (16:9)</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Simulator Stage: Left Preview & Right Controls -->
+          <div class="sim-stage">
+            
+            <!-- Left: Viewport Simulation Area -->
+            <div class="viewport-wrapper">
+              <div class="viewport-box aspect-vertical" id="viewport-box">
+                
+                <!-- Background Media Layer (Video or Image or Default Mock) -->
+                <div class="media-layer" id="media-layer">
+                  <div class="creator-art-mock" id="creator-mock">
+                    <div class="mock-grid"></div>
+                    <div class="mock-badge">SAFE ZONE PREVIEW</div>
+                    <div class="mock-headline">YOUR TITLE / TEXT HERE</div>
+                    <div class="mock-subtext">Drop your video or image to check UI overlaps</div>
+                    <div class="mock-center-target">
+                      <div class="target-circle"></div>
+                      <span>FACE &amp; SUBJECT CENTER</span>
+                    </div>
+                  </div>
+                  <video id="player-video" loop muted playsinline hidden></video>
+                  <img id="player-img" alt="Uploaded artwork preview" hidden />
+                </div>
+
+                <!-- Danger Zone Highlight Overlay Layer (Red/Amber Blocks) -->
+                <div class="danger-layer" id="danger-layer">
+                  <div class="dz-block dz-top" id="dz-top">
+                    <span class="dz-tag">TOP BAR BUFFER</span>
+                  </div>
+                  <div class="dz-block dz-right" id="dz-right">
+                    <span class="dz-tag">ACTION BUTTONS</span>
+                  </div>
+                  <div class="dz-block dz-bottom" id="dz-bottom">
+                    <span class="dz-tag">CAPTION &amp; USERNAME BUFFER</span>
+                  </div>
+                </div>
+
+                <!-- Feed & Profile Grid Crop Guides (For 9:16 Reels/Shorts) -->
+                <div class="crop-guides-layer" id="crop-layer">
+                  <!-- 4:5 Feed Preview Box (1080x1350) -->
+                  <div class="feed-crop-box" id="feed-crop-box">
+                    <span class="crop-label top-crop">4:5 Feed Crop Top (285px cut)</span>
+                    <span class="crop-label-center">In-Feed 4:5 Area</span>
+                    <span class="crop-label bottom-crop">4:5 Feed Crop Bottom (285px cut)</span>
+                  </div>
+                  <!-- 1:1 Profile Grid Box (1080x1080) -->
+                  <div class="grid-crop-box" id="grid-crop-box">
+                    <span class="crop-label grid-center">1:1 Profile Grid (420px cut top &amp; bottom)</span>
+                  </div>
+                </div>
+
+                <!-- Rule of Thirds Grid -->
+                <div class="thirds-layer" id="thirds-layer" hidden>
+                  <div class="third-line hl-1"></div>
+                  <div class="third-line hl-2"></div>
+                  <div class="third-line vl-1"></div>
+                  <div class="third-line vl-2"></div>
+                </div>
+
+                <!-- Realistic Native App UI Elements Mockup -->
+                <div class="native-ui-layer" id="native-ui-layer">
+                  
+                  <!-- Top Bar UI -->
+                  <div class="app-ui-top" id="ui-top">
+                    <div class="ui-top-left">
+                      <span class="ui-crumb" id="ui-crumb-title">Reels</span>
+                    </div>
+                    <div class="ui-top-right">
+                      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M23 7l-7 5 7 5V7z"></path>
+                        <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+                      </svg>
+                    </div>
+                  </div>
+
+                  <!-- Right Rail Action Buttons -->
+                  <div class="app-ui-right" id="ui-right">
+                    <div class="ui-btn-action">
+                      <div class="action-icon action-avatar">
+                        <span class="avatar-ph">RS</span>
+                      </div>
+                    </div>
+                    <div class="ui-btn-action">
+                      <div class="action-icon">
+                        <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor">
+                          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                        </svg>
+                      </div>
+                      <span class="action-cnt">128.4K</span>
+                    </div>
+                    <div class="ui-btn-action">
+                      <div class="action-icon">
+                        <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor">
+                          <path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18zM18 14H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
+                        </svg>
+                      </div>
+                      <span class="action-cnt">3,420</span>
+                    </div>
+                    <div class="ui-btn-action">
+                      <div class="action-icon">
+                        <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor">
+                          <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/>
+                        </svg>
+                      </div>
+                      <span class="action-cnt">Share</span>
+                    </div>
+                    <div class="ui-btn-action" id="ui-audio-disc">
+                      <div class="action-disc">
+                        <div class="disc-inner"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Bottom Info & Caption Bar -->
+                  <div class="app-ui-bottom" id="ui-bottom">
+                    <div class="ui-author">
+                      <span class="author-handle" id="ui-author-handle">@creator_studio</span>
+                      <button type="button" class="btn-follow">Follow</button>
+                    </div>
+                    <p class="ui-caption-text" id="ui-caption-text">
+                      Essential safe zones for 2026! Keep text centered and out of the right buttons... <span class="more-link">more</span>
+                    </p>
+                    <div class="ui-audio-ticker">
+                      <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+                        <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+                      </svg>
+                      <span class="audio-title">Trending Audio • Original Sound</span>
+                    </div>
+                  </div>
+
+                </div>
+
+              </div>
+              <div class="viewport-foot">
+                <span class="dim-text" id="dim-indicator">Target Resolution: 1080 × 1920 (9:16)</span>
+                <span class="safe-badge-pill" id="safe-indicator">Safe Margin: 160px Top / 440px Bottom / 130px Right</span>
+              </div>
+            </div>
+
+            <!-- Right: Controls & Upload Panel -->
+            <div class="sim-sidebar">
+              
+              <!-- Media Uploader Card -->
+              <div class="control-card">
+                <h3>1. Your Video or Image</h3>
+                <div class="upload-drop-mini" id="upload-box">
+                  <input type="file" id="media-input" accept="video/mp4,video/quicktime,video/webm,image/jpeg,image/png,image/webp,image/avif" hidden />
+                  <div class="drop-label" id="drop-label">
+                    <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                      <polyline points="17 8 12 3 7 8"></polyline>
+                      <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                    <span><strong>Click or drop Video or Image</strong></span>
+                    <span class="micro-note">MP4, MOV, WebM, JPG, PNG • 100% private in-browser</span>
+                  </div>
+                  <div class="loaded-file-bar" id="loaded-file-bar" hidden>
+                    <span class="file-name-pill" id="loaded-file-name">filename.mp4</span>
+                    <button type="button" class="btn-clear" id="btn-clear-media" title="Clear media">×</button>
+                  </div>
+                </div>
+                <button type="button" class="btn-sample" id="btn-sample-media">Load Creator Demo Graphic</button>
+              </div>
+
+              <!-- Overlays Toggle Controls -->
+              <div class="control-card">
+                <h3>2. Display Overlays</h3>
+                
+                <label class="toggle-row">
+                  <span class="t-text">
+                    <strong> Danger Zones Highlight</strong>
+                    <small>Highlight UI obstruction areas in red/amber</small>
+                  </span>
+                  <input type="checkbox" id="chk-danger" checked />
+                </label>
+
+                <label class="toggle-row">
+                  <span class="t-text">
+                    <strong> Native App UI Controls</strong>
+                    <small>Render buttons, avatars, captions, &amp; audio disc</small>
+                  </span>
+                  <input type="checkbox" id="chk-native-ui" checked />
+                </label>
+
+                <label class="toggle-row" id="row-feed-crop">
+                  <span class="t-text">
+                    <strong> 4:5 Feed &amp; 1:1 Profile Crops</strong>
+                    <small>Show where Reels crop in user feeds &amp; grid</small>
+                  </span>
+                  <input type="checkbox" id="chk-crop" checked />
+                </label>
+
+                <label class="toggle-row">
+                  <span class="t-text">
+                    <strong> Rule of Thirds Grid</strong>
+                    <small>3×3 composition guide for subject framing</small>
+                  </span>
+                  <input type="checkbox" id="chk-thirds" />
+                </label>
+
+                <div class="slider-row">
+                  <div class="slider-label">
+                    <span>Overlay Opacity:</span>
+                    <strong id="opacity-val">75%</strong>
+                  </div>
+                  <input type="range" id="rng-opacity" min="20" max="100" value="75" />
+                </div>
+              </div>
+
+              <!-- Export Tools -->
+              <div class="control-card">
+                <h3>3. Export Safe Zone Guide</h3>
+                <p class="export-desc">
+                  Download a 1:1 transparent PNG template of this safe zone to import into Premiere, CapCut, or DaVinci Resolve.
+                </p>
+                <div class="btn-group-export">
+                  <button type="button" class="btn-accent" id="btn-download-png">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                      <polyline points="7 10 12 15 17 10"></polyline>
+                      <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    Download PNG Template
+                  </button>
+                  <button type="button" class="btn-outline" id="btn-export-frame">
+                    Capture Current Frame
+                  </button>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+          <!-- Hidden Canvas for Template Generation -->
+          <canvas id="export-canvas" width="1080" height="1920" hidden></canvas>
+
+        </div>
+        <Jitter side="right" />
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Complete 2026 Social Media Specs Matrix -->
+  <section class="section specs-section">
+    <div class="container prose">
+      <h2>What Is a Social Media Safe Zone and Why Does App UI Cut Off Text?</h2>
+      <p>
+        In modern digital video production and social media marketing, a safe zone is the visible screen area where critical visual elements - including animated text titles, lower-third captions, creator usernames, brand logos, and primary facial focal points - remain completely unobstructed by native application user interface (UI) overlays. With the overwhelming dominance of vertical 9:16 short-form video across Instagram Reels, TikTok, YouTube Shorts, Facebook Reels, and Snapchat Spotlight, creators face a complex matrix of dynamic UI elements rendered directly on top of their video canvas.
+      </p>
+      <p>
+        Unlike traditional broadcast television where safe zones were primarily designed to compensate for cathode-ray tube (CRT) overscan, mobile video safe zones must account for interactive touchscreen buttons. In standard mobile playback, social apps superimpose right-rail engagement stacks (Like, Comment, Bookmark, Share, and Remix icons), multi-line expandable caption blocks, rotating audio vinyl titles, search pills, and top profile navigation headers. If a video editor places captions or essential visual hooks too close to the screen edges, mobile viewers will find the text partially or completely covered by native app buttons, severely degrading viewer retention and click-through rates.
+      </p>
+
+      <h2>Instagram Reels Safe Zone: 9:16 Full Screen, 4:5 Feed, and 1:1 Profile Grid</h2>
+      <p>
+        Instagram Reels presents one of the most challenging cropping and safe zone environments in social media because a single 9:16 video ($1080 	imes 1920$ pixels) is rendered across three completely distinct aspect ratios depending on where the user encounters it:
+      </p>
+      <ul>
+        <li>
+          <strong>Full-Screen Reels Tab (9:16 · $1080 	imes 1920$ px):</strong> Displays the full height of your video. However, the top 160 pixels are covered by the back arrow, search bar, and camera icons. The right 130 pixels are occupied by the interaction column (Like, Comment, Share, Three-dots menu). The bottom 440 pixels are obscured by the creator account handle, follow button, caption excerpt, and scrolling audio track title.
+        </li>
+        <li>
+          <strong>Main In-Feed Scroll (4:5 Portrait · $1080 	imes 1350$ px):</strong> When your Reel appears in the standard Instagram home feed, Instagram dynamically crops 285 pixels from the top and 285 pixels from the bottom of your video. Any text or graphics positioned outside this central $1080 	imes 1350$ pixel box are completely cut off while scrolling the feed.
+        </li>
+        <li>
+          <strong>Profile Grid Preview (1:1 Square · $1080 	imes 1080$ px):</strong> On your creator profile grid, the video thumbnail is cropped into a centered square, removing 420 pixels from the top and 420 pixels from the bottom. Key titles must be vertically centered to avoid awkward truncations on your profile page.
+        </li>
+      </ul>
+
+      <h2>TikTok In-Feed Safe Area: Clearing Right-Rail Buttons and Search Pills</h2>
+      <p>
+        TikTok in-feed video operates at a standard resolution of $1080 	imes 1920$ pixels (9:16 aspect ratio). The platform UI is notably denser than Instagram, featuring an extended bottom caption container and larger engagement icons. To ensure zero UI collision on TikTok, editors must enforce the following buffer margins:
+      </p>
+      <ul>
+        <li><strong>Top Buffer Margin:</strong> Maintain a 180 pixel clear zone at the top of the canvas to clear the Following, Friends, and For You tab headers, as well as the top-right search magnifying glass.</li>
+        <li><strong>Right-Rail Action Buffer:</strong> Maintain a 140 pixel clear zone along the entire right edge. This region contains the creator profile avatar, red follow plus badge, heart like button, comment speech bubble, bookmark favorite icon, share arrow, and rotating audio disc.</li>
+        <li><strong>Bottom Caption &amp; Search Buffer:</strong> Maintain a 480 pixel clear zone at the bottom. TikTok displays the account handle, multi-line auto-captions, clickable hashtag search pills, sound name, and the bottom mobile navigation bar (Home, Shop, Inbox, Profile).</li>
+        <li><strong>Left Edge Safety Margin:</strong> Maintain a minimum 30 pixel buffer from the left edge to account for screen bevels, curved corner displays, and left-hand thumb resting positions.</li>
+      </ul>
+
+      <h2>YouTube Shorts Safe Zone: Channel Handle, Red Subscribe Button, and Remix Box</h2>
+      <p>
+        YouTube Shorts has rapidly evolved into a major short-form discovery engine. Like Reels and TikTok, Shorts utilize a vertical $1080 	imes 1920$ pixel canvas. However, YouTube UI features distinct visual obstructions:
+      </p>
+      <ul>
+        <li><strong>Top Navigation Bar:</strong> Occupies approximately 140 pixels, displaying the back arrow, channel camera icon, and the three-dot overflow settings menu.</li>
+        <li><strong>Right Interaction Rail:</strong> Occupies roughly 130 pixels along the right border, housing the thumbs up, thumbs down, comments counter, share arrow, and audio remix icon.</li>
+        <li><strong>Bottom Subscription &amp; Title Overlay:</strong> Occupies a massive 420 pixel vertical block at the bottom. This area features the channel avatar, bold handle, high-contrast red or white Subscribe button, bold video title, and the square sound attribution thumbnail.</li>
+      </ul>
+
+      <h2>Mathematical Formulation of Multi-Platform Safe Area Projections</h2>
+      <p>
+        To model safe zone boundaries programmatically across varying display aspect ratios and device pixel ratios, we define the safe rectangle R_safe = [x_min, y_min, x_max, y_max] on a normalized coordinate plane [0, 1] x [0, 1]. For a canvas of pixel width W and height H, the normalized safe boundaries are defined as:
+      </p>
+      <div class="math-block">
+        <code>
+          x_min = B_left / W,   x_max = 1.0 - (B_right / W)
+          y_min = B_top / H,    y_max = 1.0 - (B_bottom / H)
+        </code>
+      </div>
+      <p>
+        Where B_top, B_bottom, B_left, B_right represent the platform-specific pixel buffer margins. The effective safe pixel area A_safe and safe canvas efficiency ratio eta_safe are given by:
+      </p>
+      <div class="math-block">
+        <code>
+          A_safe = (W - B_left - B_right) * (H - B_top - B_bottom)
+          eta_safe = A_safe / (W * H)
+        </code>
+      </div>
+      <p>
+        When optimizing content for simultaneous cross-posting across Instagram Reels (Reels), TikTok (TT), and YouTube Shorts (YS), the universal intersection safe rectangle R_universal is computed via bounding box intersection:
+      </p>
+      <div class="math-block">
+        <code>
+          R_universal = [
+            max(B_left^i),
+            max(B_top^i),
+            W - max(B_right^i),
+            H - max(B_bottom^i)
+          ]  for i in &#123;Reels, TT, YS&#125;
+        </code>
+      </div>
+      <p>
+        Placing all text, branding, and focal subjects inside R_universal guarantees 100 percent visibility across every major social video platform without manual re-editing.
+      </p>
+
+      <h2>Worked Numerical Example: Calculating Universal Multi-Platform Safe Area</h2>
+      <p>
+        Let us calculate the exact pixel dimensions and area efficiency of the universal safe zone for a standard 9:16 vertical video (W = 1080 px, H = 1920 px, total canvas area 2,073,600 px^2):
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Platform</th>
+              <th>Top Buffer</th>
+              <th>Bottom Buffer</th>
+              <th>Right Buffer</th>
+              <th>Safe Dimensions (W x H)</th>
+              <th>Safe Area (px²)</th>
+              <th>Efficiency (η)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Instagram Reels (9:16)</strong></td>
+              <td>160 px</td>
+              <td>440 px</td>
+              <td>130 px</td>
+              <td>920 × 1320 px</td>
+              <td>1,214,400 px²</td>
+              <td>58.56%</td>
+            </tr>
+            <tr>
+              <td><strong>Instagram Feed Crop (4:5)</strong></td>
+              <td>285 px</td>
+              <td>285 px</td>
+              <td>Safe</td>
+              <td>1080 × 1350 px</td>
+              <td>1,458,000 px²</td>
+              <td>70.31%</td>
+            </tr>
+            <tr>
+              <td><strong>TikTok In-Feed (9:16)</strong></td>
+              <td>180 px</td>
+              <td>480 px</td>
+              <td>140 px</td>
+              <td>910 × 1260 px</td>
+              <td>1,146,600 px²</td>
+              <td>55.30%</td>
+            </tr>
+            <tr>
+              <td><strong>YouTube Shorts (9:16)</strong></td>
+              <td>140 px</td>
+              <td>420 px</td>
+              <td>130 px</td>
+              <td>920 × 1360 px</td>
+              <td>1,251,200 px²</td>
+              <td>60.34%</td>
+            </tr>
+            <tr>
+              <td><strong>Facebook Reels (9:16)</strong></td>
+              <td>150 px</td>
+              <td>380 px</td>
+              <td>120 px</td>
+              <td>930 × 1390 px</td>
+              <td>1,292,700 px²</td>
+              <td>62.34%</td>
+            </tr>
+            <tr>
+              <td><strong>Universal Multi-Platform</strong></td>
+              <td><strong>180 px</strong></td>
+              <td><strong>480 px</strong></td>
+              <td><strong>140 px</strong></td>
+              <td><strong>910 × 1260 px</strong></td>
+              <td><strong>1,146,600 px²</strong></td>
+              <td><strong>55.30%</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        This quantitative breakdown reveals a crucial production insight: across the full $1080 	imes 1920$ canvas, only 55.30 percent ($910 	imes 1260$ pixels) represents true universal safe screen territory. Over 44 percent of the display surface is subject to potential UI collisions on one or more platforms.
+      </p>
+
+      <h2>Vector Architecture: Multi-Layer Screen Composition and UI Danger Zones</h2>
+      <p>
+        The diagram below visualizes the layered UI structure of mobile short-form video applications:
+      </p>
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 840 260" width="100%" height="auto" class="arch-svg" style="background:#070b10;border:1px solid #1e293b;border-radius:12px;padding:20px;font-family:monospace;">
+          <rect x="20" y="30" width="160" height="110" rx="8" fill="#0f172a" stroke="#ef4444" stroke-width="2"/>
+          <text x="100" y="60" fill="#ef4444" font-size="12" text-anchor="middle" font-weight="bold">TOP DANGER ZONE</text>
+          <text x="100" y="82" fill="#cbd5e1" font-size="11" text-anchor="middle">160px - 180px Cut</text>
+          <text x="100" y="102" fill="#94a3b8" font-size="10" text-anchor="middle">Search, Tabs, Header</text>
+
+          <path d="M 180 85 L 220 85" stroke="#38bdf8" stroke-width="2"/>
+
+          <rect x="220" y="20" width="220" height="130" rx="8" fill="#1e1b4b" stroke="#818cf8" stroke-width="2"/>
+          <rect x="230" y="30" width="200" height="24" rx="4" fill="#4338ca"/>
+          <text x="330" y="47" fill="#ffffff" font-size="11" text-anchor="middle" font-weight="bold">YOU ARE HERE</text>
+          <text x="330" y="75" fill="#22c55e" font-size="12" text-anchor="middle" font-weight="bold">UNIVERSAL SAFE ZONE</text>
+          <text x="330" y="95" fill="#c7d2fe" font-size="11" text-anchor="middle">910 x 1260 px Central</text>
+          <text x="330" y="115" fill="#94a3b8" font-size="10" text-anchor="middle">Titles, Captions, Faces</text>
+
+          <path d="M 440 85 L 480 85" stroke="#38bdf8" stroke-width="2"/>
+
+          <rect x="480" y="30" width="160" height="110" rx="8" fill="#0f172a" stroke="#ef4444" stroke-width="2"/>
+          <text x="560" y="60" fill="#ef4444" font-size="12" text-anchor="middle" font-weight="bold">RIGHT ACTION RAIL</text>
+          <text x="560" y="82" fill="#cbd5e1" font-size="11" text-anchor="middle">130px - 140px Margin</text>
+          <text x="560" y="102" fill="#94a3b8" font-size="10" text-anchor="middle">Like, Comment, Share</text>
+
+          <path d="M 640 85 L 680 85" stroke="#38bdf8" stroke-width="2"/>
+
+          <rect x="680" y="30" width="140" height="110" rx="8" fill="#0f172a" stroke="#ef4444" stroke-width="2"/>
+          <text x="750" y="60" fill="#ef4444" font-size="12" text-anchor="middle" font-weight="bold">BOTTOM BUFFER</text>
+          <text x="750" y="82" fill="#cbd5e1" font-size="11" text-anchor="middle">420px - 480px Margin</text>
+          <text x="750" y="102" fill="#94a3b8" font-size="10" text-anchor="middle">Username &amp; Captions</text>
+
+          <rect x="180" y="170" width="480" height="60" rx="6" fill="#090d16" stroke="#1e293b"/>
+          <text x="420" y="195" fill="#e2e8f0" font-size="11" text-anchor="middle">55.30% True Safe Surface · 44.70% Covered by Native Touchscreen UI</text>
+          <text x="420" y="215" fill="#64748b" font-size="10" text-anchor="middle">Align All Critical Text and Focal Subjects Inside the Universal Box</text>
+        </svg>
+      </div>
+
+      <h2>How to Use Transparent PNG Safe Zone Templates in Video Editing Software</h2>
+      <p>
+        Professional video editors utilize transparent PNG overlay guides to ensure frame accuracy during timeline editing. Here is how to incorporate our downloadable templates into major editing suites:
+      </p>
+      <ul>
+        <li>
+          <strong>Adobe Premiere Pro:</strong> Click the "Download PNG Template" button above to export the $1080 	imes 1920$ transparent guide. Import the PNG into your project bin. Drag the template onto the top video track (e.g., Track V3) spanning the full length of your timeline. Set opacity to 70 percent. Lock Track V3 so it cannot be accidentally nudged while editing. Align all text layers on lower tracks within the green box. Mute Track V3 before final export.
+        </li>
+        <li>
+          <strong>CapCut (Desktop and Mobile):</strong> In CapCut, import the transparent PNG guide using the "Overlay" or "Add Track" feature. Scale the guide to fit canvas. Keep the overlay track active while positioning captions and sticker graphics, then tap the track and select "Delete" before exporting your MP4.
+        </li>
+        <li>
+          <strong>DaVinci Resolve:</strong> In the Edit tab, create a dedicated guide video track above your clips. Drag the transparent PNG onto the track and enable the "Lock Track" toggle. You can also save the guide as a Power Bin graphic for one-click access across all future client projects.
+        </li>
+        <li>
+          <strong>Final Cut Pro:</strong> Add the transparent template as a connected clip above your primary storyline. Reduce clip opacity in the Video Inspector, adjust your titles, and press `V` to disable the guide clip prior to rendering.
+        </li>
+      </ul>
+
+      <h2>Common Mistakes That Cause Social Media Video Text Cut-Offs</h2>
+      <p>
+        Even experienced content teams frequently make critical layout errors when designing short-form video assets:
+      </p>
+      <ol class="steps">
+        <li>
+          <strong>Placing Captions in the Bottom 20 Percent:</strong> By default, auto-caption generators in editing software place text at the bottom center of the frame. On TikTok and Reels, this lands directly beneath the multi-line username and audio title, rendering the captions unreadable. Always shift captions upward into the vertical range y = [1100, 1400] px.
+        </li>
+        <li>
+          <strong>Right-Aligning Call-to-Action Graphics:</strong> Placing an arrow pointing right or positioning an e-commerce discount code on the right edge causes complete occlusion by the platform Like and Share buttons. Always position CTAs centered or biased towards the left third.
+        </li>
+        <li>
+          <strong>Ignoring the 4:5 Feed Crop for Instagram Reels:</strong> Designing a Reel that looks great in the full-screen tab but places the headline in the top 200 pixels causes the title to disappear completely when users view the post in the home feed.
+        </li>
+        <li>
+          <strong>Forgetting Profile Grid Centering:</strong> Neglecting the 1:1 profile grid crop causes faces to be decapitated or core headline text to be cut in half on the creator profile page.
+        </li>
+      </ol>
+
+      <Faq items={faqs} heading="Frequently Asked Questions" />
+    </div>
+  </section>
+</Base>

@@ -1,0 +1,321 @@
+---
+import Base from '../layouts/Base.astro';
+import Uploader from './Uploader.astro';
+import Jitter from '@removesynth/shared/components/Jitter.astro';
+import Faq from '@removesynth/shared/components/Faq.astro';
+import { faqSchema } from '@removesynth/shared/lib/faq';
+import { SITE } from '../site';
+import type { HomeContent } from '../home-content';
+
+interface Props {
+  c: HomeContent;
+}
+
+const { c } = Astro.props;
+// Google products that apply SynthID. Keep this list to tools that actually do.
+const SOURCES = ['Gemini', 'Imagen', 'Veo', 'Lyria', 'Google Photos', 'Flow'];
+const url = new URL(Astro.url.pathname, Astro.site).href;
+
+const schema = [
+  { '@context': 'https://schema.org', '@type': 'WebSite', name: SITE.name, url: SITE.url, inLanguage: c.lang },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: `${SITE.name} - SynthID Remover`,
+    url,
+    inLanguage: c.lang,
+    applicationCategory: 'MultimediaApplication',
+    operatingSystem: 'Any (web browser)',
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    description: c.description,
+  },
+  faqSchema(c.faqs),
+];
+---
+
+<Base title={c.title} description={c.description} schema={schema}>
+  <section class="hero">
+    <div class="container">
+      <span class="eyebrow">{c.hero.eyebrow}</span>
+      <h1>{c.hero.h1Before}<span class="accent">{c.hero.h1Accent}</span>{c.hero.h1After}</h1>
+      <p class="lead">{c.hero.lead}</p>
+      <div class="hero-stage">
+        <Uploader />
+      </div>
+      <ul class="checks">
+        {c.hero.checks.map((x) => <li>{x}</li>)}
+      </ul>
+      <p class="works-label">{c.hero.worksWith}</p>
+      <ul class="chips">
+        {SOURCES.map((s) => <li><span class="chip-dot" aria-hidden="true"></span>{s}</li>)}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container grid features">
+      {c.features.map((f) => (
+        <div class="card">
+          <h3><span class="dot" aria-hidden="true"></span>{f.title}</h3>
+          <p>{f.text}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <span class="kicker">{c.inside.kicker}</span>
+        <h2>{c.inside.h2}</h2>
+        <p>{c.inside.p}</p>
+      </div>
+      <div class="grid two">
+        {c.inside.cards.map((card) => (
+          <div class="card signal">
+            <span class="kicker">{card.kicker}</span>
+            <h3>{card.title}</h3>
+            <p set:html={card.html} />
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <span class="kicker">{c.how.kicker}</span>
+        <h2>{c.how.h2}</h2>
+      </div>
+      <div class="grid steps-grid">
+        {c.how.steps.map((s, i) => (
+          <div class="card step">
+            <span class="step-n">{String(i + 1).padStart(2, '0')}</span>
+            <h3>{s.title}</h3>
+            <p>{s.text}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <span class="kicker">{c.plans.kicker}</span>
+        <h2>{c.plans.h2}</h2>
+        <p>{c.plans.p}</p>
+      </div>
+      <div class="grid two plans">
+        <div class="card plan">
+          <h3>{c.plans.free.name}</h3>
+          <p class="price">$0 <span class="muted small">{c.plans.free.note}</span></p>
+          <ul class="checks plan-list">{c.plans.free.items.map((x) => <li>{x}</li>)}</ul>
+          <a class="btn" href="#rs-file">{c.plans.free.cta}</a>
+        </div>
+        <div class="card plan plan-pro">
+          <h3>Pro <span class="badge">{c.plans.pro.badge}</span></h3>
+          <p class="price">{c.plans.pro.price} <span class="muted small">{c.plans.pro.note}</span></p>
+          <ul class="checks plan-list">{c.plans.pro.items.map((x) => <li>{x}</li>)}</ul>
+          <span class="btn btn-ghost" aria-disabled="true">{c.plans.pro.badge}</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <span class="kicker">{c.hood.kicker}</span>
+        <h2>{c.hood.h2}</h2>
+      </div>
+      <div class="grid">
+        {c.hood.cards.map((card) => (
+          <div class="card">
+            <h3>{card.title}</h3>
+            <p>{card.text}</p>
+            <p class="mono-tag">{card.tag}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <span class="kicker">{c.who.kicker}</span>
+        <h2>{c.who.h2}</h2>
+      </div>
+      <div class="grid">
+        {c.who.cards.map((a) => (
+          <div class="card">
+            <h3>{a.title}</h3>
+            <p>{a.text}</p>
+          </div>
+        ))}
+      </div>
+      <p class="muted small center">{c.who.note}</p>
+    </div>
+  </section>
+
+  <article class="prose seo">
+    {c.seo.map((s) => (
+      <>
+        <h2>{s.h2}</h2>
+        <p set:html={s.html} />
+      </>
+    ))}
+    <Faq items={c.faqs} heading={c.faqHeading} />
+  </article>
+
+  <section class="container">
+    <div class="cta">
+      <h2>{c.cta.h2}</h2>
+      <p>{c.cta.p}</p>
+      <a class="btn" href="#rs-file">{c.cta.button}</a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .hero-stage {
+    position: relative;
+    max-width: 760px;
+    margin: 0 auto;
+  }
+  .works-label {
+    margin: 40px 0 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .chips {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+  }
+  .chips li {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--bg-elev);
+    font-weight: 500;
+  }
+  .chip-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #38d6f5, var(--accent-strong));
+  }
+  .features {
+    grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+  }
+  .two {
+    grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+  }
+  .signal h3 {
+    margin-top: 8px;
+  }
+  .steps-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+  }
+  .step-n {
+    font-family: var(--mono);
+    font-size: 0.9rem;
+    color: var(--accent);
+    background: var(--accent-soft);
+    padding: 2px 8px;
+    border-radius: 6px;
+  }
+  .step h3 {
+    margin-top: 14px;
+  }
+  .plans {
+    max-width: 820px;
+    margin: 0 auto;
+  }
+  .plan {
+    display: flex;
+    flex-direction: column;
+  }
+  .plan .btn {
+    margin-top: auto;
+  }
+  .plan-pro {
+    border-color: var(--accent);
+  }
+  .price {
+    font-size: 1.8rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--text) !important;
+    margin: 0 0 8px;
+  }
+  .badge {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--accent);
+    background: var(--accent-soft);
+    padding: 3px 8px;
+    border-radius: 999px;
+    vertical-align: middle;
+    margin-left: 6px;
+    letter-spacing: 0;
+  }
+  .plan-list {
+    display: grid;
+    justify-content: start;
+    gap: 6px;
+    margin: 8px 0 22px;
+    font-weight: 400;
+  }
+  .mono-tag {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--accent) !important;
+    background: var(--bg-elev-2);
+    border-radius: 8px;
+    padding: 6px 10px;
+    margin-top: 14px !important;
+    display: inline-block;
+  }
+  .center {
+    text-align: center;
+    margin-top: 20px;
+  }
+  .seo {
+    padding-top: 24px;
+  }
+  .cta {
+    text-align: center;
+    border-radius: 24px;
+    padding: 48px 20px;
+    color: #fff;
+    background:
+      radial-gradient(600px 200px at 20% 0%, rgba(255, 255, 255, 0.18), transparent 70%),
+      linear-gradient(135deg, #0bb3e6, #0369a1 60%, #0c4a6e);
+    box-shadow: 0 18px 40px rgba(2, 132, 199, 0.25);
+  }
+  .cta h2 {
+    margin: 0 0 8px;
+  }
+  .cta p {
+    margin: 0 0 22px;
+    opacity: 0.9;
+  }
+  .cta .btn {
+    background: #fff;
+    color: #0369a1;
+  }
+</style>

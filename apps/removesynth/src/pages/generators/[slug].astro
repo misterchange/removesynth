@@ -1,0 +1,89 @@
+---
+import Base from '../../layouts/Base.astro';
+import Faq from '@removesynth/shared/components/Faq.astro';
+import { faqSchema, breadcrumbSchema } from '@removesynth/shared/lib/faq';
+import { SITE } from '../../site';
+import { PLATFORMS, GENERATORS, type Generator } from '@removesynth/shared/data/explainers';
+
+export function getStaticPaths() {
+  return GENERATORS.map((g) => ({ params: { slug: g.slug }, props: { g } }));
+}
+
+const { g } = Astro.props as { g: Generator };
+const url = `${SITE.url}/generators/${g.slug}/`;
+const schema = [
+  breadcrumbSchema([
+    { name: 'Home', url: `${SITE.url}/` },
+    { name: 'AI generators', url: `${SITE.url}/generators/` },
+    { name: g.name, url },
+  ]),
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: g.title,
+    description: g.description,
+    publisher: { '@type': 'Organization', name: SITE.name, url: SITE.url },
+  },
+  faqSchema(g.faqs),
+];
+const others = GENERATORS.filter((x) => x.slug !== g.slug);
+---
+
+<Base title={g.title} description={g.description} schema={schema} ogType="article">
+  <article class="prose">
+    <header class="hero" style="text-align:left;padding-bottom:0">
+      <a href="/generators/" class="small">&larr; All AI generators</a>
+      <span class="eyebrow" style="display:block;margin-top:14px">Made by {g.maker}</span>
+      <h1>What {g.name} adds to your images</h1>
+      <p class="lead" style="margin-left:0">{g.intro}</p>
+    </header>
+
+    <h2>Markers and metadata</h2>
+    <table>
+      <thead><tr><th>Marker</th><th>What it is</th></tr></thead>
+      <tbody>
+        {g.markers.map((m) => (
+          <tr><td>{m.kind}</td><td>{m.detail}</td></tr>
+        ))}
+      </tbody>
+    </table>
+    <p>{g.notes}</p>
+
+    <h2>Check a {g.name} file</h2>
+    <p>
+      Drop the file into the <a href="https://checkaiornot.com/">AI metadata checker</a> to see its Content
+      Credentials, IPTC tags, prompts and any private details. It runs in your browser, so nothing is
+      uploaded.
+    </p>
+    <p><a class="btn" href="https://checkaiornot.com/">Check a file</a></p>
+
+    <h2>How platforms use these markers</h2>
+    <ul class="link-grid">
+      {PLATFORMS.map((p) => <li><a href={`https://checkaiornot.com/platforms/${p.slug}/`}>{p.name}</a></li>)}
+    </ul>
+
+    <Faq items={g.faqs} heading={`${g.name} metadata FAQ`} />
+
+    <h2>Other AI generators</h2>
+    <ul class="link-grid">
+      {others.map((o) => <li><a href={`/generators/${o.slug}/`}>{o.name}</a></li>)}
+    </ul>
+  </article>
+</Base>
+
+<style>
+  .link-grid {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(200px, 100%), 1fr));
+    gap: 8px;
+  }
+  .link-grid a {
+    display: block;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--bg-elev);
+  }
+</style>

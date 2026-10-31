@@ -1,0 +1,50 @@
+// @ts-check
+import { defineConfig } from 'astro/config';
+import sitemap from '@astrojs/sitemap';
+
+export default defineConfig({
+  site: 'https://removesynth.com',
+  output: 'static',
+  trailingSlash: 'always',
+  integrations: [sitemap()],
+  i18n: {
+    defaultLocale: 'en',
+    locales: [
+      'en',
+      'es',
+      'de',
+      'fr',
+      'pt-br',
+      'ja',
+      'tr',
+      'tl',
+      'zh',
+      'zh-tw',
+      'ko',
+      'th',
+      'vi',
+      'id',
+      'pt',
+      'it',
+      'nl',
+      'pl',
+      'cs',
+      'hu',
+      'ro',
+      'uk',
+      'el',
+      'sv',
+      'no',
+      'da',
+      'fi',
+      'hi',
+      'bn',
+      'ar',
+      'he',
+      'sw',
+    ],
+    routing: {
+      prefixDefaultLocale: false,
+    },
+  },
+});

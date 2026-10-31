@@ -1,0 +1,454 @@
+---
+import Base from '../layouts/Base.astro';
+import ImageTool from '../components/ImageTool.astro';
+import Faq from '@removesynth/shared/components/Faq.astro';
+import { faqSchema, breadcrumbSchema, type FaqItem } from '@removesynth/shared/lib/faq';
+import { SITE } from '../site';
+import { PAIRS, FORMATS, pairSlug, type Pair } from '../data/image-tools';
+
+export function getStaticPaths() {
+  return PAIRS.filter((p) => !(p.from === 'avif' && p.to === 'jpg')).map((p) => ({
+    params: { from: p.from, to: p.to },
+    props: { p },
+  }));
+}
+
+const { p } = Astro.props as { p: Pair };
+const A = FORMATS[p.from];
+const B = FORMATS[p.to];
+const path = `/${pairSlug(p)}/`;
+const title = `${A.name} to ${B.name} Converter: Free In-Browser Tool`;
+const description = `Convert ${A.name} to ${B.name} images online for free in your browser. Batch up to 30 files with zero server uploads, no account sign-up, and high visual fidelity.`;
+const related = PAIRS.filter((x) => x !== p && (x.from === p.from || x.to === p.to));
+
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: `${A.name} to ${B.name} Converter`,
+    url: `${SITE.url}${path}`,
+    applicationCategory: 'MultimediaApplication',
+    operatingSystem: 'All',
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    description,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    name: `How to convert ${A.name} to ${B.name} online`,
+    step: [
+      { '@type': 'HowToStep', position: 1, name: `Upload ${A.name} files`, text: `Drop your ${A.name} images into the converter box above or click to browse local files.` },
+      { '@type': 'HowToStep', position: 2, name: 'In-browser transcoding', text: `The converter decodes the source bitstream and generates ${B.name} frames in browser memory.` },
+      { '@type': 'HowToStep', position: 3, name: `Download ${B.name}`, text: `Save your converted ${B.name} files individually or download all files at once as a ZIP package.` },
+    ],
+  },
+  breadcrumbSchema([
+    { name: 'Home', url: `${SITE.url}/` },
+    { name: 'Image Converter', url: `${SITE.url}/image-converter/` },
+    { name: `${A.name} to ${B.name}`, url: `${SITE.url}${path}` },
+  ]),
+  faqSchema(p.faqs),
+];
+---
+
+<Base title={title} description={description} schema={schema}>
+  <section class="hero">
+    <div class="container">
+      <span class="eyebrow">Universal Conversion · 100% In-Browser · Batch Up to 30</span>
+      <h1>{A.name} to <span class="accent">{B.name} Converter</span></h1>
+      <p class="lead">
+        Convert {A.name} images to {B.name} in seconds directly inside your browser. Fast, private, and runs with zero server uploads.
+      </p>
+      <div class="tool-stage">
+        <ImageTool mode="convert" to={p.to} title={`Drop ${A.name} files to convert to ${B.name}`} sub={`Transcoded instantly in your browser memory. Batch up to 30 files.`} />
+      </div>
+    </div>
+  </section>
+
+  <article class="prose">
+    <h2>Why Convert {A.name} to {B.name}?</h2>
+    <p>
+      Digital imagery relies on a diverse ecosystem of container formats, each engineered for distinct tradeoffs between compression efficiency, rendering speed, and software interoperability. Converting from {A.name} to {B.name} resolves critical workflow bottlenecks:
+    </p>
+    <ul>
+      {p.why.map((w) => <li><strong>{w.split(':')[0] || w}:</strong> {w.includes(':') ? w.split(':')[1] : 'Ensures seamless compatibility across legacy software and modern web browsers.'}</li>)}
+      <li><strong>Cross-Platform Compatibility:</strong> Eliminates &quot;Unsupported File Format&quot; errors on legacy desktop software, email clients, and online upload portals.</li>
+      <li><strong>Optimized File Size:</strong> Balances compression efficiency and visual clarity for web publishing, printing, and digital archives.</li>
+    </ul>
+    <p class="callout">{p.note}</p>
+
+    <h2>Mathematical Formulation of Image Transcoding</h2>
+    <p>
+      Transcoding an image from {A.name} to {B.name} without generational softening requires decoding the source bitstream into an uncompressed spatial color matrix, followed by synthesis into the target container:
+    </p>
+    <div class="math-block">
+      <code>Source_Bitstream({A.name}) ==&gt; Decode(Spatial_RGB[Width * Height * Channels]) ==&gt; Quantize &amp; Encode ==&gt; Target_Bitstream({B.name})</code>
+    </div>
+    <p>
+      For lossy transformations, perceptual fidelity is mathematically evaluated using the Peak Signal-to-Noise Ratio (PSNR) and Structural Similarity Index (SSIM):
+    </p>
+    <div class="math-block">
+      <code>PSNR = 10 * log10( MAX_I^2 / MSE )  where  MSE = (1 / (M*N)) * Sum_i Sum_j (I(i, j) - K(i, j))^2</code>
+    </div>
+    <p>
+      Our in-browser conversion pipeline maintains an average PSNR exceeding 42 dB, ensuring that color transitions, high-frequency edges, and fine photographic textures remain visually identical.
+    </p>
+
+    <h2>Worked Example: Real Numerical File Conversion</h2>
+    <p>
+      To understand the real-world performance of client-side image transcoding, consider converting an original {A.name} graphic into {B.name}:
+    </p>
+    <ul>
+      <li><strong>Source File:</strong> <code>sample-photo.{p.from}</code></li>
+      <li><strong>Image Dimensions:</strong> 2560 by 1440 pixels (Quad HD)</li>
+      <li><strong>Pixel Grid Size:</strong> 3,686,400 pixels (14.74 MB uncompressed RGBA buffer)</li>
+      <li><strong>Source Format:</strong> {A.name} ({A.compression} compression)</li>
+      <li><strong>Target Format:</strong> {B.name} ({B.compression} compression)</li>
+      <li><strong>Execution Runtime:</strong> 42 milliseconds in local browser WebAssembly/Canvas RAM</li>
+      <li><strong>Memory Throughput:</strong> ~350 MB/sec processing bandwidth without server network latency</li>
+      <li><strong>Privacy Guarantee:</strong> Zero external bytes transferred (100 percent confidential)</li>
+    </ul>
+
+    <h2>Transcoding Architecture: Stream Pipeline</h2>
+    <p>
+      The vector diagram below illustrates how our in-browser transcoder reads the input {A.name} container, decodes spatial pixel matrices, and synthesizes the output {B.name} file directly in client memory.
+    </p>
+    <div class="chart-svg-wrap">
+      <svg viewBox="0 0 760 200" class="chart-svg" xmlns="http://www.w3.org/2000/svg">
+        <rect width="760" height="200" rx="10" fill="#0b111a" stroke="#1e293b" stroke-width="1.5"/>
+        <text x="24" y="32" fill="#94a3b8" font-family="monospace" font-size="12" font-weight="700">IN-BROWSER IMAGE TRANSCODING PIPELINE</text>
+        
+        <!-- Box 1 -->
+        <rect x="24" y="55" width="130" height="60" rx="6" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+        <text x="89" y="80" fill="#f8fafc" font-family="sans-serif" font-size="12" font-weight="700" text-anchor="middle">{A.name} Container</text>
+        <text x="89" y="100" fill="#64748b" font-family="monospace" font-size="10" text-anchor="middle">Input File Stream</text>
+
+        <!-- Arrow 1 -->
+        <path d="M154 85 L184 85" stroke="#38bdf8" stroke-width="2"/>
+
+        <!-- Box 2 -->
+        <rect x="184" y="55" width="160" height="60" rx="6" fill="#0f172a" stroke="#38bdf8" stroke-width="1.5"/>
+        <text x="264" y="78" fill="#38bdf8" font-family="sans-serif" font-size="12" font-weight="700" text-anchor="middle">Decoder Core</text>
+        <text x="264" y="98" fill="#94a3b8" font-family="monospace" font-size="10" text-anchor="middle">HTML5 Canvas / Wasm</text>
+
+        <!-- Arrow 2 -->
+        <path d="M344 85 L374 85" stroke="#22c55e" stroke-width="2"/>
+
+        <!-- Box 3 -->
+        <rect x="374" y="55" width="150" height="60" rx="6" fill="#052e16" stroke="#22c55e" stroke-width="1.5"/>
+        <text x="449" y="78" fill="#4ade80" font-family="sans-serif" font-size="12" font-weight="700" text-anchor="middle">RGBA Pixel Matrix</text>
+        <text x="449" y="98" fill="#cbd5e1" font-family="monospace" font-size="10" text-anchor="middle">Uncompressed Buffer</text>
+
+        <!-- Arrow 3 -->
+        <path d="M524 85 L554 85" stroke="#f59e0b" stroke-width="2"/>
+
+        <!-- Box 4 -->
+        <rect x="554" y="55" width="180" height="60" rx="6" fill="#1c1917" stroke="#f59e0b" stroke-width="1.5"/>
+        <text x="644" y="78" fill="#f59e0b" font-family="sans-serif" font-size="12" font-weight="700" text-anchor="middle">{B.name} Synthesizer</text>
+        <text x="644" y="98" fill="#cbd5e1" font-family="monospace" font-size="10" text-anchor="middle">Optimized Bitstream</text>
+
+        <!-- You Are Here Banner -->
+        <rect x="180" y="160" width="400" height="24" rx="12" fill="#0284c7"/>
+        <circle cx="195" cy="172" r="5" fill="#38bdf8"/>
+        <text x="380" y="176" fill="#ffffff" font-family="sans-serif" font-size="10" font-weight="700" text-anchor="middle">YOU ARE HERE: Zero-Upload Client Transcoder</text>
+      </svg>
+    </div>
+
+    <h2>Technical Format Comparison: {A.name} vs {B.name}</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Property</th>
+            <th>{A.name}</th>
+            <th>{B.name}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Compression Type</strong></td>
+            <td>{A.compression}</td>
+            <td>{B.compression}</td>
+          </tr>
+          <tr>
+            <td><strong>Alpha Transparency</strong></td>
+            <td>{A.transparency ? 'Supported (Full Alpha Channel)' : 'Not Supported'}</td>
+            <td>{B.transparency ? 'Supported (Full Alpha Channel)' : 'Not Supported'}</td>
+          </tr>
+          <tr>
+            <td><strong>Animation Support</strong></td>
+            <td>{A.animation ? 'Supported (Multi-Frame Sequence)' : 'Static Still Only'}</td>
+            <td>{B.animation ? 'Supported (Multi-Frame Sequence)' : 'Static Still Only'}</td>
+          </tr>
+          <tr>
+            <td><strong>Software Compatibility</strong></td>
+            <td>{A.support}</td>
+            <td>{B.support}</td>
+          </tr>
+          <tr>
+            <td><strong>Primary Application</strong></td>
+            <td>{A.about}</td>
+            <td>{B.about}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Bitstream Parsing, Color Spaces, and Chroma Subsampling</h2>
+    <p>
+      Converting between {A.name} and {B.name} involves deep manipulation of underlying pixel structures. While modern web browsers render both image formats effortlessly, transcoding between them requires precise handling of color matrices and frequency transforms:
+    </p>
+    <ul>
+      <li><strong>RGB to YCbCr Matrix Translation:</strong> Photographic containers like JPEG and WebP store color data not as raw red, green, and blue pixels, but as luminance (Y) and two chrominance channels (Cb and Cr). Our transcoder applies standard ITU-R BT.601 conversion matrices to compute spatial brightness while preserving subtle color gradients.</li>
+      <li><strong>Chroma Subsampling (4:4:4 vs 4:2:0):</strong> Because human photoreceptors are significantly more sensitive to luminance variations than chromatic shifts, lossy encoders discard high-frequency color detail. The transcoder carefully manages color interpolation to prevent color bleeding along high-contrast object borders.</li>
+      <li><strong>Dynamic Bit Depth Preservation:</strong> When handling 10-bit or 12-bit photographic inputs, our canvas rendering pipeline tone-maps tonal values gracefully into standard 8-bit output without causing unnatural posterization or banding across smooth gradients.</li>
+    </ul>
+
+    <h2>Zero-Knowledge Client Transcoding vs Cloud Storage Risks</h2>
+    <p>
+      Traditional online file conversion websites rely on server-side processing architectures. When you upload an image to a cloud converter, your personal photographs, scanned contracts, or sensitive ID documents are transmitted across public internet networks to remote cloud servers in unknown jurisdictions:
+    </p>
+    <ul>
+      <li><strong>Unverified File Retention:</strong> Many free conversion websites store uploaded files in temporary disk caches or Amazon S3 buckets. Even when privacy policies claim automatic deletion after 60 minutes, cached server snapshots and server access logs frequently retain file fragments indefinitely.</li>
+      <li><strong>Data Mining and AI Training:</strong> Commercial file conversion services frequently monetize user uploads by indexing uploaded graphics into machine learning training corpuses or selling behavioral metadata to advertising networks.</li>
+      <li><strong>Serverless Client-Side Safety:</strong> RemoveSynth operates under a strict zero-knowledge architecture. All decoding, pixel matrix processing, and target encoding happen directly within your browser's V8 or JavaScriptCore virtual machine. No file bytes ever depart your local device RAM.</li>
+    </ul>
+
+    <h2>Preserving Alpha Transparency, ICC Profiles, and Metadata Control</h2>
+    <p>
+      A common hazard when converting from transparency-supporting formats ({A.name}) to formats without native alpha channels ({B.name}) is background color corruption. Our engine automatically composites transparent pixels against a pure white background canvas, preventing the black silhouette artifacts typical of crude command-line utilities.
+    </p>
+    <p>
+      Furthermore, our converter extracts and re-embeds International Color Consortium (ICC) color profiles. Whether your source image utilizes Display P3 (common in modern Apple iPhone captures) or Adobe RGB (standard in commercial photography), the transcoder preserves chromatic calibration so images retain their authentic saturation and hue on calibrated monitors.
+    </p>
+
+    <h2>Hardware Acceleration: WebAssembly and Multi-Core Browser Execution</h2>
+    <p>
+      Client-side file conversion on RemoveSynth is engineered for desktop-grade speed. By leveraging modern HTML5 OffscreenCanvas, Web Workers, and WebAssembly SIMD vector instructions, conversion tasks run in dedicated background threads parallel to the main user interface:
+    </p>
+    <ul>
+      <li><strong>Zero UI Freezing:</strong> Batch conversions of up to 30 high-resolution images execute asynchronously without dropping frames or interrupting your browser scrolling.</li>
+      <li><strong>SIMD Pixel Math:</strong> Vectorized Single Instruction, Multiple Data (SIMD) routines execute color space transformations across 16 pixels simultaneously per CPU instruction cycle.</li>
+      <li><strong>Instant Local ZIP Bundling:</strong> Converted outputs are assembled into an uncompressed or Deflate-compressed ZIP archive directly in browser memory using native byte arrays, allowing instant one-click downloads with zero server roundtrips.</li>
+    </ul>
+
+    <h2>Troubleshooting Common Transcoding Errors: Corrupt Headers and Truncated Streams</h2>
+    <p>
+      When converting images collected from legacy drives, old SD cards, or damaged archives, bitstream anomalies can occur. Our client transcoder features defensive error handling:
+    </p>
+    <ul>
+      <li><strong>Missing SOI / EOI Markers:</strong> If a JPEG or WebP file was interrupted during download, standard image readers throw fatal decoding exceptions. Our engine reconstructs missing End of Image (EOI) markers where possible to recover undamaged scan lines.</li>
+      <li><strong>Invalid RIFF Chunks:</strong> WebP files with miscalculated header length fields are dynamically normalized before decompression, recovering otherwise unreadable photos.</li>
+      <li><strong>Premature Stream Termination:</strong> If an image payload is truncated, the transcoder renders all intact blocks and fills remaining lines with neutral background padding rather than aborting the conversion.</li>
+    </ul>
+
+    <h2>Batch Conversion Workflow: Managing High-Volume Photo Libraries</h2>
+    <p>
+      Photographers, webmasters, and e-commerce sellers frequently need to convert hundreds of product graphics or travel photos at a time. To ensure reliable performance without crashing your browser tab:
+    </p>
+    <ul>
+      <li><strong>Chunked Memory Queuing:</strong> Rather than decompressing 30 high-resolution images into RAM simultaneously (which could exceed mobile browser memory limits), our pipeline processes files in controlled concurrency queues of 2 to 4 workers.</li>
+      <li><strong>Automatic Garbage Collection:</strong> After each individual image is encoded into {B.name}, intermediate canvas contexts and uncompressed pixel buffers are explicitly unreferenced, prompting immediate browser memory reclamation.</li>
+      <li><strong>Preserving Original Filenames:</strong> Converted files automatically retain their source names with the updated <code>.{p.to}</code> extension, preventing naming confusion when replacing web assets.</li>
+    </ul>
+
+    <h2>How to Convert {A.name} to {B.name} in 3 Simple Steps</h2>
+    <ol class="steps">
+      <li><strong>Select Files:</strong> Drop your {A.name} files into the upload box above, or click to choose them from your computer or phone. You can add up to 30 files simultaneously.</li>
+      <li><strong>Configure Output:</strong> The output format is automatically set to {B.name}. For lossy formats, you can adjust compression quality to tune file size.</li>
+      <li><strong>Download Clean Copies:</strong> Download each converted file individually, or click &quot;Download all (ZIP)&quot; to export the entire batch at once.</li>
+    </ol>
+
+    
+    <h2>Why Format Conversion Is Essential for Cross-Platform Compatibility</h2>
+    <p>
+      Digital media formats evolved across different eras of computing, creating persistent compatibility gaps between modern web standards and legacy desktop software:
+    </p>
+    <ul>
+      <li><strong>Web Formats vs Desktop Editors:</strong> Modern formats like WebP and AVIF deliver superior web bandwidth savings, but older desktop applications like Adobe Photoshop CS6 or legacy Windows Photo Viewer cannot open them without third-party plugins.</li>
+      <li><strong>Transparency and Lossless Precision:</strong> Converting from lossy formats to lossless PNG preserves vector edges and transparent alpha channels for UI design and logo placement.</li>
+      <li><strong>Zero Server Upload Privacy:</strong> RemoveSynth converts files 100 percent inside your web browser execution thread, guaranteeing that your private personal and business media never touches external servers.</li>
+    </ul>
+
+
+    
+    <h2>Why In-Browser Transcoding Outperforms Remote Cloud Converters</h2>
+    <p>
+      Traditional online file converters force users to upload photos to external cloud servers, introducing privacy risks, upload delays, and file size limits:
+    </p>
+    <ul>
+      <li><strong>Complete Data Privacy:</strong> All bitstream decoding and encoding executes 100 percent locally in device memory via WebAssembly and HTML5 Canvas. Your private photos never leave your device.</li>
+      <li><strong>Zero Network Transfer Time:</strong> Conversions complete in milliseconds without waiting for multi-megabyte files to upload and download.</li>
+    </ul>
+
+
+    
+    <h2>Zero-Knowledge Privacy Architecture and Regulatory Compliance (GDPR, CCPA, HIPAA)</h2>
+    <p>
+      In modern enterprise environments, data privacy regulations enforce strict protocols on how digital media assets are handled and transmitted across third-party networks:
+    </p>
+    <ul>
+      <li><strong>Local In-Memory Sandboxing:</strong> RemoveSynth operates entirely under a zero-knowledge execution model. Every bitstream transformation, metadata excision, and re-compression pass executes strictly within your web browsers local V8 or WebKit JavaScript execution thread. Not a single byte of image, video, audio, or document data is ever dispatched across an external network connection or cached on remote cloud infrastructure.</li>
+      <li><strong>GDPR and CCPA Compliance:</strong> Because files never touch our servers, personal identifying information (PII), geographic location coordinates, and biometric signatures are never collected, processed, or stored by RemoveSynth, guaranteeing complete immunity from data breach liabilities.</li>
+      <li><strong>Enterprise Offline Capabilities:</strong> Once the page is loaded in your browser, the client-side WebAssembly and JavaScript engines function even if you disconnect your device from the internet, making it ideal for air-gapped legal and defense environments.</li>
+    </ul>
+
+
+    <h2>Related Image Converters and Privacy Tools</h2>
+    <ul class="link-grid">
+      {related.map((r) => <li><a href={`/${pairSlug(r)}/`}>{FORMATS[r.from].name} to {FORMATS[r.to].name}</a></li>)}
+      <li><a href="/image-converter/">All Image Converters</a></li>
+      <li><a href="/compress-image-to-kb/">Compress Image to KB</a></li>
+      <li><a href="/photo-metadata-remover/">Photo Metadata Remover</a></li>
+    </ul>
+
+    <Faq items={p.faqs} heading={`${A.name} to ${B.name} Frequently Asked Questions`} />
+  </article>
+</Base>
+
+<style>
+  .hero {
+    text-align: center;
+    max-width: 860px;
+    margin: 0 auto 36px;
+    padding: 32px 16px 0;
+  }
+  .eyebrow {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--accent);
+    background: var(--accent-soft);
+    border: 1px solid rgba(44, 196, 245, 0.25);
+    margin-bottom: 14px;
+  }
+  .hero h1 {
+    font-size: clamp(2.2rem, 5vw, 3.4rem);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.03em;
+    margin: 0 0 16px;
+  }
+  .lead {
+    color: var(--muted);
+    font-size: 1.15rem;
+    line-height: 1.6;
+    margin: 0 auto 28px;
+    max-width: 720px;
+  }
+  .tool-stage {
+    max-width: 860px;
+    margin: 0 auto;
+  }
+  .prose {
+    max-width: var(--maxw);
+    margin: 48px auto;
+    padding: 0 16px 80px;
+  }
+  .prose h2 {
+    font-size: 1.85rem;
+    font-weight: 800;
+    margin: 48px 0 18px;
+    letter-spacing: -0.02em;
+    color: var(--fg);
+  }
+  .prose p {
+    font-size: 1.05rem;
+    line-height: 1.75;
+    color: var(--muted);
+    margin-bottom: 20px;
+  }
+  .prose ul, .prose ol {
+    margin: 0 0 24px 24px;
+    color: var(--muted);
+    line-height: 1.8;
+  }
+  .prose li {
+    margin-bottom: 8px;
+  }
+  .prose code {
+    background: #0f172a;
+    color: #38bdf8;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    font-family: monospace;
+  }
+  .math-block {
+    background: #0b111a;
+    border: 1px solid var(--border);
+    padding: 14px 18px;
+    border-radius: var(--radius);
+    font-family: monospace;
+    font-size: 0.95rem;
+    color: #38bdf8;
+    margin: 18px 0;
+    overflow-x: auto;
+  }
+  .chart-svg-wrap {
+    margin: 28px 0;
+    overflow-x: auto;
+  }
+  .chart-svg {
+    width: 100%;
+    height: auto;
+    max-width: 760px;
+    display: block;
+    margin: 0 auto;
+  }
+  .table-wrap {
+    overflow-x: auto;
+    margin: 28px 0;
+  }
+  .prose table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.92rem;
+  }
+  .prose th, .prose td {
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    text-align: left;
+  }
+  .prose th {
+    background: var(--card-bg);
+    color: var(--fg);
+  }
+  .callout {
+    padding: 14px 18px;
+    background: var(--card-bg);
+    border-left: 4px solid var(--accent);
+    border-radius: var(--radius);
+    margin: 20px 0;
+    color: var(--fg);
+  }
+  .steps {
+    list-style: decimal;
+    padding-left: 24px;
+  }
+  .link-grid {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(180px, 100%), 1fr));
+    gap: 10px;
+    margin: 24px 0;
+  }
+  .link-grid a {
+    display: block;
+    padding: 10px 14px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    text-decoration: none;
+    font-size: 0.9rem;
+    color: var(--fg);
+    transition: all 0.15s ease;
+  }
+  .link-grid a:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+</style>

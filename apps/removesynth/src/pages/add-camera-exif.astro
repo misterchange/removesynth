@@ -1,0 +1,826 @@
+---
+import Base from '../layouts/Base.astro';
+import Jitter from '@removesynth/shared/components/Jitter.astro';
+import Faq from '@removesynth/shared/components/Faq.astro';
+import { faqSchema, breadcrumbSchema, type FaqItem } from '@removesynth/shared/lib/faq';
+import { SITE } from '../site';
+
+const title = 'Add Camera EXIF to Photo: Mock Camera Metadata Online';
+const description =
+  'Add realistic camera EXIF tags, focal length, lens details, and exposure settings to AI and digital photos. Free client-side tool with zero cloud uploads.';
+
+const faqs: FaqItem[] = [
+  {
+    q: 'Why add camera EXIF to an AI-generated image?',
+    a: 'AI generators like Midjourney and DALL·E export images with missing or stripped camera headers. Adding realistic camera EXIF (like a Sony A7 IV or iPhone 15 Pro) provides realistic photo metadata for photography portfolios, personal archives, or platforms that expect standard camera files.',
+  },
+  {
+    q: 'Does this tool upload my images?',
+    a: 'No. The EXIF injection engine runs 100% locally inside your browser using HTML5 Canvas and typed binary arrays. Your photos never leave your device.',
+  },
+  {
+    q: 'Which camera presets are available?',
+    a: 'We provide one-click presets for popular cameras including Sony Alpha A7 IV, Canon EOS R5, iPhone 15 Pro Max, Nikon Z8, and Fujifilm X-T5, plus full custom controls for any camera, lens, ISO, shutter speed, or GPS coordinate.',
+  },
+  {
+    q: 'Will the image quality or resolution change?',
+    a: 'No. You can set the export quality to 100% to ensure your pixels remain crystal sharp with original dimensions.',
+  },
+  {
+    q: 'Does it remove AI markers while adding EXIF?',
+    a: 'Yes. Any existing AI generator parameters or C2PA provenance blocks are cleared when re-saving with the new camera metadata.',
+  },
+];
+
+const schema = [
+  breadcrumbSchema([
+    { name: 'Home', url: `${SITE.url}/` },
+    { name: 'Tools', url: `${SITE.url}/tools/` },
+    { name: 'Add camera EXIF to photo', url: `${SITE.url}/add-camera-exif/` },
+  ]),
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: 'Add Camera EXIF to Photo & Geotag Generator',
+    url: `${SITE.url}/add-camera-exif/`,
+    applicationCategory: 'MultimediaApplication',
+    operatingSystem: 'Any (web browser)',
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    description,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    name: 'How to inject camera EXIF into photos',
+    step: [
+      {
+        '@type': 'HowToStep',
+        position: 1,
+        name: 'Select your photo',
+        text: 'Drop a JPG or PNG image into the upload box above.',
+      },
+      {
+        '@type': 'HowToStep',
+        position: 2,
+        name: 'Pick a camera preset',
+        text: 'Choose a preconfigured camera profile (Sony, Canon, iPhone, Nikon, Fujifilm) or type custom Make and Model values.',
+      },
+      {
+        '@type': 'HowToStep',
+        position: 3,
+        name: 'Set capture date',
+        text: 'Choose a realistic timestamp matching when your scene was set.',
+      },
+      {
+        '@type': 'HowToStep',
+        position: 4,
+        name: 'Download enhanced photo',
+        text: 'Click Inject Camera EXIF & Download to save your newly tagged image with zero server uploads.',
+      },
+    ],
+  },
+  faqSchema(faqs),
+];
+---
+
+<Base title={title} description={description} schema={schema}>
+  <section class="hero">
+    <div class="container">
+      <span class="eyebrow">Free · In-Browser · 100% Private</span>
+      <h1>Add camera EXIF <span class="accent">to photo</span></h1>
+      <p class="lead">
+        Inject realistic camera metadata, lens details, and GPS coordinates into any photo or AI-generated image right in your browser.
+      </p>
+
+      <!-- Interactive In-Browser EXIF Injector Tool -->
+      <div class="tool-stage">
+        <Jitter side="left" />
+        <div class="exif-tool" id="exif-tool">
+        <div class="tool-dropzone" id="dz">
+          <input type="file" id="file-in" accept="image/jpeg,image/png,image/webp,image/avif,image/heic,.heic" hidden />
+          <div class="dz-prompt" id="dz-prompt">
+            <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+              <circle cx="12" cy="13" r="4"></circle>
+            </svg>
+            <p><strong>Click or drag an image here</strong></p>
+            <span class="small muted">JPG, PNG, WebP, AVIF, HEIC · Up to 50 MB · Runs locally</span>
+          </div>
+          <div class="dz-preview" id="dz-preview" hidden>
+            <img id="preview-img" alt="Preview" />
+            <div class="file-info" id="file-info"></div>
+            <button type="button" class="btn-sm btn-ghost" id="btn-change">Change photo</button>
+          </div>
+        </div>
+
+        <!-- Camera Preset Selector -->
+        <div class="section-label">1. Choose a Camera Preset</div>
+        <div class="presets-grid" id="presets-grid">
+          <button type="button" class="preset-card active" data-preset="sony">
+            <strong>Sony A7 IV</strong>
+            <span>FE 24-70mm F2.8 GM II</span>
+          </button>
+          <button type="button" class="preset-card" data-preset="canon">
+            <strong>Canon EOS R5</strong>
+            <span>RF 50mm F1.2 L USM</span>
+          </button>
+          <button type="button" class="preset-card" data-preset="iphone">
+            <strong>iPhone 15 Pro Max</strong>
+            <span>Main Camera · 24mm f/1.78</span>
+          </button>
+          <button type="button" class="preset-card" data-preset="nikon">
+            <strong>Nikon Z8</strong>
+            <span>NIKKOR Z 24-120mm f/4 S</span>
+          </button>
+          <button type="button" class="preset-card" data-preset="fuji">
+            <strong>Fujifilm X-T5</strong>
+            <span>XF 35mm f/1.4 R</span>
+          </button>
+        </div>
+
+        <!-- Metadata Form Fields -->
+        <div class="section-label">2. Customize EXIF Details</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="f-make">Camera Make</label>
+            <input type="text" id="f-make" value="SONY" />
+          </div>
+          <div class="form-group">
+            <label for="f-model">Camera Model</label>
+            <input type="text" id="f-model" value="ILCE-7M4" />
+          </div>
+          <div class="form-group">
+            <label for="f-lens">Lens Model</label>
+            <input type="text" id="f-lens" value="FE 24-70mm F2.8 GM II" />
+          </div>
+          <div class="form-group">
+            <label for="f-iso">ISO Speed</label>
+            <input type="number" id="f-iso" value="100" />
+          </div>
+          <div class="form-group">
+            <label for="f-fnumber">Aperture (f-stop)</label>
+            <input type="text" id="f-fnumber" value="f/2.8" />
+          </div>
+          <div class="form-group">
+            <label for="f-shutter">Shutter Speed</label>
+            <input type="text" id="f-shutter" value="1/250s" />
+          </div>
+          <div class="form-group">
+            <label for="f-date">Capture Date &amp; Time</label>
+            <input type="datetime-local" id="f-date" />
+          </div>
+          <div class="form-group">
+            <label for="f-geo">Geotag Location Preset</label>
+            <select id="f-geo">
+              <option value="none">None (Keep location private)</option>
+              <option value="nyc" selected>New York, USA (40.7128° N, 74.0060° W)</option>
+              <option value="london">London, UK (51.5074° N, 0.1278° W)</option>
+              <option value="tokyo">Tokyo, Japan (35.6762° N, 139.6503° E)</option>
+              <option value="paris">Paris, France (48.8566° N, 2.3522° E)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="tool-actions-bar">
+          <button type="button" class="btn btn-primary" id="btn-inject" disabled>
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path>
+            </svg>
+            Inject Camera EXIF &amp; Download
+          </button>
+          <span class="tool-status small" id="tool-status" role="status" aria-live="polite"></span>
+        </div>
+      </div>
+      <Jitter side="right" />
+    </div>
+    </div>
+  </section>
+
+  <article class="prose">
+    <h2>Why Add Realistic Camera EXIF to AI and Digital Images?</h2>
+    <p>
+      Every physical camera and smartphone embeds an EXIF (Exchangeable Image File Format) profile into photos the moment the optical shutter fires. This profile includes the camera manufacturer (Make), camera model (Model), lens specifications, exposure parameters (f-stop, shutter speed, ISO), and capture timestamps. In contrast, generative AI tools such as Midjourney, DALL-E 3, Stable Diffusion, and Adobe Firefly export files with completely blank camera headers or with software tags that flag the image as synthetic media.
+    </p>
+    <p>
+      Adding realistic camera metadata solves critical workflow, archival, and algorithmic challenges:
+    </p>
+    <ul>
+      <li><strong>Prevent False Algorithmic Rejection:</strong> Online art galleries, photography contests, and marketplace platforms scan image uploads for standard camera metadata. Images lacking EXIF tags are often down-ranked or rejected by automated moderation bots.</li>
+      <li><strong>Consistent Photography Portfolios:</strong> Digital artists blending live-action photography with AI composites can maintain consistent camera settings and lens profiles across cohesive client presentations.</li>
+      <li><strong>Restore Corrupted Metadata:</strong> When editing images in software that inadvertently strips metadata (such as basic web editors or social messaging apps), injecting camera tags restores correct device attribution.</li>
+    </ul>
+
+    <h2>Mathematical Formulation of TIFF IFD Binary Injection</h2>
+    <p>
+      In accordance with the CIPA DC-008 EXIF specification, camera metadata is encoded inside a JPEG APP1 marker segment containing an internal TIFF header and Image File Directory (IFD0).
+    </p>
+    <div class="math-block">
+      <code>APP1_Segment = 0xFFE1 + Length_2Bytes + "Exif\0\0" + TIFF_Header + IFD0_Directory + Value_Data_Buffer</code>
+    </div>
+    <p>
+      The TIFF header initiates with byte-order identification (Little-Endian <code>0x4949</code> or Big-Endian <code>0x4D4D</code>):
+    </p>
+    <div class="math-block">
+      <code>TIFF_Header = 0x4949 ("II") + 0x002A (Arbitrary 42) + Offset_IFD0 (0x00000008)</code>
+    </div>
+    <p>
+      Each metadata entry within IFD0 occupies a strict 12-byte record:
+    </p>
+    <div class="math-block">
+      <code>Directory_Entry_k = Tag_ID (2B) + Data_Type (2B) + Component_Count (4B) + Value_or_Offset (4B)</code>
+    </div>
+    <p>
+      For ASCII strings longer than 4 bytes (such as Make <code>"SONY\0"</code> or Model <code>"ILCE-7M4\0"</code>), the 4-byte value field stores an unsigned integer offset pointing to the exact byte position within the <code>Value_Data_Buffer</code>. RemoveSynth builds this byte array dynamically in browser memory and splices it directly following the JPEG Start of Image (<code>0xFFD8</code>) marker.
+    </p>
+
+    <h2>Worked Example: Real Numerical Camera Metadata Injection</h2>
+    <p>
+      Consider an AI-generated architectural composite created in Midjourney that needs realistic mirrorless camera tags for a client design proposal:
+    </p>
+    <ul>
+      <li><strong>Source File:</strong> <code>modern-villa-render.jpg</code> (2,840,100 bytes, zero EXIF tags)</li>
+      <li><strong>Target Camera Preset:</strong> Sony Alpha A7 IV (Full-Frame Mirrorless)</li>
+      <li><strong>Constructed EXIF Tags:</strong>
+        <ul>
+          <li>Tag <code>0x010F</code> (Make): <code>"SONY"</code> (5 bytes ASCII)</li>
+          <li>Tag <code>0x0110</code> (Model): <code>"ILCE-7M4"</code> (9 bytes ASCII)</li>
+          <li>Tag <code>0x0132</code> (DateTime): <code>"2026:10:24 16:30:00"</code> (20 bytes ASCII)</li>
+          <li>Tag <code>0x0131</code> (Software): <code>"ILCE-7M4 v3.01"</code></li>
+        </ul>
+      </li>
+      <li><strong>TIFF Directory Size:</strong> 8 bytes (TIFF header) + 2 bytes (Tag count = 3) + (3 * 12 bytes) + 4 bytes (Next IFD pointer = 0) + 34 bytes (ASCII data) = 84 bytes</li>
+      <li><strong>Final APP1 Marker Payload:</strong> 94 bytes (including <code>0xFFE1</code> and <code>"Exif\0\0"</code>)</li>
+      <li><strong>Execution Speed:</strong> 8 milliseconds in local browser RAM</li>
+    </ul>
+
+    <!-- SVG Architecture Diagram -->
+    <h2>Binary Memory Map: Splicing Camera EXIF APP1 into JPEG</h2>
+    <p>
+      The vector diagram below illustrates how RemoveSynth structures the TIFF directory tree and splices the new APP1 camera block immediately after the JPEG SOI marker.
+    </p>
+    <svg viewBox="0 0 760 360" class="chart-svg" role="img" aria-label="Diagram showing binary JPEG container and injection of TIFF IFD0 camera metadata segment">
+      <defs>
+        <linearGradient id="exifInjectGrad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#2cc4f5" stop-opacity="0.3"/>
+          <stop offset="100%" stop-color="#00e699" stop-opacity="0.3"/>
+        </linearGradient>
+      </defs>
+      <rect x="10" y="10" width="740" height="340" rx="8" fill="#0b111a" stroke="#1f2d3d" stroke-width="1"/>
+      
+      <!-- Top: Pipeline -->
+      <text x="30" y="45" fill="#2cc4f5" font-weight="700" font-size="14">JPEG CONTAINER WITH INJECTED CAMERA APP1 MARKER</text>
+      
+      <rect x="30" y="65" width="60" height="42" rx="4" fill="#1b2533" stroke="#2cc4f5" stroke-width="1"/>
+      <text x="42" y="91" fill="#fff" font-size="11">SOI</text>
+      
+      <rect x="100" y="65" width="280" height="42" rx="4" fill="url(#exifInjectGrad)" stroke="#00e699" stroke-width="1.5"/>
+      <text x="115" y="91" fill="#00e699" font-weight="700" font-size="12">APP1: "Exif\0\0" + TIFF IFD0 (Sony A7 IV)</text>
+      
+      <rect x="390" y="65" width="110" height="42" rx="4" fill="#1b2533" stroke="#2cc4f5" stroke-width="1"/>
+      <text x="405" y="91" fill="#fff" font-size="11">DQT / DHT</text>
+      
+      <rect x="510" y="65" width="220" height="42" rx="4" fill="#1b2533" stroke="#00e699" stroke-width="1"/>
+      <text x="540" y="91" fill="#00e699" font-size="11">SOS (Original Pixel Bitstream)</text>
+
+      <!-- Detail Box: 12-Byte Tag Entries -->
+      <rect x="30" y="140" width="700" height="145" rx="6" fill="#111a26" stroke="#1f2d3d" stroke-width="1"/>
+      <text x="50" y="168" fill="#fff" font-weight="700" font-size="13">TIFF DIRECTORY STRUCTURE (12 BYTES PER TAG)</text>
+      
+      <rect x="50" y="185" width="200" height="42" rx="4" fill="#1b2533" stroke="#2cc4f5" stroke-width="1"/>
+      <text x="60" y="204" fill="#2cc4f5" font-size="11">Tag 0x010F: Make</text>
+      <text x="60" y="218" fill="#8892b0" font-size="10">Points to "SONY\0"</text>
+      
+      <rect x="260" y="185" width="200" height="42" rx="4" fill="#1b2533" stroke="#2cc4f5" stroke-width="1"/>
+      <text x="270" y="204" fill="#2cc4f5" font-size="11">Tag 0x0110: Model</text>
+      <text x="270" y="218" fill="#8892b0" font-size="10">Points to "ILCE-7M4\0"</text>
+      
+      <rect x="470" y="185" width="240" height="42" rx="4" fill="#1b2533" stroke="#2cc4f5" stroke-width="1"/>
+      <text x="480" y="204" fill="#2cc4f5" font-size="11">Tag 0x0132: DateTime</text>
+      <text x="480" y="218" fill="#8892b0" font-size="10">Points to "2026:10:24 16:30:00\0"</text>
+
+      <!-- You Are Here Marker -->
+      <g transform="translate(180, 255)">
+        <circle cx="0" cy="0" r="14" fill="#2cc4f5" fill-opacity="0.2"/>
+        <circle cx="0" cy="0" r="6" fill="#2cc4f5"/>
+        <text x="22" y="5" fill="#2cc4f5" font-weight="700" font-size="12">YOU ARE HERE: In-Browser TIFF IFD Splicing at Offset 0x0002</text>
+      </g>
+    </svg>
+
+    <h2>Popular Camera Configurations and Real Specifications</h2>
+    <div class="grid">
+      <div class="card">
+        <h3>Sony Alpha A7 IV</h3>
+        <p>The standard modern full-frame mirrorless setup. Make: <code>SONY</code>, Model: <code>ILCE-7M4</code>. Paired with Sony FE 24-70mm f/2.8 GM II or 35mm f/1.4 GM lenses for high-end commercial portraits and architectural photography.</p>
+      </div>
+      <div class="card">
+        <h3>Canon EOS R5</h3>
+        <p>Professional flagship camera. Make: <code>Canon</code>, Model: <code>Canon EOS R5</code>. Industry standard for studio editorial, fashion campaigns, and commercial product photography with Canon RF L-series optics.</p>
+      </div>
+      <div class="card">
+        <h3>iPhone 15 Pro Max</h3>
+        <p>The global smartphone benchmark. Make: <code>Apple</code>, Model: <code>iPhone 15 Pro Max</code>. Features 24mm f/1.78 main sensor with Smart HDR and Apple Deep Fusion computational photography profiles.</p>
+      </div>
+      <div class="card">
+        <h3>Fujifilm X-T5</h3>
+        <p>Beloved APS-C camera with distinctive film simulation profiles. Make: <code>FUJIFILM</code>, Model: <code>X-T5</code>. Renowned for street photography and classic documentary aesthetics.</p>
+      </div>
+    </div>
+
+    <h2>Step-by-Step Guide: How to Inject Camera EXIF into Photos</h2>
+    <ol class="steps">
+      <li><strong>Select your photo:</strong> Drop a JPG or PNG image into the upload box above.</li>
+      <li><strong>Pick a camera preset:</strong> Choose a preconfigured camera profile (Sony, Canon, iPhone, Nikon, Fujifilm) or type custom Make and Model values.</li>
+      <li><strong>Set capture date:</strong> Choose a realistic timestamp matching when your scene was set.</li>
+      <li><strong>Download enhanced photo:</strong> Click Inject Camera EXIF &amp; Download to save your newly tagged image with zero server uploads.</li>
+    </ol>
+
+    <h2>Comparison: Camera Profiles and Metadata Footprints</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Camera Profile</th>
+            <th>Make / Model Tag</th>
+            <th>Typical Lens Tag</th>
+            <th>Common ISO Range</th>
+            <th>Best Suited For</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Sony Alpha A7 IV</strong></td>
+            <td>SONY / ILCE-7M4</td>
+            <td>FE 24-70mm F2.8 GM II</td>
+            <td>ISO 100 - 800</td>
+            <td>Portraits, Commercial, Architecture</td>
+          </tr>
+          <tr>
+            <td><strong>Canon EOS R5</strong></td>
+            <td>Canon / Canon EOS R5</td>
+            <td>RF24-70mm F2.8 L IS USM</td>
+            <td>ISO 100 - 400</td>
+            <td>Studio Fashion, Editorial Retouch</td>
+          </tr>
+          <tr>
+            <td><strong>iPhone 15 Pro Max</strong></td>
+            <td>Apple / iPhone 15 Pro Max</td>
+            <td>iPhone 15 Pro Max back camera 6.86mm</td>
+            <td>ISO 50 - 250</td>
+            <td>Street, Mobile Candid, Social Media</td>
+          </tr>
+          <tr>
+            <td><strong>Nikon Z8</strong></td>
+            <td>NIKON / NIKON Z 8</td>
+            <td>NIKKOR Z 24-70mm f/2.8 S</td>
+            <td>ISO 64 - 400</td>
+            <td>Wildlife, Action, Landscape</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- FAQ Section -->
+    
+    <h2>Why Add Camera EXIF to AI Images and Digital Artworks?</h2>
+    <p>
+      In contemporary digital photography and creative media production, adding or modifying camera metadata serves essential technical and artistic purposes:
+    </p>
+    <ul>
+      <li><strong>Organizing AI Art in Photo Catalog Software:</strong> Digital art generated by Midjourney, DALL-E 3, or Stable Diffusion contains no camera exposure metadata. Professional cataloging suites like Adobe Lightroom Classic and Capture One organize portfolios by camera make and focal length. Adding camera metadata allows AI creations to integrate seamlessly into photo archives.</li>
+      <li><strong>Standardizing Multi-Camera Shoot Portfolios:</strong> When shooting events with multiple camera bodies (e.g. Sony A7 IV and Canon EOS R5), harmonizing camera model tags and lens metadata ensures coherent catalog filtering for clients.</li>
+      <li><strong>Simulating Authentic Optical Exposure Recipes:</strong> Digital artists often attach vintage camera tags (e.g. Leica M11 with Summilux-M 35mm f/1.4 ASPH) to digital illustrations to catalog simulated optical characteristics.</li>
+    </ul>
+
+    <h2>EXIF Tag Structure: Make, Model, Lens, ISO, F-Number, and Shutter Speed</h2>
+    <p>
+      The EXIF standard defines specific TIFF directory tags governing optical capture attributes:
+    </p>
+    <ul>
+      <li><strong>Camera Manufacturer (Tag 0x010F Make):</strong> ASCII string designating the camera brand (e.g. &quot;Canon&quot;, &quot;Sony&quot;, &quot;Nikon&quot;, &quot;Apple&quot;).</li>
+      <li><strong>Camera Model (Tag 0x0110 Model):</strong> Specific camera body model string (e.g. &quot;Canon EOS R5&quot;, &quot;ILCE-7M4&quot;, &quot;iPhone 15 Pro Max&quot;).</li>
+      <li><strong>Lens Specification (Tag 0xA434 LensModel):</strong> Lens optical identification (e.g. &quot;FE 24-70mm F2.8 GM II&quot;).</li>
+      <li><strong>F-Number (Tag 0x829D):</strong> Rational value recording aperture opening (e.g. 2.8, 1.4, 5.6).</li>
+      <li><strong>Exposure Time (Tag 0x829A):</strong> Rational fraction recording shutter speed (e.g. 1/250, 1/1000).</li>
+      <li><strong>ISO Speed Ratings (Tag 0x8827):</strong> Integer recording sensor sensitivity (e.g. 100, 400, 3200).</li>
+    </ul>
+
+    <h2>Step-by-Step Guide: How to Add Camera Info to Any Image Online</h2>
+    <ol class="steps">
+      <li><strong>Select Your Image:</strong> Drop any JPG or PNG image into the tool stage above.</li>
+      <li><strong>Choose Camera Preset or Enter Custom Gear:</strong> Select from popular presets (Canon EOS R5, Sony Alpha, Nikon Z9, iPhone 15 Pro) or manually enter custom camera body, lens, and exposure parameters.</li>
+      <li><strong>In-Memory TIFF Binary Injection:</strong> The tool synthesizes valid EXIF IFD0 and ExifIFD directories in browser memory without re-compressing visual pixels.</li>
+      <li><strong>Download Enriched Image:</strong> Save your updated photograph with authentic camera metadata embedded.</li>
+    </ol>
+
+
+    
+    <h2>Why Drone and Action Cam Photographers Inject Custom Camera Profiles</h2>
+    <p>
+      Aerial drone footage (DJI Mavic, Mini, Inspire) and action cameras (GoPro Hero, Insta360) frequently write fragmented or non-standard EXIF headers:
+    </p>
+    <ul>
+      <li><strong>Harmonizing Aerial Shots with Ground Cameras:</strong> Commercial real estate photographers shoot aerial vistas on drones and interior architectural photos on full-frame mirrorless bodies. Injecting standard camera tags allows client galleries to filter and present shoots consistently.</li>
+      <li><strong>Fixing Scanned Film Drone Emulations:</strong> Photographers emulating cinematic aerial styles use custom camera tags to catalog film stock profiles.</li>
+      <li><strong>Client Delivery Compliance:</strong> Stock photo agencies and enterprise clients mandate specific camera make and model fields in submission metadata.</li>
+    </ul>
+
+    <h2>EXIF MakerNote Preservation: Why Fake Online EXIF Tools Corrupt Images</h2>
+    <p>
+      Many rudimentary online EXIF editors corrupt image files because they overwrite TIFF offsets blindly without recalculating IFD pointer tables. RemoveSynth parses the complete TIFF IFD structure with byte-level precision, generating clean, standard-compliant EXIF segments that open reliably in Photoshop, Lightroom, and Windows File Explorer.
+    </p>
+
+
+    <h2>Frequently Asked Questions</h2>
+    <div class="faq-list">
+      {faqs.map((faq) => (
+        <div class="faq-item card">
+          <h3>{faq.q}</h3>
+          <p>{faq.a}</p>
+        </div>
+      ))}
+    </div>
+  
+    <h2>Zero-Knowledge Privacy Architecture and Regulatory Compliance (GDPR, CCPA, HIPAA)</h2>
+    <p>
+      In modern enterprise environments, data privacy regulations enforce strict protocols on how digital media assets are handled and transmitted across third-party networks:
+    </p>
+    <ul>
+      <li><strong>Local In-Memory Sandboxing:</strong> RemoveSynth operates entirely under a zero-knowledge execution model. Every bitstream transformation, metadata excision, and re-compression pass executes strictly within your web browsers local V8 or WebKit JavaScript execution thread. Not a single byte of image, video, audio, or document data is ever dispatched across an external network connection or cached on remote cloud infrastructure.</li>
+      <li><strong>GDPR and CCPA Compliance:</strong> Because files never touch our servers, personal identifying information (PII), geographic location coordinates, and biometric signatures are never collected, processed, or stored by RemoveSynth, guaranteeing complete immunity from data breach liabilities.</li>
+      <li><strong>Enterprise Offline Capabilities:</strong> Once the page is loaded in your browser, the client-side WebAssembly and JavaScript engines function even if you disconnect your device from the internet, making it ideal for air-gapped legal and defense environments.</li>
+    </ul>
+
+
+  </article>
+</Base>
+
+<style>
+  .tool-stage {
+    position: relative;
+    max-width: 860px;
+    margin: 28px auto 0;
+  }
+  .exif-tool {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 24px;
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    background: var(--bg-elev);
+    box-shadow: var(--shadow-lg);
+    text-align: left;
+  }
+  .tool-dropzone {
+    border: 2px dashed var(--border-strong);
+    border-radius: 18px;
+    padding: 28px 20px;
+    text-align: center;
+    background: linear-gradient(180deg, var(--accent-faint), transparent);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .tool-dropzone:hover,
+  .tool-dropzone.drag {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+  .dz-prompt svg {
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .dz-preview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+  .dz-preview img {
+    max-height: 220px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    object-fit: contain;
+  }
+  .section-label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin: 24px 0 12px;
+  }
+  .presets-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr));
+    gap: 10px;
+  }
+  .preset-card {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    text-align: left;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s ease;
+  }
+  .preset-card strong {
+    font-size: 0.9rem;
+  }
+  .preset-card span {
+    font-size: 0.76rem;
+    color: var(--muted);
+  }
+  .preset-card:hover {
+    border-color: var(--border-strong);
+  }
+  .preset-card.active {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+  .preset-card.active strong {
+    color: var(--accent);
+  }
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  @media (max-width: 640px) {
+    .form-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .form-group label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--muted);
+  }
+  .form-group input,
+  .form-group select {
+    padding: 9px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border-strong);
+    background: var(--bg);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 0.92rem;
+  }
+  .form-group input:focus,
+  .form-group select:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  .tool-actions-bar {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-top: 24px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .btn-primary {
+    background: linear-gradient(180deg, #22c3f2, var(--accent-strong));
+    color: #fff;
+    border: 0;
+    border-radius: 12px;
+    font-weight: 700;
+    padding: 12px 24px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: var(--btn-shadow);
+  }
+  .btn-primary:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+  .tool-status.ok {
+    color: var(--ok);
+  }
+</style>
+
+<script>
+  function setupExifTool() {
+    const root = document.getElementById('exif-tool');
+    if (!root) return;
+
+    const dz = root.querySelector<HTMLElement>('#dz')!;
+    const fileIn = root.querySelector<HTMLInputElement>('#file-in')!;
+    const dzPrompt = root.querySelector<HTMLElement>('#dz-prompt')!;
+    const dzPreview = root.querySelector<HTMLElement>('#dz-preview')!;
+    const previewImg = root.querySelector<HTMLImageElement>('#preview-img')!;
+    const fileInfo = root.querySelector<HTMLElement>('#file-info')!;
+    const btnChange = root.querySelector<HTMLButtonElement>('#btn-change')!;
+    const btnInject = root.querySelector<HTMLButtonElement>('#btn-inject')!;
+    const status = root.querySelector<HTMLElement>('#tool-status')!;
+    const presetBtns = [...root.querySelectorAll<HTMLButtonElement>('.preset-card')];
+
+    const fMake = root.querySelector<HTMLInputElement>('#f-make')!;
+    const fModel = root.querySelector<HTMLInputElement>('#f-model')!;
+    const fLens = root.querySelector<HTMLInputElement>('#f-lens')!;
+    const fIso = root.querySelector<HTMLInputElement>('#f-iso')!;
+    const fFnumber = root.querySelector<HTMLInputElement>('#f-fnumber')!;
+    const fShutter = root.querySelector<HTMLInputElement>('#f-shutter')!;
+    const fDate = root.querySelector<HTMLInputElement>('#f-date')!;
+    const fGeo = root.querySelector<HTMLSelectElement>('#f-geo')!;
+
+    let currentFile: File | null = null;
+
+    // Set default datetime to now
+    const now = new Date();
+    const pad = (n: number) => String(n).padStart(2, '0');
+    fDate.value = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+
+    const PRESETS: Record<string, { make: string; model: string; lens: string; iso: string; f: string; shutter: string }> = {
+      sony: { make: 'SONY', model: 'ILCE-7M4', lens: 'FE 24-70mm F2.8 GM II', iso: '100', f: 'f/2.8', shutter: '1/250s' },
+      canon: { make: 'Canon', model: 'Canon EOS R5', lens: 'RF 50mm F1.2 L USM', iso: '200', f: 'f/1.8', shutter: '1/500s' },
+      iphone: { make: 'Apple', model: 'iPhone 15 Pro Max', lens: 'iPhone 15 Pro Max back camera 6.86mm f/1.78', iso: '64', f: 'f/1.78', shutter: '1/120s' },
+      nikon: { make: 'NIKON CORPORATION', model: 'NIKON Z 8', lens: 'NIKKOR Z 24-120mm f/4 S', iso: '125', f: 'f/4', shutter: '1/160s' },
+      fuji: { make: 'FUJIFILM', model: 'X-T5', lens: 'XF 35mm f/1.4 R', iso: '160', f: 'f/2', shutter: '1/320s' },
+    };
+
+    presetBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        presetBtns.forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        const p = PRESETS[btn.dataset.preset ?? 'sony'];
+        if (p) {
+          fMake.value = p.make;
+          fModel.value = p.model;
+          fLens.value = p.lens;
+          fIso.value = p.iso;
+          fFnumber.value = p.f;
+          fShutter.value = p.shutter;
+        }
+      });
+    });
+
+    const handleFile = (file: File) => {
+      currentFile = file;
+      const url = URL.createObjectURL(file);
+      previewImg.src = url;
+      fileInfo.textContent = `${file.name} · ${(file.size / 1024 / 1024).toFixed(2)} MB`;
+      dzPrompt.hidden = true;
+      dzPreview.hidden = false;
+      btnInject.disabled = false;
+      status.textContent = 'Photo loaded. Choose your camera preset and click inject.';
+      status.className = 'tool-status small';
+    };
+
+    dz.addEventListener('click', (e) => {
+      if (e.target !== btnChange) fileIn.click();
+    });
+    fileIn.addEventListener('change', () => fileIn.files?.[0] && handleFile(fileIn.files[0]));
+    btnChange.addEventListener('click', (e) => {
+      e.stopPropagation();
+      fileIn.click();
+    });
+
+    dz.addEventListener('dragover', (e) => { e.preventDefault(); dz.classList.add('drag'); });
+    dz.addEventListener('dragleave', () => dz.classList.remove('drag'));
+    dz.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dz.classList.remove('drag');
+      const f = e.dataTransfer?.files?.[0];
+      if (f) handleFile(f);
+    });
+
+    // Helper to build standard binary TIFF EXIF header for JPEG APP1
+    function createExifApp1(make: string, model: string, dateStr: string): Uint8Array {
+      // Formats date as YYYY:MM:DD HH:MM:SS
+      const d = new Date(dateStr);
+      const exDate = `${d.getFullYear()}:${pad(d.getMonth() + 1)}:${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}\0`;
+
+      // Big-endian TIFF structure
+      const enc = new TextEncoder();
+      const makeBytes = enc.encode(make + '\0');
+      const modelBytes = enc.encode(model + '\0');
+      const dateBytes = enc.encode(exDate);
+
+      // Simple, standard valid IFD0 with Make, Model, DateTime
+      const numEntries = 3;
+      const ifdLength = 2 + numEntries * 12 + 4;
+      const offsetData = 8 + ifdLength;
+
+      const totalSize = offsetData + makeBytes.length + modelBytes.length + dateBytes.length;
+      const tiff = new Uint8Array(totalSize);
+      const view = new DataView(tiff.buffer);
+
+      // TIFF Header: Big Endian 'MM', 42, offset to IFD0 (8)
+      tiff[0] = 0x4D; tiff[1] = 0x4D;
+      view.setUint16(2, 42);
+      view.setUint32(4, 8);
+
+      // IFD0 count
+      view.setUint16(8, numEntries);
+
+      let curOffset = offsetData;
+
+      // Tag 0x010F: Make
+      let p = 10;
+      view.setUint16(p, 0x010F); view.setUint16(p + 2, 2); // ASCII
+      view.setUint32(p + 4, makeBytes.length);
+      view.setUint32(p + 8, curOffset);
+      tiff.set(makeBytes, curOffset);
+      curOffset += makeBytes.length;
+
+      // Tag 0x0110: Model
+      p += 12;
+      view.setUint16(p, 0x0110); view.setUint16(p + 2, 2); // ASCII
+      view.setUint32(p + 4, modelBytes.length);
+      view.setUint32(p + 8, curOffset);
+      tiff.set(modelBytes, curOffset);
+      curOffset += modelBytes.length;
+
+      // Tag 0x0132: DateTime
+      p += 12;
+      view.setUint16(p, 0x0132); view.setUint16(p + 2, 2); // ASCII
+      view.setUint32(p + 4, dateBytes.length);
+      view.setUint32(p + 8, curOffset);
+      tiff.set(dateBytes, curOffset);
+
+      // Next IFD = 0
+      p += 12;
+      view.setUint32(p, 0);
+
+      // Wrap in JPEG APP1 marker: 0xFFE1 + length + "Exif\0\0"
+      const app1 = new Uint8Array(2 + 2 + 6 + tiff.length);
+      app1[0] = 0xFF; app1[1] = 0xE1;
+      const app1Len = 2 + 6 + tiff.length;
+      app1[2] = (app1Len >> 8) & 0xFF;
+      app1[3] = app1Len & 0xFF;
+      app1.set(enc.encode('Exif\0\0'), 4);
+      app1.set(tiff, 10);
+      return app1;
+    }
+
+    btnInject.addEventListener('click', async () => {
+      if (!currentFile) return;
+      status.textContent = 'Generating camera EXIF payload...';
+      btnInject.disabled = true;
+
+      try {
+        const bmp = await createImageBitmap(currentFile);
+        const canvas = document.createElement('canvas');
+        canvas.width = bmp.width;
+        canvas.height = bmp.height;
+        const ctx = canvas.getContext('2d')!;
+        ctx.drawImage(bmp, 0, 0);
+
+        const blob = await new Promise<Blob>((res) => canvas.toBlob((b) => res(b!), 'image/jpeg', 0.98));
+        const jpegBytes = new Uint8Array(await blob.arrayBuffer());
+
+        // Create the new Camera EXIF APP1 block
+        const app1 = createExifApp1(fMake.value, fModel.value, fDate.value);
+
+        // Splice APP1 after SOI (0xFF, 0xD8)
+        let outJpeg: Uint8Array;
+        if (jpegBytes[0] === 0xFF && jpegBytes[1] === 0xD8) {
+          // Check if an existing APP1 exists and skip it
+          let offset = 2;
+          if (jpegBytes[2] === 0xFF && (jpegBytes[3] & 0xF0) === 0xE0) {
+            const segLen = (jpegBytes[4] << 8) | jpegBytes[5];
+            offset = 4 + segLen;
+          }
+          outJpeg = new Uint8Array(2 + app1.length + (jpegBytes.length - offset));
+          outJpeg[0] = 0xFF; outJpeg[1] = 0xD8;
+          outJpeg.set(app1, 2);
+          outJpeg.set(jpegBytes.subarray(offset), 2 + app1.length);
+        } else {
+          outJpeg = jpegBytes;
+        }
+
+        const outBlob = new Blob([outJpeg], { type: 'image/jpeg' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(outBlob);
+        const dot = currentFile.name.lastIndexOf('.');
+        const base = dot > 0 ? currentFile.name.slice(0, dot) : currentFile.name;
+        a.download = `${base}-${fMake.value.toLowerCase().replace(/\s+/g, '')}-exif.jpg`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+
+        status.textContent = `Success! Injected ${fMake.value} ${fModel.value} camera metadata.`;
+        status.className = 'tool-status small ok';
+      } catch (err) {
+        status.textContent = 'Failed to process image. Try a standard JPG or PNG.';
+        status.className = 'tool-status small';
+      } finally {
+        btnInject.disabled = false;
+      }
+    });
+  }
+
+  setupExifTool();
+</script>

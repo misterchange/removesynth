@@ -1,0 +1,147 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import DocBlocks from '../../components/DocBlocks.astro';
+import { POSTS, type Post } from '../../data/blog';
+import { extractFaq } from '../../lib/doc';
+import { breadcrumbSchema, faqSchema, type FaqItem } from '@removesynth/shared/lib/faq';
+import { SITE } from '../../site';
+
+export async function getStaticPaths() {
+  const collectionPosts = await getCollection('blog', ({ data }) => !data.draft);
+  const collectionSlugs = new Set(collectionPosts.map((c) => c.id));
+
+  const collectionPaths = collectionPosts.map((post) => ({
+    params: { slug: post.id },
+    props: { kind: 'collection' as const, collectionPost: post, jsonPost: null },
+  }));
+
+  const jsonPaths = POSTS.filter((p) => !collectionSlugs.has(p.slug)).map((post) => ({
+    params: { slug: post.slug },
+    props: { kind: 'json' as const, collectionPost: null, jsonPost: post },
+  }));
+
+  return [...collectionPaths, ...jsonPaths];
+}
+
+const { kind, collectionPost, jsonPost } = Astro.props as {
+  kind: 'collection' | 'json';
+  collectionPost: any;
+  jsonPost: Post | null;
+};
+
+let title = '';
+let description = '';
+let dateStr = '';
+let pubDateISO = '';
+let faq: FaqItem[] = [];
+let RenderedContent: any = null;
+
+if (kind === 'collection' && collectionPost) {
+  title = collectionPost.data.title;
+  description = collectionPost.data.description;
+  pubDateISO = collectionPost.data.pubDate.toISOString();
+  dateStr = collectionPost.data.pubDate.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+  const res = await render(collectionPost);
+  RenderedContent = res.Content;
+} else if (jsonPost) {
+  title = jsonPost.title;
+  description = jsonPost.description;
+  if (jsonPost.published) {
+    const d = new Date(jsonPost.published);
+    if (!Number.isNaN(d.getTime())) {
+      pubDateISO = d.toISOString();
+      dateStr = d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    }
+  }
+  const extracted = extractFaq(jsonPost.blocks);
+  if (extracted.length) faq = extracted as FaqItem[];
+}
+
+const url = `${SITE.url}/blog/${Astro.params.slug}/`;
+
+const schema: Record<string, unknown>[] = [
+  breadcrumbSchema([
+    { name: 'Home', url: `${SITE.url}/` },
+    { name: 'Blog', url: `${SITE.url}/blog/` },
+    { name: title, url },
+  ]),
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: title,
+    description,
+    ...(pubDateISO ? { datePublished: pubDateISO } : {}),
+    mainEntityOfPage: url,
+    publisher: { '@type': 'Organization', name: SITE.name, url: SITE.url },
+  },
+];
+if (faq.length) schema.push(faqSchema(faq));
+
+const related = POSTS.filter((p) => p.slug !== Astro.params.slug).slice(0, 6);
+const finalTitle = title.length + 14 <= 60 ? `${title} | ${SITE.name}` : (title.length <= 60 ? title : title.slice(0, 60).trim());
+---
+
+<Base title={finalTitle} description={description} schema={schema} ogType="article">
+  <article class="prose">
+    <header class="hero" style="text-align:left;padding-bottom:0">
+      <a href="/blog/" class="small">&larr; All posts</a>
+      <h1 style="margin-top:12px">{title}</h1>
+      {dateStr && <p class="muted small">{dateStr}</p>}
+    </header>
+
+    {kind === 'collection' && RenderedContent && <RenderedContent />}
+    {kind === 'json' && jsonPost && <DocBlocks blocks={jsonPost.blocks} />}
+
+    <div class="callout">
+      Looking to clean a file? Use our <a href="/remove-synthid/">SynthID remover</a> or <a href="/ai-metadata-remover/">AI metadata &amp; C2PA cleaner</a>.
+    </div>
+
+    {related.length > 0 && (
+      <>
+        <hr />
+        <h2>Keep reading</h2>
+        <ul class="link-grid">
+          {related.map((p) => (
+            <li>
+              <a href={`/blog/${p.slug}/`}>{p.title}</a>
+            </li>
+          ))}
+        </ul>
+      </>
+    )}
+  </article>
+</Base>
+
+<style>
+  .link-grid {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr));
+    gap: 10px;
+    margin-top: 16px;
+  }
+  .link-grid li {
+    margin: 0;
+  }
+  .link-grid a {
+    display: block;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--bg-elev);
+    font-size: 0.92rem;
+    font-weight: 500;
+    line-height: 1.4;
+    transition: border-color 0.15s ease;
+  }
+  .link-grid a:hover {
+    border-color: var(--accent);
+    text-decoration: none;
+  }
+</style>

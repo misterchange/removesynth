@@ -1,0 +1,546 @@
+[
+  {
+    "tool": "Remove metadata from photo",
+    "group": "A Photo privacy",
+    "batch": "1",
+    "us_keywords": "remove metadata from photo | metadata remover | how to remove metadata from a photo",
+    "in_keywords": "remove metadata from photo | photo metadata remover | photo se metadata kaise hataye",
+    "extra": "free, online, batch, no upload, without app, jpg, png, on iphone, on android, before posting"
+  },
+  {
+    "tool": "Remove EXIF data",
+    "group": "A Photo privacy",
+    "batch": "1",
+    "us_keywords": "remove exif data | exif remover | how to remove exif data",
+    "in_keywords": "remove exif data | exif remover online | how to remove exif data from photo",
+    "extra": "online, free, jpg, batch, tool, cleaner, stripper, viewer and remover, exif remover online"
+  },
+  {
+    "tool": "Remove GPS / location from photo",
+    "group": "A Photo privacy",
+    "batch": "1",
+    "us_keywords": "remove location from photo | remove gps from photo | how to remove location from a photo",
+    "in_keywords": "remove location from photo | photo se location kaise hataye | remove gps data from photo",
+    "extra": "iphone, android, before sending, before posting, whatsapp, instagram, marketplace, ebay/etsy sellers"
+  },
+  {
+    "tool": "Remove date / time from photo",
+    "group": "A Photo privacy",
+    "batch": "2",
+    "us_keywords": "remove date from photo metadata | change photo date | how to remove date from photo",
+    "in_keywords": "remove date from photo | photo date remove | photo se date kaise hataye",
+    "extra": "metadata, exif date, timestamp, iphone; note: many searchers want to remove a VISIBLE date stamp (different tool)"
+  },
+  {
+    "tool": "Remove photo metadata on iPhone",
+    "group": "A Photo privacy",
+    "batch": "2",
+    "us_keywords": "remove metadata iphone | remove location from photo iphone | how to remove metadata from photos on iphone",
+    "in_keywords": "remove metadata iphone | iphone photo location remove",
+    "extra": "heic, before sending, airdrop, shortcuts, without app"
+  },
+  {
+    "tool": "Remove photo metadata on Android",
+    "group": "A Photo privacy",
+    "batch": "2",
+    "us_keywords": "remove metadata android | remove location from photo android",
+    "in_keywords": "remove metadata android | android photo location remove",
+    "extra": "samsung, xiaomi, google photos, without app"
+  },
+  {
+    "tool": "PDF metadata remover",
+    "group": "B File privacy",
+    "batch": "1",
+    "us_keywords": "remove metadata from pdf | pdf metadata remover | how to remove metadata from pdf",
+    "in_keywords": "remove metadata from pdf | pdf metadata remover",
+    "extra": "author, online, free, without acrobat, mac, windows, before sending"
+  },
+  {
+    "tool": "Video / MP4 metadata remover",
+    "group": "B File privacy",
+    "batch": "1",
+    "us_keywords": "remove metadata from video | mp4 metadata remover | how to remove metadata from video",
+    "in_keywords": "remove metadata from video | video metadata remover",
+    "extra": "mp4, mov, iphone video, location, online, free, before uploading"
+  },
+  {
+    "tool": "Audio / MP3 tag remover",
+    "group": "B File privacy",
+    "batch": "3",
+    "us_keywords": "remove metadata from mp3 | mp3 tag remover | id3 tag remover",
+    "in_keywords": "remove metadata from mp3 | mp3 tag remover",
+    "extra": "online, free, wav, m4a, batch"
+  },
+  {
+    "tool": "Word / DOCX metadata remover",
+    "group": "B File privacy",
+    "batch": "3",
+    "us_keywords": "remove metadata from word document | remove author from word document",
+    "in_keywords": "remove metadata from word document | remove author name from word",
+    "extra": "docx, xlsx, pptx, online, before sending"
+  },
+  {
+    "tool": "HEIC to JPG",
+    "group": "C Converters",
+    "batch": "1",
+    "us_keywords": "heic to jpg | heic to jpg converter | how to convert heic to jpg",
+    "in_keywords": "heic to jpg | heic to jpg converter | heic file kaise open kare",
+    "extra": "online, free, batch, bulk, windows, mac, iphone, without losing quality, heic converter, heic2jpg, heic to jpeg"
+  },
+  {
+    "tool": "HEIC to PNG",
+    "group": "C Converters",
+    "batch": "2",
+    "us_keywords": "heic to png | heic to png converter",
+    "in_keywords": "heic to png",
+    "extra": "online, free, batch"
+  },
+  {
+    "tool": "WebP to JPG",
+    "group": "C Converters",
+    "batch": "1",
+    "us_keywords": "webp to jpg | webp to jpg converter | how to convert webp to jpg",
+    "in_keywords": "webp to jpg | webp to jpg converter",
+    "extra": "online, free, batch, chrome, save as jpg, webp to jpeg, webp2jpg"
+  },
+  {
+    "tool": "WebP to PNG",
+    "group": "C Converters",
+    "batch": "1",
+    "us_keywords": "webp to png | webp to png converter",
+    "in_keywords": "webp to png | webp to png converter",
+    "extra": "transparent, online, free, batch"
+  },
+  {
+    "tool": "AVIF to JPG",
+    "group": "C Converters",
+    "batch": "1",
+    "us_keywords": "avif to jpg | avif to jpg converter | how to open avif file",
+    "in_keywords": "avif to jpg | avif to png",
+    "extra": "png, online, free, batch, windows"
+  },
+  {
+    "tool": "PNG to JPG",
+    "group": "C Converters",
+    "batch": "1",
+    "us_keywords": "png to jpg | png to jpg converter",
+    "in_keywords": "png to jpg | png to jpg converter",
+    "extra": "online, free, batch, high quality, png to jpeg"
+  },
+  {
+    "tool": "JPG to PNG",
+    "group": "C Converters",
+    "batch": "2",
+    "us_keywords": "jpg to png | jpg to png converter",
+    "in_keywords": "jpg to png | jpg to png converter",
+    "extra": "transparent (note: searchers often expect background removal), online, free"
+  },
+  {
+    "tool": "JPG / PNG to WebP",
+    "group": "C Converters",
+    "batch": "2",
+    "us_keywords": "jpg to webp | png to webp | convert image to webp",
+    "in_keywords": "jpg to webp | png to webp",
+    "extra": "for website, wordpress, batch, quality"
+  },
+  {
+    "tool": "JPG to PDF",
+    "group": "C Converters",
+    "batch": "3",
+    "us_keywords": "jpg to pdf | image to pdf",
+    "in_keywords": "jpg to pdf | image to pdf | photo ko pdf kaise banaye",
+    "extra": "multiple images, one pdf, free, online — very competitive (iLovePDF, Smallpdf)"
+  },
+  {
+    "tool": "Image compressor",
+    "group": "C Converters",
+    "batch": "1",
+    "us_keywords": "compress image | image compressor | how to reduce image size",
+    "in_keywords": "compress image to 50kb | image compressor | compress image to 20kb",
+    "extra": "to 20kb/50kb/100kb/200kb, jpg, png, without losing quality, for form, for email — India 'kb' queries are huge (exam/govt forms)"
+  },
+  {
+    "tool": "Resize image",
+    "group": "C Converters",
+    "batch": "1",
+    "us_keywords": "resize image | image resizer | how to resize an image",
+    "in_keywords": "resize image | photo resize | resize photo to 3.5 x 4.5 cm",
+    "extra": "in pixels, in cm, passport size, 2x2, for form, signature resize, bulk"
+  },
+  {
+    "tool": "Remove SynthID",
+    "group": "D SynthID",
+    "batch": "1",
+    "us_keywords": "remove synthid | synthid remover | how to remove synthid from image",
+    "in_keywords": "remove synthid | synthid remover",
+    "extra": "remove synth id, synth id remover, online, free, gemini image, nano banana, veo video, from image, from video"
+  },
+  {
+    "tool": "What is SynthID / SynthID detector (info)",
+    "group": "D SynthID",
+    "batch": "2",
+    "us_keywords": "what is synthid | synthid detector | synthid watermark",
+    "in_keywords": "what is synthid | synthid detector",
+    "extra": "google, gemini, check, watermark, invisible watermark (detector pages belong to CheckAIorNot)"
+  },
+  {
+    "tool": "Instagram: remove location / resize for Instagram",
+    "group": "E Platform pages",
+    "batch": "2",
+    "us_keywords": "remove location from photo before posting instagram | resize image for instagram | instagram image size",
+    "in_keywords": "instagram photo size | resize image for instagram",
+    "extra": "post, story, reels cover, 4:5, 1080x1350, without cropping, heic for instagram"
+  },
+  {
+    "tool": "WhatsApp: send HD / compress / remove location",
+    "group": "E Platform pages",
+    "batch": "2",
+    "us_keywords": "compress image for whatsapp | whatsapp image size",
+    "in_keywords": "whatsapp dp size | compress image for whatsapp | whatsapp photo quality kaise badhaye?",
+    "extra": "dp, profile picture without crop, status, hd, location"
+  },
+  {
+    "tool": "Discord: compress for upload limit",
+    "group": "E Platform pages",
+    "batch": "2",
+    "us_keywords": "compress video for discord | discord file size limit | compress image for discord",
+    "in_keywords": "compress video for discord",
+    "extra": "10mb, 8mb, 25mb, gif, emoji size, pfp size, banner size"
+  },
+  {
+    "tool": "YouTube / TikTok: thumbnail and cover size",
+    "group": "E Platform pages",
+    "batch": "3",
+    "us_keywords": "youtube thumbnail size | resize image for youtube thumbnail | tiktok video size",
+    "in_keywords": "youtube thumbnail size | youtube banner size",
+    "extra": "1280x720, banner, profile picture, 9:16, under 2mb"
+  },
+  {
+    "tool": "Marketplaces (Etsy/eBay): remove photo metadata before listing",
+    "group": "E Platform pages",
+    "batch": "3",
+    "us_keywords": "etsy photo size | remove location from photo ebay?",
+    "in_keywords": "amazon product image size | flipkart image size?",
+    "extra": "product photo size, white background, location privacy, compress"
+  },
+  {
+    "tool": "Midjourney: convert / download images",
+    "group": "F AI-app pages",
+    "batch": "2",
+    "us_keywords": "midjourney webp to png | midjourney image size | download midjourney images",
+    "in_keywords": "midjourney image download | midjourney image size",
+    "extra": "aspect ratio, png, upscale, print size, high resolution, bulk download"
+  },
+  {
+    "tool": "ChatGPT / DALL·E: image format and size",
+    "group": "F AI-app pages",
+    "batch": "2",
+    "us_keywords": "chatgpt image to jpg | dall-e image size | chatgpt image format",
+    "in_keywords": "chatgpt image download | chatgpt image size",
+    "extra": "png to jpg, webp, print, transparent, aspect ratio"
+  },
+  {
+    "tool": "Gemini / Nano Banana: image download and format",
+    "group": "F AI-app pages",
+    "batch": "2",
+    "us_keywords": "gemini image download | nano banana image size | gemini image to png",
+    "in_keywords": "nano banana image download | gemini photo download",
+    "extra": "high quality, without visible watermark (only the user's OWN images — check ToS), png, 4k"
+  },
+  {
+    "tool": "Canva / CapCut: export formats",
+    "group": "F AI-app pages",
+    "batch": "3",
+    "us_keywords": "canva export webp to jpg? | capcut export size",
+    "in_keywords": "canva download size | capcut export quality",
+    "extra": "high quality, transparent png, file size too big, compress"
+  },
+  {
+    "tool": "Remove AI info label: Instagram",
+    "group": "G AI-label removal (research)",
+    "batch": "research",
+    "us_keywords": "remove ai info instagram | remove made with ai label instagram | how to remove ai info on instagram",
+    "in_keywords": "remove ai info instagram | instagram ai info kaise hataye | remove ai label instagram",
+    "extra": "post, reel, story, photo, after editing, made with ai, ai info label"
+  },
+  {
+    "tool": "Remove AI info label: Facebook / Threads",
+    "group": "G AI-label removal (research)",
+    "batch": "research",
+    "us_keywords": "remove ai info facebook | remove ai label threads",
+    "in_keywords": "remove ai info facebook",
+    "extra": "post, photo, meta"
+  },
+  {
+    "tool": "Remove AI-generated label: TikTok",
+    "group": "G AI-label removal (research)",
+    "batch": "research",
+    "us_keywords": "remove ai generated label tiktok | how to remove ai generated tag on tiktok",
+    "in_keywords": "remove ai generated label tiktok",
+    "extra": "video, photo, content, after posting"
+  },
+  {
+    "tool": "Remove AI modified label: Pinterest",
+    "group": "G AI-label removal (research)",
+    "batch": "research",
+    "us_keywords": "remove ai modified label pinterest | pinterest ai label",
+    "in_keywords": "pinterest ai modified label",
+    "extra": "pin, etsy sellers, appeal"
+  },
+  {
+    "tool": "C2PA / Content Credentials remover",
+    "group": "G AI-label removal (research)",
+    "batch": "research",
+    "us_keywords": "c2pa remover | remove c2pa metadata | remove content credentials",
+    "in_keywords": "c2pa remover | remove c2pa",
+    "extra": "online, free, photoshop, firefly, chatgpt image"
+  },
+  {
+    "tool": "AI metadata remover",
+    "group": "G AI-label removal (research)",
+    "batch": "research",
+    "us_keywords": "ai metadata remover | remove ai metadata from image | how to remove ai metadata from photo",
+    "in_keywords": "ai metadata remover | remove ai metadata",
+    "extra": "free, online, batch, before upload, png, jpg"
+  },
+  {
+    "tool": "XMP remover",
+    "group": "G AI-label removal (research)",
+    "batch": "research",
+    "us_keywords": "xmp remover | remove xmp metadata",
+    "in_keywords": "remove xmp metadata",
+    "extra": "lightroom, photoshop, online"
+  },
+  {
+    "tool": "Remove AI detection from image",
+    "group": "G AI-label removal (research)",
+    "batch": "research",
+    "us_keywords": "remove ai detection from image | make ai image undetectable | bypass ai image detector",
+    "in_keywords": "make ai image undetectable | remove ai detection from image",
+    "extra": "free, online, humanize ai image, ai image humanizer"
+  },
+  {
+    "tool": "AI-app metadata / watermark removal (Midjourney, ChatGPT, Gemini…)",
+    "group": "G AI-label removal (research)",
+    "batch": "research",
+    "us_keywords": "remove midjourney metadata | remove chatgpt image metadata | remove gemini watermark",
+    "in_keywords": "remove gemini watermark | nano banana watermark remove",
+    "extra": "per app: midjourney, dall-e, firefly, flux, sora, veo, kling, canva, grok, leonardo, ideogram"
+  },
+  {
+    "tool": "Stable Diffusion / ComfyUI PNG metadata remover",
+    "group": "G AI-label removal (research)",
+    "batch": "research",
+    "us_keywords": "remove stable diffusion metadata | remove comfyui workflow from png | remove png metadata",
+    "in_keywords": "remove png metadata",
+    "extra": "prompt, parameters, workflow, automatic1111, forge"
+  },
+  {
+    "tool": "Add camera EXIF to image",
+    "group": "G AI-label removal (research)",
+    "batch": "research",
+    "us_keywords": "add exif data to photo | change camera metadata | add camera info to image",
+    "in_keywords": "add exif data to photo",
+    "extra": "exif editor, change camera model, iphone"
+  },
+  {
+    "tool": "Remove metadata from RAW photos (CR3, NEF, ARW, DNG)",
+    "group": "H Competitor gaps",
+    "batch": "2",
+    "us_keywords": "remove metadata from raw files | remove exif from cr3 | remove gps from raw photo",
+    "in_keywords": "remove metadata from raw files",
+    "extra": "cr2, cr3, nef, arw, raf, rw2, dng, lightroom export without metadata, camera serial number"
+  },
+  {
+    "tool": "Remove camera serial number from photos",
+    "group": "H Competitor gaps",
+    "batch": "3",
+    "us_keywords": "remove camera serial number from photo | camera serial number exif",
+    "in_keywords": "remove camera serial number from photo",
+    "extra": "jpeg, raw, body serial number, lens serial"
+  },
+  {
+    "tool": "Edit image metadata / EXIF editor",
+    "group": "H Competitor gaps",
+    "batch": "2",
+    "us_keywords": "edit image metadata online | exif editor online | how to edit metadata of a photo",
+    "in_keywords": "edit image metadata online | exif editor",
+    "extra": "change date taken, add copyright, add keywords, iptc editor, xmp editor, add title"
+  },
+  {
+    "tool": "Change / add date taken on photo",
+    "group": "H Competitor gaps",
+    "batch": "3",
+    "us_keywords": "change date taken on photo | change photo date metadata",
+    "in_keywords": "change date of photo | photo date change",
+    "extra": "iphone, windows, exif date, online, bulk"
+  },
+  {
+    "tool": "Geotag photo (add / change GPS location)",
+    "group": "H Competitor gaps",
+    "batch": "2",
+    "us_keywords": "geotag photo online | add location to photo | change location of photo",
+    "in_keywords": "add location to photo | geotag photo | gps map camera?",
+    "extra": "gps coordinates, map, real estate, google business profile photos, geotag images for seo"
+  },
+  {
+    "tool": "View image metadata / EXIF viewer (→ CheckAIorNot)",
+    "group": "H Competitor gaps",
+    "batch": "1",
+    "us_keywords": "view image metadata | exif viewer | how to check photo metadata",
+    "in_keywords": "exif viewer | check photo metadata | photo ki details kaise dekhe?",
+    "extra": "online, c2pa viewer, check location of photo, find where photo was taken (belongs on CheckAIorNot)"
+  },
+  {
+    "tool": "Remove location from video",
+    "group": "H Competitor gaps",
+    "batch": "2",
+    "us_keywords": "remove location from video | remove gps from video | how to remove location from a video on iphone",
+    "in_keywords": "remove location from video",
+    "extra": "iphone, android, gopro, drone, dji, dashcam"
+  },
+  {
+    "tool": "Remove author / metadata from PDF (resume, documents)",
+    "group": "H Competitor gaps",
+    "batch": "2",
+    "us_keywords": "remove author from pdf | remove metadata from resume pdf | who created this pdf",
+    "in_keywords": "remove author name from pdf",
+    "extra": "without acrobat, mac, word to pdf without metadata, anonymize manuscript, double-blind review"
+  },
+  {
+    "tool": "Bulk metadata remover",
+    "group": "H Competitor gaps",
+    "batch": "2",
+    "us_keywords": "bulk metadata remover | remove metadata from multiple photos | batch exif remover",
+    "in_keywords": "bulk metadata remover",
+    "extra": "folder, zip, photos videos pdfs"
+  },
+  {
+    "tool": "Does [platform] remove metadata? (info pages)",
+    "group": "H Competitor gaps",
+    "batch": "2",
+    "us_keywords": "does instagram remove metadata | does whatsapp remove metadata | does reddit remove exif",
+    "in_keywords": "does whatsapp remove metadata | does instagram remove location from photos",
+    "extra": "facebook, telegram, discord, twitter/x, tiktok, email, imessage, does screenshot remove metadata"
+  },
+  {
+    "tool": "Metadata removal API / developer guides",
+    "group": "H Competitor gaps",
+    "batch": "3",
+    "us_keywords": "metadata removal api | remove exif python | strip exif javascript",
+    "in_keywords": "remove exif data python | exif remover api",
+    "extra": "node.js sharp, pillow, exiftool alternative, ffmpeg remove metadata, mcp server"
+  },
+  {
+    "tool": "Invisible character remover (text)",
+    "group": "H Competitor gaps",
+    "batch": "3",
+    "us_keywords": "invisible character remover | remove zero width characters | remove hidden characters from text",
+    "in_keywords": "invisible character remover",
+    "extra": "copy paste formatting, unicode cleaner, text cleaner, word, markdown"
+  },
+  {
+    "tool": "AI text watermark remover (ChatGPT, Claude…)",
+    "group": "G AI-label removal (research)",
+    "batch": "research",
+    "us_keywords": "ai text watermark remover | chatgpt watermark remover | remove chatgpt watermark",
+    "in_keywords": "chatgpt watermark remover",
+    "extra": "hidden characters, does chatgpt have watermark, claude, gemini text"
+  },
+  {
+    "tool": "Remove C2PA from AI videos (Sora, Veo, Firefly)",
+    "group": "G AI-label removal (research)",
+    "batch": "research",
+    "us_keywords": "remove sora watermark | remove c2pa from video | remove veo watermark",
+    "in_keywords": "sora watermark remover | veo watermark remove",
+    "extra": "sora 2, veo 3, kling, runway, ai video metadata"
+  },
+  {
+    "tool": "Drone & Action Cam GPS scrubber (DJI, GoPro)",
+    "group": "H Competitor gaps",
+    "batch": "2",
+    "us_keywords": "remove gps from drone footage | dji photo metadata remover | remove location from gopro video | scrub telemetry from video",
+    "in_keywords": "remove gps from drone footage | dji photo metadata remover | gopro video location remove",
+    "extra": "dji mavic, mini 3, gopro hero, telemetry, srt, mp4, flight path privacy"
+  },
+  {
+    "tool": "TIFF & DNG / Professional photo metadata stripper",
+    "group": "H Competitor gaps",
+    "batch": "2",
+    "us_keywords": "remove metadata from dng | tiff metadata remover | remove exif from tiff | dng exif stripper",
+    "in_keywords": "remove metadata from dng | tiff metadata remover | dng file metadata kaise hataye",
+    "extra": "lightroom, capture one, photoshop, raw, 16-bit, lossless, online"
+  },
+  {
+    "tool": "FLAC / WAV / M4A audio metadata & ID3 cleaner",
+    "group": "H Competitor gaps",
+    "batch": "3",
+    "us_keywords": "remove metadata from wav | flac metadata remover | remove m4a tags | clean audio metadata",
+    "in_keywords": "remove metadata from wav | flac metadata remover | audio tag remover",
+    "extra": "online, free, voice memo, podcast, anonymous audio, sample cleaning"
+  },
+  {
+    "tool": "Document anonymizer & redaction metadata scrubber (Legal, Resume, FOIA)",
+    "group": "H Competitor gaps",
+    "batch": "2",
+    "us_keywords": "sanitize document metadata | remove metadata from pdf resume | scrub pdf court filing | anonymous pdf submission",
+    "in_keywords": "remove metadata from pdf resume | sanitize pdf document | resume author remove",
+    "extra": "court records, blind peer review, job application, foia, legal discovery, confidential"
+  },
+  {
+    "tool": "Photoshop & Lightroom document history / XMP ancestors cleaner",
+    "group": "H Competitor gaps",
+    "batch": "2",
+    "us_keywords": "clean photoshop metadata | remove document ancestors photoshop | scrub lightroom history | strip xmp photoshop",
+    "in_keywords": "remove photoshop metadata | clean xmp photoshop | photoshop document ancestors remove",
+    "extra": "file bloat, reduce psd size, edit history, export for web, privacy"
+  },
+  {
+    "tool": "Does [Messenger/Chat] strip metadata? (Signal, Telegram, Discord, iMessage, WhatsApp)",
+    "group": "H Competitor gaps",
+    "batch": "2",
+    "us_keywords": "does signal remove metadata | does telegram strip exif | does imessage remove location | does discord strip metadata | does twitter remove exif",
+    "in_keywords": "does telegram remove metadata | does whatsapp strip exif | does instagram remove photo location",
+    "extra": "privacy, photo sharing, raw vs compressed, uncompressed file send, secret chat"
+  },
+  {
+    "tool": "Flux & Midjourney AI metadata & prompt stripper",
+    "group": "G AI-label removal (research)",
+    "batch": "research",
+    "us_keywords": "remove flux metadata | flux ai watermark remover | remove prompt from midjourney image | strip ai generation parameters",
+    "in_keywords": "remove flux ai metadata | midjourney prompt remover | flux watermark remove",
+    "extra": "lora, prompt hiding, png chunks, bfl flux.1, schnell, dev, stealth prompt"
+  },
+  {
+    "tool": "AI Video watermark & C2PA remover (Runway, Kling, Luma, Pika, Sora, Veo)",
+    "group": "G AI-label removal (research)",
+    "batch": "research",
+    "us_keywords": "remove runway watermark | kling ai watermark remover | luma ai watermark remover | pika watermark remover | remove c2pa video",
+    "in_keywords": "runway watermark remover | kling ai watermark remove | luma dream machine watermark",
+    "extra": "free, online, video without watermark, ai video creator, content credentials video"
+  },
+  {
+    "tool": "Online EXIF stripper & ExifTool web alternative (Metadata2Go, Jimpl, ExifCleaner)",
+    "group": "H Competitor gaps",
+    "batch": "1",
+    "us_keywords": "exiftool online | metadata2go alternative | exifcleaner online | jimpl alternative | online exif stripper | verexif alternative",
+    "in_keywords": "exiftool online | exifcleaner online | metadata remover online | jimpl alternative",
+    "extra": "in-browser, client side, private, no file upload, open source, fast, batch"
+  },
+  {
+    "tool": "Zero-width space & hidden unicode character cleaner",
+    "group": "H Competitor gaps",
+    "batch": "3",
+    "us_keywords": "zero width space remover | remove zero width space from text | clean invisible characters unicode | hidden text watermark remover",
+    "in_keywords": "zero width space remover | invisible character cleaner | remove hidden characters from text",
+    "extra": "zwsp, u+200b, u+feff, ai watermark in text, prompt injection, copy paste bug"
+  },
+  {
+    "tool": "Anonymous photo posting tool (Reddit, 4chan, Marketplace safe share)",
+    "group": "A Photo privacy",
+    "batch": "1",
+    "us_keywords": "sanitize photo before posting | safe share photo | scrub photo for reddit | remove photo location before selling online",
+    "in_keywords": "sanitize photo before posting | safe photo sharing | remove location before uploading",
+    "extra": "facebook marketplace, craigslist, ebay, carousell, olx, stalker protection, doxxing prevention"
+  }
+]

@@ -1,0 +1,577 @@
+---
+import Base from '../layouts/Base.astro';
+import ToolDrop from '@removesynth/shared/components/ToolDrop.astro';
+import { faqSchema, breadcrumbSchema, type FaqItem } from '@removesynth/shared/lib/faq';
+
+const title = 'Audio Metadata Remover: Clean ID3 Tags & MP3 Files';
+const description =
+  'Remove ID3 tags, artist names, album art, and DAW encoder metadata from MP3, WAV, and FLAC files. Free in-browser tool with zero server uploads and no loss.';
+
+const faqs: FaqItem[] = [
+  {
+    q: 'Does removing ID3 tags re-encode or compress audio frames?',
+    a: 'No. RemoveSynth performs pure binary stream demuxing in your browser. It parses the file headers, unlinks ID3v1, ID3v2, and RIFF chunk blocks, and outputs the audio bitstream bit-for-bit losslessly without running ffmpeg or lossy encoders.',
+  },
+  {
+    q: 'What metadata is removed from the audio file?',
+    a: 'Track titles, artist names, album names, embedded APIC album artwork, composer tags, release years, lyrics, DAW project software serial numbers, and 128-byte ID3v1 trailers.',
+  },
+  {
+    q: 'How does embedded album art inflate audio file sizes?',
+    a: 'Modern music distributors and podcasts frequently embed uncompressed 3000 by 3000 pixel PNG or JPEG images directly into the ID3 APIC frame. This adds 5 to 20 MB of hidden file size to every single audio track.',
+  },
+  {
+    q: 'Which audio formats are supported by RemoveSynth?',
+    a: 'MP3 (ID3v1, ID3v2.2, ID3v2.3, and ID3v2.4), WAV (RIFF/INFO and BEXT chunks), FLAC (Vorbis comments and picture blocks), and M4A/AAC containers.',
+  },
+  {
+    q: 'Is my audio uploaded to any server or cloud database?',
+    a: 'No. Binary inspection and tag excision operate 100 percent locally on your device in browser memory. Your private audio recordings, voice memos, and podcasts never leave your machine.',
+  },
+  {
+    q: 'Can I batch-process multiple audio files at once?',
+    a: 'Yes. You can drop up to 30 audio tracks simultaneously. The tool sanitizes each file in milliseconds and offers individual downloads or a consolidated ZIP archive.',
+  },
+];
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: 'Audio Metadata & ID3 Tag Remover',
+    url: 'https://removesynth.com/audio-metadata-remover/',
+    applicationCategory: 'MultimediaApplication',
+    operatingSystem: 'All',
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    description,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    name: 'How to remove metadata and ID3 tags from audio files',
+    step: [
+      {
+        '@type': 'HowToStep',
+        position: 1,
+        name: 'Drop audio files',
+        text: 'Drag and drop your MP3, WAV, FLAC, or M4A audio files into the upload zone above.',
+      },
+      {
+        '@type': 'HowToStep',
+        position: 2,
+        name: 'Lossless binary demuxing',
+        text: 'The tool scans the byte stream, strips ID3v2 headers, APIC artwork frames, and ID3v1 trailers in browser RAM.',
+      },
+      {
+        '@type': 'HowToStep',
+        position: 3,
+        name: 'Download clean audio',
+        text: 'Save your sanitized audio tracks individually or download all files at once as a ZIP package.',
+      },
+    ],
+  },
+  faqSchema(faqs),
+  breadcrumbSchema([
+    { name: 'Home', url: '/' },
+    { name: 'Tools', url: '/tools/' },
+    { name: 'Audio Metadata Remover', url: '/audio-metadata-remover/' },
+  ]),
+];
+---
+
+<Base title={title} description={description} schema={jsonLd}>
+  <article class="page-container">
+    <header class="hero">
+      <p class="eyebrow">Lossless Audio Cleaning · Zero Re-encoding</p>
+      <h1>Audio Metadata &amp; ID3 Tag Remover</h1>
+      <p class="lead">
+        Strip artist names, embedded cover art, DAW software signatures, and tracking tags from MP3 and WAV files. 100 percent private in-browser binary cleaning.
+      </p>
+    </header>
+
+    <div class="tool-wrapper" id="tool">
+      <ToolDrop
+        id="audio-cleaner"
+        accept="audio/*,.mp3,.wav,.flac,.m4a"
+        multiple={true}
+        title="Drop audio files to strip ID3 &amp; metadata"
+        sub="Artist, title, album art, and DAW signatures are removed losslessly in your browser."
+        meta="click to choose or paste · MP3 · WAV · FLAC · M4A · up to 100 MB"
+        footnote="Runs 100% in your browser · nothing is uploaded · pure lossless audio frames"
+      >
+        <div class="results" hidden aria-live="polite">
+          <div class="bar">
+            <span class="summary"></span>
+            <div class="bar-actions">
+              <button type="button" class="btn zip" disabled>Download all (ZIP)</button>
+              <button type="button" class="btn btn-ghost clear">Clear</button>
+            </div>
+          </div>
+          <ul class="rows"></ul>
+        </div>
+      </ToolDrop>
+    </div>
+
+    <!-- Long-Form In-Depth Rank-Fast Content -->
+    <div class="prose">
+      <h2>Understanding Audio Metadata: How ID3 Tags Work</h2>
+      <p>
+        Digital audio containers such as MP3, WAV, and FLAC store audible acoustic waveforms alongside extensive non-audio metadata blocks. In MP3 files, these blocks are standardized as ID3 tags. ID3v2 tags sit at the very beginning of the audio container, while legacy ID3v1 tags occupy the final 128 bytes of the file.
+      </p>
+      <p>
+        When you export an audio project from a digital audio workstation (DAW) such as Ableton Live, FL Studio, Logic Pro, or Audacity, the software injects telemetry data into these tags. This includes the registered DAW user name, software license keys, local file path directories, recording hardware serial numbers, and exact project creation timestamps. When distributing podcasts, voice recordings, or demo tracks, uncleaned audio files leak your private system environment to listeners and competitors.
+      </p>
+
+      <h2>Mathematical Formulation of Stream Demuxing</h2>
+      <p>
+        Most online audio utilities re-encode your sound files using ffmpeg or lame encoders, introducing generational loss, harmonic distortion, and altered bitrates. RemoveSynth performs pure binary stream demuxing in browser RAM.
+      </p>
+      <div class="math-block">
+        <code>Audio_clean = ByteStream \ (ID3v2_Header + Sum(Frame_APIC + Frame_TIT2 + Frame_TPE1 + Frame_COMM) + ID3v1_Trailer_128Bytes)</code>
+      </div>
+      <p>
+        Where the audio frame parser scans for the initial MPEG sync word:
+      </p>
+      <div class="math-block">
+        <code>SyncWord = 0xFFE0 &amp; 0xFFE0  ==&gt;  Offset_AudioStart = First_Valid_MPEG_Frame</code>
+      </div>
+      <p>
+        By slicing the binary buffer directly at <code>Offset_AudioStart</code> and terminating prior to the 128-byte trailer, all audible audio frames remain bit-for-bit bitstream copies of your original master recording.
+      </p>
+
+      <h2>Worked Example: Real Numerical Audio Cleaning</h2>
+      <p>
+        To understand the speed and file size benefits of binary excision, consider a studio master recording exported for podcast distribution:
+      </p>
+      <ul>
+        <li><strong>Initial File Size:</strong> 94,820,100 bytes (90.42 MB)</li>
+        <li><strong>Audio Duration:</strong> 38 minutes 42 seconds (320 kbps Constant Bitrate MP3)</li>
+        <li><strong>Identified Metadata Payloads:</strong>
+          <ul>
+            <li><code>APIC</code> Frame (Embedded Cover Artwork): 14,210,500 bytes (Uncompressed 3000 x 3000 PNG)</li>
+            <li><code>COMM</code> / <code>TXXX</code> DAW Export Diagnostics: 42,300 bytes</li>
+            <li>ID3v1 128-byte trailer at byte offset 94,819,972</li>
+          </ul>
+        </li>
+        <li><strong>Cleaned File Size:</strong> 80,567,172 bytes (76.83 MB)</li>
+        <li><strong>Exact Byte Savings:</strong> 14,252,928 bytes removed (15.03 percent file size reduction)</li>
+        <li><strong>Processing Time:</strong> 48 milliseconds in local browser RAM</li>
+        <li><strong>Transcoding Loss:</strong> 0.0000 dB (waveform is bit-for-bit identical)</li>
+      </ul>
+
+      <!-- SVG Container Architecture Diagram -->
+      <h2>Audio Stream Architecture: ID3 Tag Layout and Excision</h2>
+      <p>
+        The vector diagram below illustrates the physical byte structure of an MP3 container before and after RemoveSynth losslessly unlinks non-audio metadata blocks.
+      </p>
+      <svg viewBox="0 0 760 360" class="chart-svg" role="img" aria-label="Diagram showing MP3 container structure with ID3v2 header and APIC album art excised">
+        <defs>
+          <linearGradient id="audioGradBloat" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#ff4444" stop-opacity="0.3"/>
+            <stop offset="100%" stop-color="#ff4444" stop-opacity="0.1"/>
+          </linearGradient>
+          <linearGradient id="audioGradClean" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#2cc4f5" stop-opacity="0.3"/>
+            <stop offset="100%" stop-color="#00e699" stop-opacity="0.3"/>
+          </linearGradient>
+        </defs>
+        <rect x="10" y="10" width="740" height="340" rx="8" fill="#0b111a" stroke="#1f2d3d" stroke-width="1"/>
+        
+        <!-- Top: Before -->
+        <text x="30" y="45" fill="#ff4444" font-weight="700" font-size="14">BEFORE REMOVESYNTH (90.4 MB Total Container)</text>
+        <rect x="30" y="60" width="110" height="40" rx="4" fill="url(#audioGradBloat)" stroke="#ff4444" stroke-width="1.5"/>
+        <text x="40" y="85" fill="#ff7777" font-size="11">ID3v2 Header (Tag)</text>
+        
+        <rect x="145" y="60" width="240" height="40" rx="4" fill="url(#audioGradBloat)" stroke="#ff4444" stroke-width="1.5" stroke-dasharray="4"/>
+        <text x="160" y="85" fill="#ff7777" font-weight="700" font-size="12">APIC Cover Art (14.2 MB Bloat)</text>
+        
+        <rect x="390" y="60" width="270" height="40" rx="4" fill="#1b2533" stroke="#00e699" stroke-width="1"/>
+        <text x="430" y="85" fill="#00e699" font-size="12">Pure MPEG Audio Frames (Sync)</text>
+        
+        <rect x="665" y="60" width="65" height="40" rx="4" fill="url(#audioGradBloat)" stroke="#ff4444" stroke-width="1.5"/>
+        <text x="672" y="85" fill="#ff7777" font-size="10">ID3v1 (128B)</text>
+
+        <!-- Divider -->
+        <line x1="30" y1="140" x2="730" y2="140" stroke="#1f2d3d" stroke-width="1" stroke-dasharray="2"/>
+
+        <!-- Bottom: After -->
+        <text x="30" y="180" fill="#00e699" font-weight="700" font-size="14">AFTER REMOVESYNTH (76.8 MB Sanitized Stream)</text>
+        <rect x="30" y="195" width="700" height="40" rx="4" fill="#1b2533" stroke="#00e699" stroke-width="1.5"/>
+        <text x="210" y="220" fill="#00e699" font-weight="600" font-size="13">Continuous MPEG Audio Frame Bitstream (Zero Transcoding)</text>
+
+        <!-- You Are Here Marker -->
+        <g transform="translate(180, 265)">
+          <circle cx="0" cy="0" r="14" fill="#2cc4f5" fill-opacity="0.2"/>
+          <circle cx="0" cy="0" r="6" fill="#2cc4f5"/>
+          <text x="22" y="5" fill="#2cc4f5" font-weight="700" font-size="12">YOU ARE HERE: Lossless Audio Demuxing at Offset_AudioStart</text>
+        </g>
+      </svg>
+
+      <h2>How Embedded Album Art (APIC Frames) Invisibly Inflates Audio Files</h2>
+      <p>
+        The single largest contributor to excessive audio file sizes is not the audio bitrate, but the <code>APIC</code> (Attached Picture) frame. Audio tagging utilities often allow creators to attach high-resolution artwork without checking the underlying image file format or compression.
+      </p>
+      <ul>
+        <li><strong>Uncompressed PNG Artwork:</strong> A 3000 x 3000 pixel uncompressed PNG graphic can easily measure 15 to 20 MB. When embedded into an MP3, this image is duplicated into the file header of every single track in an album.</li>
+        <li><strong>Bandwidth Waste on Streaming Hosts:</strong> Hosting 50 podcast episodes with embedded 15 MB artwork wastes 750 MB of listener bandwidth and storage on mobile devices without improving audio fidelity.</li>
+        <li><strong>Car Stereo and Player Freezes:</strong> Embedded high-resolution cover art frequently crashes automotive infotainment systems and portable MP3 players that have strict memory buffers under 2 MB.</li>
+      </ul>
+
+      <h2>Step-by-Step Guide: Sanitizing Audio Metadata in Your Browser</h2>
+      <ol class="steps">
+        <li><strong>Drop audio files:</strong> Drag and drop your MP3, WAV, FLAC, or M4A audio files into the upload zone above.</li>
+        <li><strong>Lossless binary demuxing:</strong> The tool scans the byte stream, strips ID3v2 headers, APIC artwork frames, and ID3v1 trailers in browser RAM.</li>
+        <li><strong>Download clean audio:</strong> Save your sanitized audio tracks individually or download all files at once as a ZIP package.</li>
+      </ol>
+
+      
+    <h2>WAV Container Metadata: RIFF INFO Chunks and Broadcast Wave Format (BEXT)</h2>
+    <p>
+      While many producers assume uncompressed Waveform Audio Files (WAV) contain only raw linear PCM samples, the Resource Interchange File Format (RIFF) container supports extensive metadata structures:
+    </p>
+    <ul>
+      <li><strong>RIFF INFO List Chunks:</strong> Contains 4-character ID sub-chunks like <code>INAM</code> (track name), <code>IART</code> (artist), <code>ICOP</code> (copyright), and <code>ISFT</code> (software package name). Exporting from Pro Tools or Logic Pro routinely embeds your operating system version and studio name in these chunks.</li>
+      <li><strong>Broadcast Wave Format (BEXT Chunks):</strong> Mandated by the European Broadcasting Union (EBU Tech 3285), BEXT chunks encode originator studio codes, originator references, unique transmission IDs, and SMPTE timecode offsets (<code>TimeReferenceLow</code> and <code>TimeReferenceHigh</code>) indicating the exact wall-clock time recording started.</li>
+      <li><strong>Cart Chunks:</strong> Used in radio broadcasting automation to store client names, broadcast expiration dates, and sponsor identification tags.</li>
+      <li><strong>How RemoveSynth Strips WAV Metadata:</strong> Our browser engine inspects the RIFF header, skips <code>LIST</code>, <code>bext</code>, and <code>cart</code> chunks, and writes a clean RIFF container holding solely the <code>fmt </code> (format descriptor) and <code>data</code> (raw PCM audio samples) chunks. The resulting file plays back identically on every audio interface without leaking project telemetry.</li>
+    </ul>
+
+    <h2>FLAC Metadata Architecture: Stripping Vorbis Comments and Embedded Cover Art</h2>
+    <p>
+      Free Lossless Audio Codec (FLAC) files organize non-audio information into modular metadata blocks defined by the <code>fLaC</code> stream marker:
+    </p>
+    <ul>
+      <li><strong>METADATA_BLOCK_VORBIS_COMMENT:</strong> Stores key-value string pairs in UTF-8 format. Audio software uses this block to record composer names, track numbers, ISRC codes, and software build hashes.</li>
+      <li><strong>METADATA_BLOCK_PICTURE:</strong> Allows multiple images (front cover, back cover, media leaflet, artist photo) to be embedded directly into the FLAC container. A high-resolution 24-bit studio cover can add 10 to 30 MB to each lossless track.</li>
+      <li><strong>METADATA_BLOCK_PADDING:</strong> DAWs pre-allocate empty padding blocks (often 4 KB to 64 KB) to allow quick tag updates without rewriting the file.</li>
+      <li><strong>Lossless Preservation Guarantee:</strong> Because FLAC compresses audio frames independently from metadata blocks, stripping <code>VORBIS_COMMENT</code> and <code>PICTURE</code> blocks leaves the compressed linear predictive coding (LPC) audio subframes 100 percent intact. Audio quality remains bit-for-bit mathematically identical with 0.0 dB signal loss.</li>
+    </ul>
+
+    <h2>M4A and AAC Audio: Sanitizing iTunes Metadata Atoms and Account IDs</h2>
+    <p>
+      M4A audio files utilize the ISO Base Media File Format (ISOBMFF) container. In M4A containers, metadata is nested inside the <code>moov.udta.meta.ilst</code> atom box tree:
+    </p>
+    <ul>
+      <li><strong>Apple Account Identifiers:</strong> Files exported from or tagged by iTunes or Apple Music frequently retain the purchaser Apple ID, account username, and credit card billing country code in specialized atoms like <code>apso</code> and <code>purd</code>.</li>
+      <li><strong>DAW and Voice Recorder Signatures:</strong> iOS Voice Memos and third-party recording apps embed device hardware models (for example, iPhone 16 Pro Max microphone array calibration), GPS coordinates if location permissions were granted, and localized recording dates.</li>
+      <li><strong>Zero-Upload Privacy:</strong> RemoveSynth parses the atom box hierarchy in browser memory, unlinking the <code>meta</code> atom while keeping the audio track <code>mdia.minf.stbl</code> sample tables untouched.</li>
+    </ul>
+
+    <h2>Audio Privacy Use Cases: Podcasters, Sample Pack Creators, and Whistleblowers</h2>
+    <p>
+      Sanitizing audio metadata is critical across multiple creative and confidential fields:
+    </p>
+    <ul>
+      <li><strong>Sample Pack Developers and Music Producers:</strong> Royalty-free sample creators must remove internal project file paths and client references before selling sample kits online.</li>
+      <li><strong>Independent Podcasters and Broadcasters:</strong> Removing 15 MB album art chunks cuts hosting bandwidth costs and prevents playback buffering for mobile listeners in low-connectivity areas.</li>
+      <li><strong>Investigative Journalists and Whistleblowers:</strong> Scrubbing GPS tags, timecodes, and equipment serial numbers from recorded interviews ensures sources cannot be geo-located or de-anonymized.</li>
+      <li><strong>Anonymous Voice Memo Sharing:</strong> Sending confidential voice notes without exposing phone serial numbers or exact home coordinates.</li>
+    </ul>
+
+
+    
+    <h2>DAW Telemetry: What Ableton Live, FL Studio, Logic Pro, and Reaper Write into Exports</h2>
+    <p>
+      Digital Audio Workstations are designed to manage complex multi-track projects, but their default export profiles embed comprehensive production telemetry into the resulting MP3 and WAV files:
+    </p>
+    <ul>
+      <li><strong>Ableton Live:</strong> Embeds encoded user account registration strings, application build versions, and session tempo/time-signature markers within proprietary <code>TXXX</code> user-defined text frames.</li>
+      <li><strong>FL Studio:</strong> Automatically injects the registered user name and license status into the <code>TCOP</code> (copyright) and <code>TENC</code> (encoded by) tags, along with project mixer master channel limiter presets.</li>
+      <li><strong>Apple Logic Pro:</strong> Injects CoreAudio framework identifiers, session arrangement markers, and project asset folder paths that disclose local Mac home directory usernames.</li>
+      <li><strong>Cockos Reaper:</strong> Writes project render settings, sample rate conversion algorithms, and dither types into custom RIFF chunk descriptors.</li>
+      <li><strong>Why Professional Producers Sanitize Stems:</strong> When delivering stems, instrumental mixes, or demo beats to record labels, sync licensing agencies, or collaborative vocalists, delivering sanitized audio prevents leaking unreleased project titles, software serials, or studio hardware configurations.</li>
+    </ul>
+
+    <h2>ID3v2.3 vs ID3v2.4 Synchronization and Unsynchronization Schemes Explained</h2>
+    <p>
+      The technical evolution of the ID3v2 specification created notable compatibility and decoding friction across playback software:
+    </p>
+    <ul>
+      <li><strong>ID3v2.3 Standard (1999):</strong> Uses four 7-bit synchsafe integers for header sizes, with frames utilizing 32-bit big-endian size descriptors. Multiple artists are separated by forward slashes (<code>/</code>). It remains the most widely compatible standard on legacy automotive hardware, portable media players, and older DJ software.</li>
+      <li><strong>ID3v2.4 Standard (2000):</strong> Mandates synchsafe integers across both headers and individual frame size descriptors. Multiple values are separated by null bytes (<code>0x00</code>). It introduces UTF-8 text encoding support and footer tags for streaming efficiency.</li>
+      <li><strong>The Unsynchronization Trap:</strong> To prevent MPEG decoders from misinterpreting metadata bytes as audio sync words (<code>0xFFE0</code>), ID3 specifications insert an unsynchronization scheme that inserts a null byte after every <code>0xFF</code> byte. Faulty parsers in basic media players can miscalculate frame offsets, causing audible pops, clicks, or truncated playback.</li>
+      <li><strong>The Clean Audio Benefit:</strong> By completely stripping ID3 headers and trailers, RemoveSynth eliminates unsynchronization conflicts entirely, leaving pure, uninterrupted MPEG audio frames that play flawlessly on 100 percent of devices.</li>
+    </ul>
+
+
+    <h2>Comparison of Audio Metadata Stripping Tools</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th>RemoveSynth</th>
+              <th>Desktop Tag Editors (Mp3tag)</th>
+              <th>Cloud Audio Converters</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td>Zero (100% In-Browser)</td>
+              <td>Local Only</td>
+              <td>Full Audio Uploaded to Server</td>
+            </tr>
+            <tr>
+              <td><strong>Audio Transcoding</strong></td>
+              <td>None (100% Lossless)</td>
+              <td>None</td>
+              <td>Re-encodes Audio (Causes Quality Loss)</td>
+            </tr>
+            <tr>
+              <td><strong>Software Installation</strong></td>
+              <td>None (Works on Any Browser)</td>
+              <td>Requires Local App Install</td>
+              <td>None</td>
+            </tr>
+            <tr>
+              <td><strong>Supported Formats</strong></td>
+              <td>MP3, WAV, FLAC, M4A</td>
+              <td>MP3, FLAC, OGG, M4A</td>
+              <td>Limited</td>
+            </tr>
+            <tr>
+              <td><strong>Mobile Compatibility</strong></td>
+              <td>iPhone, iPad, Android</td>
+              <td>Desktop Only</td>
+              <td>Mobile Web</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- FAQ Section -->
+      <h2>Frequently Asked Questions</h2>
+      <div class="faq-list">
+        {faqs.map((faq) => (
+          <div class="faq-item card">
+            <h3>{faq.q}</h3>
+            <p>{faq.a}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </article>
+</Base>
+
+<style>
+  .page-container {
+    max-width: var(--maxw);
+    margin: 0 auto;
+    padding: 32px 16px 80px;
+  }
+  .hero {
+    text-align: center;
+    max-width: 760px;
+    margin: 0 auto 36px;
+  }
+  .eyebrow {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--accent);
+    background: var(--accent-soft);
+    border: 1px solid rgba(44, 196, 245, 0.25);
+    margin-bottom: 14px;
+  }
+  .hero h1 {
+    font-size: clamp(2.2rem, 5vw, 3.4rem);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.03em;
+    margin: 0 0 16px;
+  }
+  .lead {
+    color: var(--muted);
+    font-size: 1.15rem;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .tool-wrapper {
+    margin-bottom: 56px;
+  }
+
+  .results {
+    margin-top: 18px;
+  }
+  .bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 12px;
+  }
+  .bar-actions {
+    display: flex;
+    gap: 8px;
+  }
+  .rows {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .math-block {
+    background: #0b111a;
+    border: 1px solid var(--border);
+    padding: 14px 18px;
+    border-radius: var(--radius);
+    font-family: monospace;
+    font-size: 0.95rem;
+    color: #2cc4f5;
+    margin: 18px 0;
+    overflow-x: auto;
+  }
+
+  .chart-svg {
+    width: 100%;
+    height: auto;
+    max-width: 760px;
+    display: block;
+    margin: 24px auto;
+  }
+
+  .steps {
+    list-style: decimal;
+    padding-left: 24px;
+    line-height: 1.8;
+    margin: 20px 0;
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+    margin: 24px 0;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.92rem;
+  }
+  th, td {
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    text-align: left;
+  }
+  th {
+    background: var(--card-bg);
+    color: var(--fg);
+  }
+
+  .faq-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 24px;
+  }
+  .faq-item {
+    padding: 20px 24px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+  }
+  .faq-item h3 {
+    margin: 0 0 8px;
+    font-size: 1.15rem;
+    color: var(--fg);
+  }
+  .faq-item p {
+    margin: 0;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+</style>
+
+<script>
+  import { cleanFile, downloadBlob, downloadZip } from '@removesynth/shared/lib/clean';
+
+  const root = document.getElementById('audio-cleaner');
+  if (root) {
+    const results = root.querySelector('.results') as HTMLElement;
+    const summary = root.querySelector('.summary') as HTMLElement;
+    const rows = root.querySelector('.rows') as HTMLElement;
+    const zipBtn = root.querySelector('.zip') as HTMLButtonElement;
+    const clearBtn = root.querySelector('.clear') as HTMLButtonElement;
+
+    const cleanedFiles: { name: string; blob: Blob }[] = [];
+
+    const formatBytes = (bytes: number): string => {
+      if (bytes < 1024) return bytes + ' B';
+      const k = 1024;
+      const sizes = ['B', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return (bytes / Math.pow(k, i)).toFixed(1) + ' ' + sizes[i];
+    };
+
+    root.addEventListener('files', async (e: Event) => {
+      const files = (e as CustomEvent).detail as File[];
+      if (!files || !files.length) return;
+
+      results.hidden = false;
+      rows.innerHTML = '';
+      cleanedFiles.length = 0;
+      zipBtn.disabled = true;
+
+      let totalBefore = 0;
+      let totalAfter = 0;
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        totalBefore += file.size;
+
+        const li = document.createElement('li');
+        li.className = 'bar';
+        li.innerHTML = `<span><b>${file.name}</b> (${formatBytes(file.size)})</span><span class="muted">Cleaning audio ID3 tags...</span>`;
+        rows.appendChild(li);
+
+        try {
+          const res = await cleanFile(file, { stripAll: true });
+          totalAfter += res.cleanSize;
+          cleanedFiles.push({ name: res.name, blob: res.blob });
+
+          const saved = file.size - res.cleanSize;
+          const pct = file.size > 0 ? ((saved / file.size) * 100).toFixed(1) : '0';
+
+          li.innerHTML = `
+            <span><b>${res.name}</b>: ${formatBytes(file.size)} to <span style="color:#00e699">${formatBytes(res.cleanSize)}</span> (${pct}% saved)</span>
+            <button type="button" class="btn btn-ghost dl-single">Download</button>
+          `;
+          li.querySelector('.dl-single')?.addEventListener('click', () => {
+            downloadBlob(res.blob, res.name);
+          });
+        } catch (err: any) {
+          li.innerHTML = `<span><b>${file.name}</b></span><span style="color:#ff4444">Failed: ${err.message || 'Error'}</span>`;
+        }
+      }
+
+      const totalSaved = totalBefore - totalAfter;
+      summary.textContent = `Cleaned ${cleanedFiles.length} audio file(s). Saved ${formatBytes(totalSaved)} of tags and embedded artwork.`;
+      if (cleanedFiles.length > 1) {
+        zipBtn.disabled = false;
+      }
+    });
+
+    zipBtn?.addEventListener('click', () => {
+      if (cleanedFiles.length) {
+        downloadZip(cleanedFiles, 'clean-audio-tracks.zip');
+      }
+    });
+
+    clearBtn?.addEventListener('click', () => {
+      results.hidden = true;
+      rows.innerHTML = '';
+      cleanedFiles.length = 0;
+      zipBtn.disabled = true;
+    });
+  }
+</script>

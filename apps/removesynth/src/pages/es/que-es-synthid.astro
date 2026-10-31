@@ -1,0 +1,105 @@
+---
+import Base from '../../layouts/Base.astro';
+import Faq from '@removesynth/shared/components/Faq.astro';
+import { faqSchema, breadcrumbSchema, type FaqItem } from '@removesynth/shared/lib/faq';
+import { SITE } from '../../site';
+
+const title = '¿Qué es SynthID? Marca de agua de IA de Google';
+const description =
+  'SynthID es la marca de agua invisible de Google DeepMind para imágenes y vídeos de IA. Descubre cómo funciona, dónde se utiliza y cómo se detecta.';
+
+const faqs: FaqItem[] = [
+  {
+    q: '¿Quién creó SynthID?',
+    a: 'SynthID lo desarrolló Google DeepMind y se lanzó en 2023, primero para las imágenes de Imagen.',
+  },
+  {
+    q: '¿Se puede ver una marca de agua SynthID?',
+    a: 'No. SynthID es imperceptible para las personas. Solo se puede encontrar con un detector diseñado para ello.',
+  },
+  {
+    q: '¿SynthID funciona con texto?',
+    a: 'Sí. En el texto, SynthID ajusta ligeramente las probabilidades de las palabras que elige el modelo, lo que deja un patrón estadístico que un detector puede reconocer.',
+  },
+  {
+    q: '¿SynthID es lo mismo que C2PA?',
+    a: 'No. C2PA guarda la información de procedencia en los metadatos del archivo, que se pueden borrar. SynthID está dentro del propio contenido.',
+  },
+];
+
+const schema = [
+  breadcrumbSchema([
+    { name: 'Inicio', url: `${SITE.url}/es/` },
+    { name: '¿Qué es SynthID?', url: `${SITE.url}/es/que-es-synthid/` },
+  ]),
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: title,
+    description,
+    inLanguage: 'es',
+    publisher: { '@type': 'Organization', name: SITE.name, url: SITE.url },
+  },
+  faqSchema(faqs),
+];
+---
+
+<Base title={title} description={description} schema={schema} ogType="article">
+  <article class="prose">
+    <header class="hero" style="text-align:left;padding-bottom:0">
+      <span class="eyebrow">Explicación</span>
+      <h1>¿Qué es SynthID?</h1>
+      <p class="lead" style="margin-left:0">
+        SynthID es la tecnología de Google para marcar e identificar contenido generado con IA. Añade
+        una señal que no se ve ni se oye, pero que un detector puede encontrar.
+      </p>
+    </header>
+
+    <h2>Cómo funciona SynthID</h2>
+    <p>
+      La mayoría de las marcas de agua son un logotipo visible o una etiqueta en los metadatos. SynthID
+      es distinto: se integra en el propio contenido en el momento en que se genera.
+    </p>
+    <ul>
+      <li><strong>Imágenes y vídeo:</strong> pequeños cambios repartidos por los píxeles de cada imagen o fotograma.</li>
+      <li><strong>Audio:</strong> una señal en la forma de onda, por debajo de lo que se puede oír.</li>
+      <li><strong>Texto:</strong> la elección de palabras del modelo se orienta ligeramente hacia un patrón detectable.</li>
+    </ul>
+    <p>
+      Google lo diseñó para resistir las ediciones habituales: recortes, cambios de tamaño, filtros,
+      cambios de color y compresión con pérdida.
+    </p>
+
+    <h2>Dónde se usa SynthID</h2>
+    <p>
+      Google añade SynthID al contenido de sus productos de IA generativa, como Gemini, Imagen
+      (imágenes), Veo (vídeo) y Lyria (música). Además, publicó SynthID Text como código abierto para
+      que otros desarrolladores puedan marcar el texto de sus propios modelos.
+    </p>
+
+    <h2>Cómo se detecta SynthID</h2>
+    <p>
+      Hace falta una herramienta específica. Google permite comprobarlo con su SynthID Detector y en la
+      app Gemini, donde puedes preguntar si una imagen se creó con IA de Google.
+    </p>
+
+    <h2>SynthID frente a otros métodos</h2>
+    <table>
+      <thead>
+        <tr><th>Tipo</th><th>¿Visible?</th><th>¿Resiste ediciones?</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>SynthID (en el contenido)</td><td>No</td><td>Diseñado para ello</td></tr>
+        <tr><td>C2PA (metadatos)</td><td>Con un visor</td><td>Se pierde a menudo</td></tr>
+        <tr><td>Etiqueta visible</td><td>Sí</td><td>Fácil de recortar</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      ¿Tienes un archivo que procesar? Usa el <a href="/es/">SynthID remover</a> o lee antes la
+      <a href="/es/como-eliminar-synthid/">guía paso a paso</a>.
+    </div>
+
+    <Faq items={faqs} heading="Preguntas sobre SynthID" />
+  </article>
+</Base>

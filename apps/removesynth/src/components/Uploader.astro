@@ -1,0 +1,528 @@
+---
+// Upload UI. The processing backend is configured with PUBLIC_API_URL (see .env.example).
+// Contract: POST {PUBLIC_API_URL}/process with multipart field "file";
+// the response body is the processed file, with a matching Content-Type.
+import Jitter from '@removesynth/shared/components/Jitter.astro';
+import { STRINGS, localeFromPath, type Kind } from '../i18n';
+
+interface Props {
+  /** Media types offered. More than one shows tabs; the first is selected. */
+  kinds?: Kind[];
+  jitter?: boolean;
+}
+
+const { kinds = ['image', 'video', 'audio'], jitter = true } = Astro.props;
+const t = STRINGS[localeFromPath(Astro.url.pathname)].uploader;
+const apiUrl = (import.meta.env.PUBLIC_API_URL ?? '').replace(/\/+$/, '');
+const maxMb = Number(import.meta.env.PUBLIC_MAX_UPLOAD_MB ?? 50);
+
+const KINDS: Record<Kind, { accept: string; formats: string }> = {
+  image: { accept: 'image/png,image/jpeg,image/webp', formats: 'PNG · JPG · WebP' },
+  video: { accept: 'video/mp4,video/webm,video/quicktime', formats: 'MP4 · WebM · MOV' },
+  audio: {
+    accept: 'audio/mpeg,audio/wav,audio/x-wav,audio/mp4,audio/x-m4a,audio/ogg,audio/flac,.mp3,.wav,.m4a,.ogg,.flac',
+    formats: 'MP3 · WAV · M4A · OGG · FLAC',
+  },
+};
+const first = kinds[0];
+
+// Everything the client script needs to switch tabs and report status.
+const config = {
+  kinds: Object.fromEntries(
+    kinds.map((k) => [k, { accept: KINDS[k].accept, formats: KINDS[k].formats, drop: t.drop[k], wrongType: t.wrongType[k] }]),
+  ),
+  tooLarge: t.tooLarge.replace('{mb}', String(maxMb)),
+  notConfigured: t.notConfigured,
+  working: t.working,
+  done: t.done,
+  failed: t.failed,
+  http: t.http,
+};
+
+const ICONS: Record<Kind, string> = {
+  image:
+    '<rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-4.5-4.5L6 21"/>',
+  video: '<rect x="2" y="6" width="14" height="12" rx="2"/><path d="m22 8-6 4 6 4V8z"/>',
+  audio: '<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>',
+};
+---
+
+<div class="uploader-stage">
+  {jitter && <Jitter side="left" />}
+  <section
+    class="uploader"
+    data-api={apiUrl}
+    data-max-mb={maxMb}
+    data-kind={first}
+    data-config={JSON.stringify(config)}
+    aria-label={t.aria}
+  >
+  {kinds.length > 1 && (
+    <div class="tabs" role="tablist">
+      {kinds.map((k) => (
+        <button type="button" role="tab" class="tab" data-kind={k} aria-selected={k === first ? 'true' : 'false'}>
+          <svg viewBox="0 0 24 24" aria-hidden="true" set:html={ICONS[k]} />
+          {t.tabs[k]}
+        </button>
+      ))}
+    </div>
+  )}
+
+  <label class="dropzone" for="rs-file">
+    <input id="rs-file" type="file" accept={KINDS[first].accept} hidden />
+    <span class="dz-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M12 15V4m0 0-4 4m4-4 4 4M5 15v3a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-3" /></svg>
+    </span>
+    <strong class="dz-title">{t.drop[first]}</strong>
+    <span class="dz-sub">{t.sub}</span>
+    <span class="dz-meta small">{t.browse} · <span class="dz-formats">{KINDS[first].formats}</span> · {t.upTo} {maxMb} MB</span>
+  </label>
+
+  <div class="panel" hidden>
+    <div class="file-row">
+      <span class="file-name"></span>
+      <button type="button" class="btn-ghost btn reset">{t.change}</button>
+    </div>
+    <div class="previews">
+      <figure>
+        <figcaption class="muted small">{t.original}</figcaption>
+        <div class="preview preview-in"></div>
+      </figure>
+      <figure class="out-fig" hidden>
+        <figcaption class="muted small">{t.processed}</figcaption>
+        <div class="preview preview-out"></div>
+      </figure>
+    </div>
+    <label class="consent small">
+      <input type="checkbox" class="consent-box" />
+      {t.consent}
+    </label>
+    <div class="actions">
+      <button type="button" class="btn process" disabled>{t.process}</button>
+      <a class="btn download" hidden>{t.download}</a>
+    </div>
+    <p class="status small" role="status" aria-live="polite"></p>
+  </div>
+
+  <p class="footnote small">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" /></svg>
+    {t.footnote}
+  </p>
+</section>
+  {jitter && <Jitter side="right" />}
+</div>
+
+<style>
+  .uploader-stage {
+    position: relative;
+    max-width: 820px;
+    margin: 0 auto;
+  }
+  .uploader {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 18px;
+    text-align: left;
+    border: 1px solid var(--border);
+    border-radius: 28px;
+    background: var(--bg-elev);
+    box-shadow: var(--shadow-lg);
+  }
+  svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .tabs {
+    display: flex;
+    gap: 4px;
+    width: max-content;
+    max-width: 100%;
+    margin: 0 auto 16px;
+    padding: 5px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: var(--bg);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .tabs::-webkit-scrollbar {
+    display: none;
+  }
+  .tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 18px;
+    border: 0;
+    border-radius: 12px;
+    background: transparent;
+    color: var(--muted);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .tab:hover {
+    color: var(--text);
+  }
+  .tab[aria-selected='true'] {
+    color: var(--accent);
+    background: var(--accent-soft);
+  }
+  .dropzone {
+    display: grid;
+    place-items: center;
+    gap: 8px;
+    text-align: center;
+    padding: 56px 20px 52px;
+    border: 2px dashed var(--border-strong);
+    border-radius: 20px;
+    background: linear-gradient(180deg, var(--accent-faint), transparent);
+    cursor: pointer;
+    transition: border-color 0.15s, background-color 0.15s, transform 0.15s;
+  }
+  .dropzone:hover,
+  .dropzone.drag {
+    border-color: var(--accent);
+    background-color: var(--accent-soft);
+  }
+  .dropzone.drag {
+    transform: scale(1.005);
+  }
+  .dz-icon {
+    display: grid;
+    place-items: center;
+    width: 68px;
+    height: 68px;
+    border-radius: 20px;
+    color: #fff;
+    background: linear-gradient(180deg, #22c3f2, var(--accent-strong));
+    box-shadow: 0 10px 28px var(--accent-glow);
+    margin-bottom: 10px;
+  }
+  .dz-icon svg {
+    width: 26px;
+    height: 26px;
+    stroke-width: 2;
+  }
+  .dz-title {
+    font-size: 1.45rem;
+    letter-spacing: -0.02em;
+  }
+  .dz-sub {
+    color: var(--muted);
+  }
+  .dz-meta {
+    color: var(--muted);
+    opacity: 0.85;
+    margin-top: 4px;
+  }
+  .footnote {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 16px 0 2px;
+    color: var(--muted);
+    text-align: center;
+  }
+  .footnote svg {
+    width: 15px;
+    height: 15px;
+    flex: none;
+  }
+  .panel {
+    padding: 6px 4px 0;
+  }
+  .file-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .file-name {
+    font-weight: 600;
+    overflow-wrap: anywhere;
+  }
+  .file-row .btn {
+    padding: 6px 12px;
+    font-size: 0.9rem;
+  }
+  .previews {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+    gap: 16px;
+    margin: 16px 0;
+  }
+  figure {
+    margin: 0;
+  }
+  .preview {
+    border-radius: 12px;
+    overflow: hidden;
+    background: repeating-conic-gradient(var(--checker) 0% 25%, transparent 0% 50%) 50% / 20px 20px;
+    border: 1px solid var(--border);
+    display: grid;
+    place-items: center;
+    min-height: 160px;
+    padding: 0;
+  }
+  .preview :global(img),
+  .preview :global(video) {
+    display: block;
+    max-height: 360px;
+    width: 100%;
+    object-fit: contain;
+  }
+  .preview :global(audio) {
+    width: calc(100% - 24px);
+    margin: 12px;
+  }
+  .consent {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    color: var(--muted);
+  }
+  .actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+  }
+  .status {
+    margin: 12px 0 0;
+    color: var(--muted);
+    min-height: 1.4em;
+  }
+  .status.err {
+    color: var(--err);
+  }
+  .status.ok {
+    color: var(--ok);
+  }
+  @media (max-width: 520px) {
+    .uploader {
+      padding: 10px;
+      border-radius: 22px;
+    }
+    .tabs {
+      width: 100%;
+    }
+    .tab {
+      flex: 1;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 6px;
+    }
+    .dropzone {
+      padding: 36px 14px;
+    }
+  }
+</style>
+
+<script>
+  type KindConfig = { accept: string; formats: string; drop: string; wrongType: string };
+  type Config = {
+    kinds: Record<string, KindConfig>;
+    tooLarge: string;
+    notConfigured: string;
+    working: string;
+    done: string;
+    failed: string;
+    http: Record<string, string>;
+  };
+
+  // Browsers often leave file.type empty or vague for audio, so fall back to the extension.
+  const EXT_KIND: Record<string, string> = {
+    png: 'image', jpg: 'image', jpeg: 'image', webp: 'image',
+    mp4: 'video', webm: 'video', mov: 'video',
+    mp3: 'audio', wav: 'audio', m4a: 'audio', ogg: 'audio', flac: 'audio',
+  };
+  const kindOf = (f: File) => {
+    const fromType = f.type.split('/')[0];
+    if (['image', 'video', 'audio'].includes(fromType)) return fromType;
+    return EXT_KIND[f.name.split('.').pop()?.toLowerCase() ?? ''] ?? '';
+  };
+
+  function setup(root: HTMLElement) {
+    const cfg = JSON.parse(root.dataset.config ?? '{}') as Config;
+    const apiBase = () => root.dataset.api ?? '';
+    const maxBytes = Number(root.dataset.maxMb ?? 50) * 1024 * 1024;
+    const q = <T extends Element>(sel: string) => root.querySelector(sel) as T;
+
+    const input = q<HTMLInputElement>('input[type=file]');
+    const dropzone = q<HTMLLabelElement>('.dropzone');
+    const title = q<HTMLElement>('.dz-title');
+    const formats = q<HTMLElement>('.dz-formats');
+    const panel = q<HTMLDivElement>('.panel');
+    const nameEl = q<HTMLSpanElement>('.file-name');
+    const previewIn = q<HTMLDivElement>('.preview-in');
+    const previewOut = q<HTMLDivElement>('.preview-out');
+    const outFig = q<HTMLElement>('.out-fig');
+    const consent = q<HTMLInputElement>('.consent-box');
+    const processBtn = q<HTMLButtonElement>('.process');
+    const download = q<HTMLAnchorElement>('.download');
+    const status = q<HTMLParagraphElement>('.status');
+    const resetBtn = q<HTMLButtonElement>('.reset');
+    const tabs = [...root.querySelectorAll<HTMLButtonElement>('.tab')];
+
+    let file: File | null = null;
+    let urls: string[] = [];
+    const current = () => cfg.kinds[root.dataset.kind ?? ''];
+
+    const setStatus = (msg: string, kind: '' | 'ok' | 'err' = '') => {
+      status.textContent = msg;
+      status.className = `status small ${kind}`;
+    };
+
+    const mediaEl = (src: string, kind: string) => {
+      if (kind === 'image') {
+        const img = document.createElement('img');
+        img.src = src;
+        img.alt = '';
+        return img;
+      }
+      const el = document.createElement(kind === 'audio' ? 'audio' : 'video');
+      el.src = src;
+      el.controls = true;
+      if (el instanceof HTMLVideoElement) {
+        el.muted = true;
+        el.playsInline = true;
+      }
+      return el;
+    };
+
+    const revokeAll = () => {
+      urls.forEach((u) => URL.revokeObjectURL(u));
+      urls = [];
+    };
+
+    const updateButton = () => {
+      processBtn.disabled = !file || !consent.checked;
+    };
+
+    const reset = () => {
+      revokeAll();
+      file = null;
+      input.value = '';
+      consent.checked = false;
+      previewIn.replaceChildren();
+      previewOut.replaceChildren();
+      outFig.hidden = true;
+      download.hidden = true;
+      panel.hidden = true;
+      dropzone.hidden = false;
+      tabs.forEach((t) => (t.disabled = false));
+      setStatus('');
+      updateButton();
+    };
+
+    const selectKind = (kind: string) => {
+      root.dataset.kind = kind;
+      const k = current();
+      input.accept = k.accept;
+      title.textContent = k.drop;
+      formats.textContent = k.formats;
+      tabs.forEach((t) => t.setAttribute('aria-selected', String(t.dataset.kind === kind)));
+      reset();
+    };
+
+    const choose = (f: File) => {
+      const kind = kindOf(f);
+      // On the tabbed uploader, a file of another type switches to its tab.
+      if (kind !== root.dataset.kind && cfg.kinds[kind]) selectKind(kind);
+      if (kind !== root.dataset.kind) {
+        setStatus(current().wrongType, 'err');
+        return;
+      }
+      if (f.size > maxBytes) {
+        setStatus(cfg.tooLarge, 'err');
+        return;
+      }
+      reset();
+      file = f;
+      const u = URL.createObjectURL(f);
+      urls.push(u);
+      previewIn.replaceChildren(mediaEl(u, kind));
+      nameEl.textContent = `${f.name} · ${(f.size / 1024 / 1024).toFixed(2)} MB`;
+      dropzone.hidden = true;
+      panel.hidden = false;
+      tabs.forEach((t) => (t.disabled = true));
+      if (!apiBase()) setStatus(cfg.notConfigured, 'err');
+      updateButton();
+    };
+
+    tabs.forEach((t) => t.addEventListener('click', () => selectKind(t.dataset.kind!)));
+    input.addEventListener('change', () => input.files?.[0] && choose(input.files[0]));
+    consent.addEventListener('change', updateButton);
+    resetBtn.addEventListener('click', reset);
+
+    ['dragenter', 'dragover'].forEach((ev) =>
+      dropzone.addEventListener(ev, (e) => {
+        e.preventDefault();
+        dropzone.classList.add('drag');
+      }),
+    );
+    ['dragleave', 'drop'].forEach((ev) =>
+      dropzone.addEventListener(ev, (e) => {
+        e.preventDefault();
+        dropzone.classList.remove('drag');
+      }),
+    );
+    dropzone.addEventListener('drop', (e) => {
+      const f = (e as DragEvent).dataTransfer?.files?.[0];
+      if (f) choose(f);
+    });
+    document.addEventListener('paste', (e) => {
+      if (!dropzone.hidden && e.clipboardData?.files?.[0]) choose(e.clipboardData.files[0]);
+    });
+
+    processBtn.addEventListener('click', async () => {
+      if (!file) return;
+      const api = apiBase();
+      if (!api) {
+        setStatus(cfg.notConfigured, 'err');
+        return;
+      }
+      processBtn.disabled = true;
+      download.hidden = true;
+      setStatus(cfg.working);
+      try {
+        const body = new FormData();
+        body.append('file', file);
+        const res = await fetch(`${api}/process`, { method: 'POST', body });
+        if (!res.ok) {
+          // Prefer a translated message for known statuses; otherwise show the server's text.
+          const text = await res.text().catch(() => '');
+          throw new Error(cfg.http[String(res.status)] || text || cfg.failed);
+        }
+        const blob = await res.blob();
+        const u = URL.createObjectURL(blob);
+        urls.push(u);
+        previewOut.replaceChildren(mediaEl(u, root.dataset.kind ?? 'image'));
+        outFig.hidden = false;
+        const dot = file.name.lastIndexOf('.');
+        const base = dot > 0 ? file.name.slice(0, dot) : file.name;
+        const ext = dot > 0 ? file.name.slice(dot) : '';
+        download.href = u;
+        download.download = `${base}-removesynth${ext}`;
+        download.hidden = false;
+        setStatus(cfg.done, 'ok');
+      } catch (err) {
+        // fetch() throws TypeError on network failure; its message is browser English, so use ours.
+        const ownMessage = err instanceof Error && !(err instanceof TypeError) && err.message;
+        setStatus(ownMessage || cfg.failed, 'err');
+      } finally {
+        updateButton();
+      }
+    });
+  }
+
+  document.querySelectorAll<HTMLElement>('.uploader').forEach(setup);
+</script>

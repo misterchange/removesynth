@@ -1,0 +1,22 @@
+---
+import HubPage from '../../components/HubPage.astro';
+import { PLATFORMS } from '@removesynth/shared/data/explainers';
+
+const items = PLATFORMS.map((p) => ({
+  href: `/platforms/${p.slug}/`,
+  tag: `Label: “${p.label}”`,
+  title: p.name,
+  text: p.intro,
+}));
+---
+
+<HubPage
+  title="How Social Platforms Label AI Content: Instagram, TikTok, YouTube & More"
+  description="How Instagram, Facebook, TikTok, YouTube, Pinterest, LinkedIn and X label AI images and videos, which metadata they read, and when you must disclose AI."
+  eyebrow="Platforms"
+  h1="How platforms label AI content"
+  intro="What each platform’s AI label means, what triggers it, and when you have to disclose AI yourself."
+  path="/platforms/"
+  crumb="Platforms"
+  items={items}
+/>

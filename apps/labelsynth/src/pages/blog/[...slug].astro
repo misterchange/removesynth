@@ -1,0 +1,51 @@
+---
+import Base from '../../layouts/Base.astro';
+import DocBlocks from '../../components/DocBlocks.astro';
+import { POSTS, postBySlug, postDate } from '../../data/blog';
+import { SITE } from '../../site';
+import { extractFaq } from '../../lib/doc';
+import { faqSchema, breadcrumbSchema, type FaqItem } from '@removesynth/shared/lib/faq';
+
+export function getStaticPaths() {
+  return POSTS.map((p) => ({ params: { slug: p.slug } }));
+}
+
+const slug = Astro.params.slug!;
+const post = postBySlug(slug)!;
+const faq = extractFaq(post.blocks);
+
+const related = POSTS.filter((p) => p.slug !== slug).slice(0, 6);
+
+const schema: Record<string, unknown>[] = [
+  breadcrumbSchema([
+    { name: 'Home', url: `${SITE.url}/` },
+    { name: 'Blog', url: `${SITE.url}/blog/` },
+    { name: post.title, url: `${SITE.url}/blog/${slug}/` },
+  ]),
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: post.title,
+    description: post.description,
+    url: `${SITE.url}/blog/${slug}/`,
+    datePublished: post.published || undefined,
+    publisher: { '@type': 'Organization', name: SITE.name },
+  },
+];
+if (faq.length) schema.push(faqSchema(faq as FaqItem[]));
+---
+
+<Base title={`${post.title} | ${SITE.name}`} description={post.description} schema={schema} ogType="article">
+  <article class="prose">
+    <p class="muted small"><a href="/blog/">← Blog</a></p>
+    <h1>{post.title}</h1>
+    {post.published && <p class="muted small">{postDate(post)}</p>}
+    <DocBlocks blocks={post.blocks} />
+
+    <hr />
+    <h2>Keep reading</h2>
+    <ul class="link-grid">
+      {related.map((p) => <li><a href={`/blog/${p.slug}/`}>{p.title}</a></li>)}
+    </ul>
+  </article>
+</Base>

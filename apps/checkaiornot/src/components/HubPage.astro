@@ -1,0 +1,70 @@
+---
+// Simple index page: heading, intro and a grid of linked cards.
+import Base from '../layouts/Base.astro';
+import { breadcrumbSchema } from '@removesynth/shared/lib/faq';
+import { SITE } from '../site';
+
+interface Props {
+  title: string;
+  description: string;
+  eyebrow: string;
+  h1: string;
+  intro: string;
+  path: string;
+  crumb: string;
+  items: { href: string; title: string; text: string; tag?: string }[];
+}
+
+const { title, description, eyebrow, h1, intro, path, crumb, items } = Astro.props;
+const schema = [
+  breadcrumbSchema([
+    { name: 'Home', url: `${SITE.url}/` },
+    { name: crumb, url: `${SITE.url}${path}` },
+  ]),
+  {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    itemListElement: items.map((it, i) => ({ '@type': 'ListItem', position: i + 1, url: `${SITE.url}${it.href}`, name: it.title })),
+  },
+];
+---
+
+<Base title={title} description={description} schema={schema}>
+  <section class="hero">
+    <div class="container">
+      <span class="eyebrow">{eyebrow}</span>
+      <h1>{h1}</h1>
+      <p class="lead">{intro}</p>
+    </div>
+  </section>
+  <section class="container">
+    <div class="grid hub">
+      {items.map((it) => (
+        <a class="card hub-card" href={it.href}>
+          {it.tag && <span class="kicker">{it.tag}</span>}
+          <h3>{it.title}</h3>
+          <p>{it.text}</p>
+        </a>
+      ))}
+    </div>
+    <slot />
+  </section>
+</Base>
+
+<style>
+  .hub {
+    grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
+  }
+  .hub-card {
+    color: inherit;
+    transition: border-color 0.15s, transform 0.15s;
+  }
+  .hub-card:hover {
+    text-decoration: none;
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+  .hub-card h3 {
+    margin-top: 6px;
+  }
+</style>

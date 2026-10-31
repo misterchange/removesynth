@@ -1,0 +1,70 @@
+file,title_len,desc_len,title,dashes,emojis,has_graph,lines
+404.astro,34,122,Page Not Found (404) - RemoveSynth,0,0,False,143
+about.astro,62,146,About RemoveSynth: In-Browser AI Watermark & Metadata Cleaning,0,0,False,163
+add-camera-exif.astro,53,154,Add Camera EXIF to Photo: Mock Camera Metadata Online,0,0,False,568
+ai-image-resizer.astro,50,159,AI Image Resizer: Fit Midjourney & DALL-E Art Free,0,0,False,629
+anonymous-photo-cleaner.astro,50,154,Anonymous Photo Sanitizer: Safe Photo Share Online,0,0,False,489
+audio-metadata-remover.astro,51,152,Audio Metadata Remover: Clean ID3 Tags & Audio Free,0,0,False,514
+bulk-metadata-remover.astro,50,150,Bulk Metadata Remover: Strip EXIF from Photos Free,0,0,False,430
+change-photo-date.astro,50,151,Change Photo Date Taken: Edit EXIF Timestamps Free,0,0,False,445
+compress-image-for-discord.astro,63,170,Compress Image for Discord: Fit Under 10MB & 25MB Upload Limits,0,0,False,85
+compress-image-for-whatsapp.astro,66,182,Compress Image for WhatsApp: Send High Quality Without Compression,1,0,False,88
+compress-image-to-[size].astro,74,137,"Compress Image to ${compact}: Reduce Photo Size to ${s.label} Online, Free",0,0,False,92
+compress-image-to-kb.astro,55,154,"Compress Image to KB: Reduce Photo to 20KB, 50KB, 100KB",0,0,False,109
+compress-video-for-discord.astro,50,152,Compress Video for Discord: Under 10MB & 25MB Free,0,0,False,503
+docx-metadata-remover.astro,50,155,Word & DOCX Metadata Remover: Clean Author History,0,0,False,530
+does-it-strip-metadata.astro,53,152,Does It Strip Metadata? Platform Privacy Checker 2026,0,0,False,428
+dola-ai.astro,52,155,Remove Dola AI Watermark: Clean Dola Video Tags Free,0,0,True,497
+etsy-photo-cleaner.astro,51,155,Etsy & eBay Photo Cleaner: Safe Listing Prep Online,0,0,False,107
+exif-editor.astro,51,155,"EXIF Editor: Edit, Add & Remove Photo Metadata Free",0,0,False,864
+exif-viewer.astro,60,158,EXIF Viewer: Online Visual Photo Metadata & Camera Inspector,0,0,True,1028
+exiftool-online.astro,48,156,ExifTool Online: Free In-Browser Metadata Viewer,0,0,False,437
+geotag-photo.astro,53,151,Geotag Photo Online: Add or Change GPS on Photos Free,0,0,False,677
+hailuo-ai.astro,52,155,Remove Hailuo AI Watermark: Clean MiniMax Video Free,0,0,True,229
+heic-to-jpg.astro,47,155,HEIC to JPG: Free iPhone Photo Converter Online,0,0,True,841
+higgsfield.astro,48,157,Remove Higgsfield Watermark: Clean AI Video Free,0,0,True,500
+how-to-remove-synthid.astro,56,136,How to Remove SynthID From an Image (Step-by-Step Guide),0,0,False,92
+image-converter.astro,65,141,"Image Converter: Convert WebP, AVIF, HEIC, PNG & JPG Online, Free",0,0,False,100
+index.astro,8,7,NO_TITLE,0,0,False,6
+invisible-character-remover.astro,53,155,Invisible Character Remover: Strip Zero-Width Unicode,0,0,False,333
+jpg-to-pdf.astro,44,154,JPG to PDF: Convert Images to Clean PDF Free,0,0,True,1043
+kling-ai.astro,49,157,Remove Kling AI Watermark: Clean Kling Video Free,0,0,True,229
+luma-dream-machine.astro,53,151,Remove Luma Dream Machine Watermark: Clean Ray-2 Free,0,0,True,229
+pdf-resume-metadata-remover.astro,54,154,PDF Resume Metadata Remover: Anonymize Job Submissions,0,0,False,352
+photo-metadata-remover.astro,53,155,Photo Metadata Remover: Remove EXIF & GPS Online Free,0,0,True,898
+photoshop-metadata-cleaner.astro,52,156,Photoshop Metadata Cleaner: Strip Document Ancestors,0,0,False,488
+pika-ai.astro,51,159,Remove Pika AI Watermark: Clean Pika 2.0 & 2.1 Free,0,0,True,494
+pixverse-ai.astro,52,159,Remove PixVerse Watermark: Clean PixVerse Video Free,0,0,True,494
+remove-ai-info-label.astro,44,156,Remove AI Info Label: Stop Instagram AI Tags,0,0,True,1163
+remove-c2pa-from-video.astro,55,178,"Remove C2PA From Video Online: Free for MP4, WebM & MOV",0,0,False,108
+remove-gemini-watermark.astro,52,157,Remove Gemini Watermark: Clean Nano Banana & SynthID,0,0,True,1126
+remove-higgsfield-watermark.astro,52,156,Remove Higgsfield Watermark Online: Clean Video Free,0,0,True,221
+remove-metadata-android.astro,54,153,Remove Photo Metadata on Android: Wipe GPS & EXIF Free,0,0,False,463
+remove-metadata-iphone.astro,54,152,Remove Photo Metadata on iPhone: Strip GPS & EXIF Free,0,0,False,435
+remove-pika-watermark.astro,53,155,Remove Pika Watermark Online: Pika Video Cleaner Free,0,0,True,489
+remove-pixverse-watermark.astro,50,154,Remove PixVerse Watermark Online: Clean Video Free,0,0,True,489
+remove-runway-watermark.astro,51,154,Remove Runway Watermark Online: Gen-3 Video Cleaner,0,0,True,489
+remove-sora-watermark.astro,50,154,Remove Sora Watermark Online: Sora Video Sanitizer,0,0,True,489
+remove-synthid-from-audio.astro,50,157,Remove SynthID from Audio: Free AI Audio Sanitizer,0,0,True,719
+remove-synthid-from-images.astro,50,158,Remove SynthID: Free SynthID Remover for AI Images,0,0,True,806
+remove-synthid-from-text.astro,51,161,Remove SynthID From Text: Neutralize AI Text Online,0,0,True,1043
+remove-synthid-from-video.astro,50,155,Remove SynthID from Video: Free AI Video Sanitizer,0,0,True,736
+remove-synthid.astro,64,134,"Remove SynthID (Synth ID) Online for Free: Images, Video & Audio",0,0,False,100
+remove-veo-watermark.astro,49,154,Remove Google Veo Watermark Online: Veo 2 Cleaner,0,0,True,489
+resize-image-for-instagram.astro,53,153,"Instagram Photo Resizer: 1:1, 4:5 & 9:16 No-Crop Free",0,0,False,487
+resize-image.astro,50,156,Image Resizer: Resize Photos Online Free & Private,0,0,False,516
+runway-ai.astro,50,157,Remove Runway Watermark: Clean Gen-3 & Gen-2 Video,0,0,True,500
+seedance-2-0.astro,47,152,Remove Seedance 2.0 Watermark: Clean Video Free,0,0,True,236
+seedance-2-1.astro,47,152,Remove Seedance 2.1 Watermark: Clean Video Free,0,0,True,236
+seedance-2-2.astro,47,152,Remove Seedance 2.2 Watermark: Clean Video Free,0,0,True,236
+seedance.astro,53,158,"Remove Seedance Watermark: Clean 2.0, 2.1 & 2.2 Video",0,0,True,551
+social-media-safe-zones.astro,53,163,"Social Media Safe Zones: Reels, TikTok & Shorts Guide",0,0,True,2111
+sora-ai.astro,49,156,Remove Sora AI Watermark: Clean OpenAI Video Free,0,0,True,494
+tools.astro,8,7,NO_TITLE,0,0,False,73
+veo-ai.astro,51,153,Remove Google Veo Watermark: Clean Veo 2 Video Free,0,0,True,494
+video-metadata-remover.astro,49,153,Video Metadata Remover: Clean MP4 & MOV Tags Free,0,0,True,1039
+viggle-ai.astro,54,153,Remove Viggle AI Watermark: Clean Character Dance Free,0,0,True,229
+wan-ai.astro,54,160,Remove Wan 2.1 Watermark: Clean Alibaba Wan Video Free,0,0,True,494
+what-is-ai-watermark.astro,56,157,"What Is an AI Watermark? Types, Examples & How They Work",0,0,False,94
+what-is-synthid.astro,48,157,What Is SynthID? Google’s AI Watermark Explained,0,0,False,109
+youtube-thumbnail-resizer.astro,51,156,YouTube Thumbnail Resizer: Exact 1280x720 Size Free,0,0,False,519

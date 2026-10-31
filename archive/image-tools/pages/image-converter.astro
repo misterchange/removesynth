@@ -1,0 +1,100 @@
+---
+import Base from '../layouts/Base.astro';
+import ImageTool from '../components/ImageTool.astro';
+import Faq from '@removesynth/shared/components/Faq.astro';
+import { faqSchema, breadcrumbSchema, type FaqItem } from '@removesynth/shared/lib/faq';
+import { SITE } from '../site';
+import { PAIRS, FORMATS, pairSlug } from '../data/image-tools';
+
+const title = 'Image Converter: Convert WebP, AVIF, HEIC, PNG & JPG Online, Free';
+const description =
+  'Convert images between JPG, PNG and WebP, including WebP, AVIF and HEIC files that won’t open. Free, batch up to 30, and nothing is uploaded.';
+
+const faqs: FaqItem[] = [
+  { q: 'Which formats can I convert?', a: 'You can open JPG, PNG, WebP, AVIF, HEIC, GIF and BMP files and save them as JPG, PNG or WebP.' },
+  { q: 'Are my images uploaded?', a: 'No. Conversion happens in your browser and your images never leave your device.' },
+  { q: 'Is there a limit?', a: 'You can convert up to 30 images at once, as many times as you like.' },
+  { q: 'What happens to transparency?', a: 'PNG and WebP keep it. JPG doesn’t support transparency, so transparent areas become white.' },
+];
+
+const schema = [
+  breadcrumbSchema([
+    { name: 'Home', url: `${SITE.url}/` },
+    { name: 'Tools', url: `${SITE.url}/tools/` },
+    { name: 'Image converter', url: `${SITE.url}/image-converter/` },
+  ]),
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: 'Image Converter',
+    url: `${SITE.url}/image-converter/`,
+    applicationCategory: 'MultimediaApplication',
+    operatingSystem: 'Any (web browser)',
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+  },
+  faqSchema(faqs),
+];
+const fmts = ['jpg', 'png', 'webp', 'avif', 'heic'].map((k) => FORMATS[k]);
+---
+
+<Base title={title} description={description} schema={schema}>
+  <section class="hero">
+    <div class="container">
+      <span class="eyebrow">Free · Batch up to 30 · No upload</span>
+      <h1>Image <span class="accent">converter</span></h1>
+      <p class="lead">Turn WebP, AVIF, HEIC and other images into JPG, PNG or WebP, right in your browser.</p>
+      <ImageTool mode="convert" to="jpg" title="Drop images to convert" sub="Choose the format, then download." />
+    </div>
+  </section>
+
+  <article class="prose">
+    <h2>Popular conversions</h2>
+    <ul class="link-grid">
+      {PAIRS.map((p) => (
+        <li><a href={`/${pairSlug(p)}/`}>{FORMATS[p.from].name} to {FORMATS[p.to].name}</a></li>
+      ))}
+      <li><a href="/heic-to-jpg/">HEIC to JPG</a></li>
+    </ul>
+
+    <h2>Image formats compared</h2>
+    <table>
+      <thead><tr><th>Format</th><th>Compression</th><th>Transparency</th><th>Opens in</th></tr></thead>
+      <tbody>
+        {fmts.map((f) => (
+          <tr><td>{f.name}</td><td>{f.compression}</td><td>{f.transparency ? 'Yes' : 'No'}</td><td>{f.support}</td></tr>
+        ))}
+      </tbody>
+    </table>
+
+    <h2>Which format should I choose?</h2>
+    <ul>
+      <li><strong>JPG</strong> for photos you want to share, upload to forms or print. It works everywhere.</li>
+      <li><strong>PNG</strong> for logos, screenshots and anything with transparency or sharp text.</li>
+      <li><strong>WebP</strong> for websites. It’s much smaller than JPG and PNG at the same quality.</li>
+    </ul>
+
+    <p>
+      Need a smaller file rather than a different format? Use <a href="/compress-image-to-kb/">compress
+      image to KB</a>.
+    </p>
+
+    <Faq items={faqs} heading="Image converter FAQ" />
+  </article>
+</Base>
+
+<style>
+  .link-grid {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(160px, 100%), 1fr));
+    gap: 8px;
+  }
+  .link-grid a {
+    display: block;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--bg-elev);
+  }
+</style>

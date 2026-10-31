@@ -1,0 +1,21 @@
+---
+// Renders a FAQ list. Pair with faqSchema() so the same items feed FAQPage structured data.
+import type { FaqItem } from '../lib/faq';
+
+interface Props {
+  items: FaqItem[];
+  heading?: string;
+}
+
+const { items, heading = 'Frequently asked questions' } = Astro.props;
+---
+
+<section class="faq">
+  <h2>{heading}</h2>
+  {items.map((item) => (
+    <details>
+      <summary>{item.q}</summary>
+      <p>{item.a}</p>
+    </details>
+  ))}
+</section>

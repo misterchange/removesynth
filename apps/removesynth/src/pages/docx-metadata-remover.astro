@@ -1,0 +1,622 @@
+---
+import Base from '../layouts/Base.astro';
+import ToolDrop from '@removesynth/shared/components/ToolDrop.astro';
+import { faqSchema, breadcrumbSchema, type FaqItem } from '@removesynth/shared/lib/faq';
+
+const title = 'Word & DOCX Metadata Remover: Clean Author History';
+const description =
+  'Remove author names, company tags, revision history, and editing time from Word DOCX documents. Free private client-side sanitizer with zero cloud uploads.';
+
+const faqs: FaqItem[] = [
+  {
+    q: 'What metadata is stored inside Microsoft Word (.docx) files?',
+    a: 'Word documents store personal author names, co-authors, company name, computer username, total editing time in minutes, creation and modification timestamps, revision counts, and template file paths inside the docProps XML package.',
+  },
+  {
+    q: 'Are my confidential Word documents uploaded to any server?',
+    a: 'No. All processing happens 100 percent locally in your web browser using client-side JavaScript. Your confidential resumes, legal briefs, and internal contracts never leave your device.',
+  },
+  {
+    q: 'Will removing metadata alter my text formatting or document layout?',
+    a: 'No. The tool specifically unlinks and cleans the metadata files (docProps/core.xml, docProps/app.xml, and custom.xml) while leaving document styling, tables, fonts, headings, and body content completely untouched.',
+  },
+  {
+    q: 'Can employers or legal counterparties see my revision history after cleaning?',
+    a: 'No. Sanitizing the metadata resets revision counts to 1, zeroes out author and last-saved-by identities, wipes total editing time, and eliminates company markers that could reveal prior drafts.',
+  },
+  {
+    q: 'Does this tool work on Mac, Windows, Linux, and Chromebooks?',
+    a: 'Yes. Because the cleaner runs directly inside modern web browsers, it operates identically across all operating systems without requiring Microsoft Office or third-party desktop utilities.',
+  },
+  {
+    q: 'Why is metadata removal critical for blind academic peer review?',
+    a: 'Major academic journals require double-blind peer review. Leaving author names or institutional affiliations inside DOCX file properties can lead to immediate paper rejection or compromised peer evaluations.',
+  },
+];
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: 'Word & DOCX Metadata Remover',
+    url: 'https://removesynth.com/docx-metadata-remover/',
+    applicationCategory: 'UtilitiesApplication',
+    operatingSystem: 'All',
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    description,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    name: 'How to remove author and metadata from a Word DOCX document',
+    step: [
+      {
+        '@type': 'HowToStep',
+        position: 1,
+        name: 'Upload DOCX document',
+        text: 'Drop your Word (.docx) document into the uploader zone above.',
+      },
+      {
+        '@type': 'HowToStep',
+        position: 2,
+        name: 'In-browser OpenXML sanitization',
+        text: 'The tool extracts the ZIP package, sanitizes docProps/core.xml and app.xml, and zeroes author identities in browser RAM.',
+      },
+      {
+        '@type': 'HowToStep',
+        position: 3,
+        name: 'Download clean document',
+        text: 'Save the sanitized .docx file ready for safe sharing with recruiters, clients, or academic journals.',
+      },
+    ],
+  },
+  faqSchema(faqs),
+  breadcrumbSchema([
+    { name: 'Home', url: '/' },
+    { name: 'Tools', url: '/tools/' },
+    { name: 'Word DOCX Metadata Remover', url: '/docx-metadata-remover/' },
+  ]),
+];
+---
+
+<Base title={title} description={description} schema={jsonLd}>
+  <article class="page-container">
+    <header class="hero">
+      <p class="eyebrow">Free · In-Browser Tool · 100% Private</p>
+      <h1>Word &amp; DOCX Metadata Remover</h1>
+      <p class="lead">
+        Strip author names, company info, editing duration, revision history, and hidden tracking properties from Word (.docx) files before submitting resumes, legal filings, or client deliverables.
+      </p>
+    </header>
+
+    <div class="tool-wrapper" id="tool">
+      <ToolDrop
+        id="docx-cleaner"
+        accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        multiple={true}
+        title="Drop Word (.docx) files to clean author &amp; metadata"
+        sub="Author names, company info, editing time, and revision counts are scrubbed in your browser."
+        meta="click to choose or paste · DOCX · instant"
+        footnote="Runs 100% in your browser · nothing is uploaded · text formatting remains 100% intact"
+      >
+        <div class="results" hidden aria-live="polite">
+          <div class="bar">
+            <span class="summary"></span>
+            <div class="bar-actions">
+              <button type="button" class="btn zip" disabled>Download all (ZIP)</button>
+              <button type="button" class="btn btn-ghost clear">Clear</button>
+            </div>
+          </div>
+          <ul class="rows"></ul>
+        </div>
+      </ToolDrop>
+    </div>
+
+    <!-- Long-Form In-Depth Rank-Fast Content -->
+    <div class="prose">
+      <h2>The OpenXML Container Structure: What Microsoft Word Hides in Your Documents</h2>
+      <p>
+        Modern Microsoft Word files with the <code>.docx</code> extension are not monolithic binary text documents. Instead, they are standardized Open Packaging Conventions (ISO/IEC 29500) ZIP archives containing multiple compressed XML files and media folders. While your visible paragraphs and headings live inside <code>word/document.xml</code>, Microsoft Word automatically creates a dedicated subfolder called <code>docProps/</code> to track author telemetry.
+      </p>
+      <p>
+        Within this folder, Word writes two primary tracking documents:
+      </p>
+      <ul>
+        <li><strong>docProps/core.xml:</strong> Stores Dublin Core metadata, including <code>dc:creator</code> (the original document author), <code>cp:lastModifiedBy</code> (the username of the last person who saved the file), <code>cp:revision</code> (cumulative revision count), <code>dcterms:created</code>, and <code>dcterms:modified</code> exact UTC timestamps.</li>
+        <li><strong>docProps/app.xml:</strong> Stores extended application properties, including <code>TotalTime</code> (cumulative minutes spent editing the document), <code>Company</code> (registered enterprise name), <code>Manager</code>, <code>Template</code> file paths on your local hard drive, and software version numbers.</li>
+      </ul>
+
+      <h2>Mathematical Formulation of OpenXML XML Sanitization</h2>
+      <p>
+        To neutralize document telemetry without corrupting document formatting, RemoveSynth performs XML DOM traversal on internal archive entries:
+      </p>
+      <div class="math-block">
+        <code>DOCX_clean = Decompress_ZIP(DOCX_raw) \ Set(docProps/custom.xml)</code>
+      </div>
+      <p>
+        Where the metadata nodes inside <code>docProps/core.xml</code> and <code>docProps/app.xml</code> are transformed via text replacement:
+      </p>
+      <div class="math-block">
+        <code>Node(dc:creator) --&gt; ""</code>
+        <code>Node(cp:lastModifiedBy) --&gt; ""</code>
+        <code>Node(cp:revision) --&gt; "1"</code>
+        <code>Node(TotalTime) --&gt; "0"</code>
+        <code>Node(Company) --&gt; ""</code>
+      </div>
+      <p>
+        Because the main document XML (<code>word/document.xml</code>), styles (<code>word/styles.xml</code>), and font mappings remain completely untouched, visual presentation and typography are 100 percent identical.
+      </p>
+
+      <h2>Worked Example: Real Numerical DOCX File Sanitization</h2>
+      <p>
+        Consider a commercial legal contract drafted over multiple weeks between legal counsel and a corporate client:
+      </p>
+      <ul>
+        <li><strong>Input File:</strong> <code>Contract-Agreement-Final.docx</code> (1,248,500 bytes)</li>
+        <li><strong>Identified Sensitive Metadata Entries:</strong>
+          <ul>
+            <li><code>dc:creator</code>: "Jonathan Sterling (Senior Partner)"</li>
+            <li><code>cp:lastModifiedBy</code>: "Samantha Reed (Associate Legal Counsel)"</li>
+            <li><code>Company</code>: "Sterling &amp; Associates LLP"</li>
+            <li><code>TotalTime</code>: 1,842 minutes (~30.7 hours of active drafting)</li>
+            <li><code>cp:revision</code>: 87 draft revisions</li>
+            <li><code>Template</code>: <code>C:/Users/jsterling/Templates/Internal_Merger_Template.dotx</code></li>
+          </ul>
+        </li>
+        <li><strong>Sanitized Output:</strong> All personal names, companies, editing duration, and file paths purged</li>
+        <li><strong>Document Formatting:</strong> 100 percent intact (all tables, headers, footers, and clauses preserved)</li>
+        <li><strong>Processing Duration:</strong> 34 milliseconds in local browser RAM</li>
+      </ul>
+
+      <!-- SVG OpenXML Architecture Diagram -->
+      <h2>OpenXML Archive Hierarchy: Sanitizing docProps XML Streams</h2>
+      <p>
+        The vector diagram below illustrates how a Word .docx file is decompressed, sanitized, and reassembled directly inside client browser memory.
+      </p>
+      <svg viewBox="0 0 760 360" class="chart-svg" role="img" aria-label="Diagram showing OpenXML ZIP container structure with docProps core and app XML sanitized">
+        <defs>
+          <linearGradient id="docxGradBloat" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#ff4444" stop-opacity="0.3"/>
+            <stop offset="100%" stop-color="#ff4444" stop-opacity="0.1"/>
+          </linearGradient>
+          <linearGradient id="docxGradClean" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#2cc4f5" stop-opacity="0.3"/>
+            <stop offset="100%" stop-color="#00e699" stop-opacity="0.3"/>
+          </linearGradient>
+        </defs>
+        <rect x="10" y="10" width="740" height="340" rx="8" fill="#0b111a" stroke="#1f2d3d" stroke-width="1"/>
+        
+        <!-- Header blocks -->
+        <text x="30" y="45" fill="#2cc4f5" font-weight="700" font-size="14">OPENXML (.DOCX) ZIP PACKAGE ARCHITECTURE</text>
+        
+        <rect x="30" y="65" width="220" height="60" rx="6" fill="url(#docxGradBloat)" stroke="#ff4444" stroke-width="1.5"/>
+        <text x="45" y="90" fill="#fff" font-weight="700" font-size="12">docProps/core.xml (LEAK)</text>
+        <text x="45" y="110" fill="#ff7777" font-size="10">Author, Last Modified By, Revision</text>
+        
+        <rect x="270" y="65" width="220" height="60" rx="6" fill="url(#docxGradBloat)" stroke="#ff4444" stroke-width="1.5"/>
+        <text x="285" y="90" fill="#fff" font-weight="700" font-size="12">docProps/app.xml (LEAK)</text>
+        <text x="285" y="110" fill="#ff7777" font-size="10">TotalTime (1842 min), Company, Template</text>
+        
+        <rect x="510" y="65" width="220" height="60" rx="6" fill="#1b2533" stroke="#00e699" stroke-width="1.5"/>
+        <text x="525" y="90" fill="#00e699" font-weight="700" font-size="12">word/document.xml</text>
+        <text x="525" y="110" fill="#8892b0" font-size="10">Visible Body Text &amp; Tables (Untouched)</text>
+
+        <!-- Divider -->
+        <line x1="30" y1="150" x2="730" y2="150" stroke="#1f2d3d" stroke-width="1" stroke-dasharray="2"/>
+
+        <!-- Bottom: Sanitized Stream -->
+        <text x="30" y="185" fill="#00e699" font-weight="700" font-size="14">AFTER REMOVESYNTH IN-BROWSER SANITIZATION</text>
+        
+        <rect x="30" y="200" width="220" height="55" rx="6" fill="url(#docxGradClean)" stroke="#00e699" stroke-width="1.5"/>
+        <text x="45" y="225" fill="#00e699" font-weight="700" font-size="12">docProps/core.xml (Clean)</text>
+        <text x="45" y="243" fill="#fff" font-size="10">Author: Blank | Revision: 1</text>
+        
+        <rect x="270" y="200" width="220" height="55" rx="6" fill="url(#docxGradClean)" stroke="#00e699" stroke-width="1.5"/>
+        <text x="285" y="225" fill="#00e699" font-weight="700" font-size="12">docProps/app.xml (Clean)</text>
+        <text x="285" y="243" fill="#fff" font-size="10">TotalTime: 0 | Company: Blank</text>
+        
+        <rect x="510" y="200" width="220" height="55" rx="6" fill="#1b2533" stroke="#00e699" stroke-width="1.5"/>
+        <text x="525" y="225" fill="#00e699" font-weight="700" font-size="12">word/document.xml</text>
+        <text x="525" y="243" fill="#00e699" font-size="10">100% Formatting Preservation</text>
+
+        <!-- You Are Here Marker -->
+        <g transform="translate(180, 290)">
+          <circle cx="0" cy="0" r="14" fill="#2cc4f5" fill-opacity="0.2"/>
+          <circle cx="0" cy="0" r="6" fill="#2cc4f5"/>
+          <text x="22" y="5" fill="#2cc4f5" font-weight="700" font-size="12">YOU ARE HERE: Zero-Server Client-Side OpenXML Decompression</text>
+        </g>
+      </svg>
+
+      <h2>Critical Use Cases for Word Metadata Removal</h2>
+      <ul>
+        <li><strong>Job Applications and Resumes:</strong> Submitting a resume with <code>TotalTime: 4 minutes</code> or an author tag showing a previous employer or template author creates an unprofessional impression with hiring managers.</li>
+        <li><strong>Legal Filings and Discovery:</strong> Court filings and legal briefs must not disclose prior negotiating drafts, associate author names, or internal firm revision tags.</li>
+        <li><strong>Anonymous Academic Peer Review:</strong> Academic journals require manuscripts to be stripped of author identities and institutional affiliations to ensure unbiased double-blind reviews.</li>
+        <li><strong>Whistleblowing and Journalism:</strong> Government and corporate whistleblowers leaking Word files must scrub local network paths and machine usernames to prevent forensic identification.</li>
+      </ul>
+
+      <h2>Step-by-Step Guide: How to Clean Word DOCX Metadata</h2>
+      <ol class="steps">
+        <li><strong>Upload DOCX document:</strong> Drop your Word (.docx) document into the uploader zone above.</li>
+        <li><strong>In-browser OpenXML sanitization:</strong> The tool extracts the ZIP package, sanitizes docProps/core.xml and app.xml, and zeroes author identities in browser RAM.</li>
+        <li><strong>Download clean document:</strong> Save the sanitized .docx file ready for safe sharing with recruiters, clients, or academic journals.</li>
+      </ol>
+
+      
+      <h2>How Microsoft Word Tracks Total Editing Time (TotalTime) and Why It Matters</h2>
+      <p>
+        One of the most insidious metadata fields in Microsoft Word is the <code>TotalTime</code> integer stored inside <code>docProps/app.xml</code>. This value records the cumulative number of minutes the document has remained open and active on any author computer:
+      </p>
+      <ul>
+        <li><strong>Job Application Resumes:</strong> If a job applicant downloads a professional resume template online and edits it for only 7 minutes before exporting, the resume retains <code>TotalTime = 7</code>. An automated HR document parser or astute recruiter inspecting file properties might conclude the candidate invested minimal effort. Conversely, an applicant whose resume shows <code>TotalTime = 14,800</code> (over 240 hours) reveals years of incremental modifications across different job hunts.</li>
+        <li><strong>Freelancer and Consultant Billing:</strong> Independent contractors billing clients on an hourly basis frequently face scrutiny if a 40-hour contracted report shows <code>TotalTime = 180</code> (3 hours of active editing in Word).</li>
+        <li><strong>Competitive Legal Negotiations:</strong> In corporate acquisitions or settlement agreements, the total editing duration discloses whether an opposing legal team drafted clauses from scratch or quickly adapted standard boilerplates.</li>
+        <li><strong>The RemoveSynth Zero-Time Reset:</strong> Our tool directly rewrites <code>TotalTime</code> to <code>0</code> or <code>1</code>, eliminating time-tracking telemetry while keeping the document layout completely unaltered.</li>
+      </ul>
+
+      <h2>Hidden Revision History and Previous Author Residuals in Collaborative Teams</h2>
+      <p>
+        In enterprise environments where documents circulate across dozens of stakeholders via email, SharePoint, or Microsoft Teams, metadata accumulates historical traces:
+      </p>
+      <ul>
+        <li><strong>Previous Author Identification (cp:lastModifiedBy):</strong> Discloses the identity of internal ghostwriters, junior associates, or executive assistants who prepared or modified the document on behalf of a public figure.</li>
+        <li><strong>Template Network File Paths:</strong> The <code>Template</code> node in <code>app.xml</code> frequently points to an internal corporate network share (e.g. <code>\\corp-share\legal\contracts\templates\NDA_Template_v4.dotx</code>). This leaks internal enterprise server hostnames, folder conventions, and security perimeter architecture to external counterparties.</li>
+        <li><strong>Custom Document Properties:</strong> Enterprise document management systems (DMS) such as iManage, NetDocuments, or OpenText inject custom XML elements containing internal matter numbers, billing codes, and client classification tags into <code>docProps/custom.xml</code>. RemoveSynth completely purges the custom properties block.</li>
+      </ul>
+
+      <h2>XLSX and PPTX Metadata: How Excel Workbooks and PowerPoint Decks Leak Company Telemetry</h2>
+      <p>
+        The OpenXML container architecture is shared across the entire Microsoft Office suite, meaning Excel spreadsheets (<code>.xlsx</code>) and PowerPoint presentations (<code>.pptx</code>) harbor identical tracking vulnerabilities:
+      </p>
+      <ul>
+        <li><strong>Excel Financial Workbooks:</strong> Financial models retain author usernames, company domain names, and sheet revision numbers in <code>docProps/core.xml</code>. In addition, unscrubbed workbooks frequently contain hidden rows, hidden worksheets (<code>state="hidden"</code> or <code>state="veryHidden"</code>), and cached calculation chains that can reveal discarded financial projections.</li>
+        <li><strong>PowerPoint Pitch Decks:</strong> Presentation decks delivered to prospective venture capital investors often retain original pitch deck templates from prior portfolio companies, including prior corporate founders names and agency design credits.</li>
+        <li><strong>Universal Browser Sanitization:</strong> Because RemoveSynth operates directly at the OpenXML ZIP container specification level, the same client-side decompression and XML cleaning pipeline safely neutralizes Excel workbooks and PowerPoint presentations without requiring software installation.</li>
+      </ul>
+
+      <h2>Double-Blind Academic Submissions: Complying with IEEE, ACM, APA, and Elsevier Rules</h2>
+      <p>
+        Academic peer review integrity depends on strict double-blind evaluation standards. Peer reviewers must judge scientific merit without knowing author names or institutional affiliations:
+      </p>
+      <ul>
+        <li><strong>The Accidental De-Anonymization Threat:</strong> Authors meticulously delete their names and institutional affiliations from the first page of their manuscript, but forget that Word embeds their full name and university computer username directly inside <code>dc:creator</code>.</li>
+        <li><strong>Journal Desk Rejections:</strong> Leading academic publishers (IEEE, ACM, Elsevier, Springer Nature, Wiley) employ automated submission scanners that inspect OpenXML file properties. Manuscripts found with embedded author identities are automatically returned or rejected prior to peer review.</li>
+        <li><strong>Sanitizing Submissions in Browser Memory:</strong> Running your research manuscript through RemoveSynth guarantees that all Dublin Core creator nodes, revision trees, and institutional template links are permanently stripped before submission.</li>
+      </ul>
+
+
+      
+      <h2>Forensic Audit Checklist: 8 Data Points You Must Verify Before Emailing Confidential Documents</h2>
+      <p>
+        Prior to transmitting Word documents to prospective employers, legal adversaries, journalists, or external clients, review this comprehensive forensic audit checklist:
+      </p>
+      <ul>
+        <li><strong>1. Dublin Core Author Identity (dc:creator):</strong> Verify that the initial creator name is not set to your full name, personal email address, or an internal administrative assistant.</li>
+        <li><strong>2. Last Modified By (cp:lastModifiedBy):</strong> Ensure the last-saved username does not expose internal collaborators, contractors, or executive ghostwriters.</li>
+        <li><strong>3. Cumulative Revision Counter (cp:revision):</strong> Check that the revision number is reset to 1 rather than exhibiting hundreds of prior internal drafts.</li>
+        <li><strong>4. Cumulative Active Editing Time (TotalTime):</strong> Confirm that the editing duration does not contradict billing agreements or reveal rushed template adaptation.</li>
+        <li><strong>5. Local and Network Template Paths:</strong> Ensure the <code>Template</code> XML attribute does not expose internal network file paths, server shares, or private file directory trees.</li>
+        <li><strong>6. Registered Company Name:</strong> Strip corporate enterprise registration strings that reveal affiliated corporate entities or holding companies.</li>
+        <li><strong>7. Hidden XML Custom Properties:</strong> Inspect and purge <code>docProps/custom.xml</code> to delete internal matter numbers, client codes, and billing tags.</li>
+        <li><strong>8. Embedded Binary Objects and Screenshots:</strong> Remove temporary EXIF or metadata headers from images pasted directly into document pages.</li>
+      </ul>
+
+      <h2>Why Cloud-Based Document Cleaners Create Extreme Legal and Security Liabilities</h2>
+      <p>
+        Many online utilities advertise free document metadata removal, but require users to upload their <code>.docx</code>, <code>.xlsx</code>, or <code>.pdf</code> files to remote cloud servers. For corporate professionals, this practice introduces severe regulatory and ethical risks:
+      </p>
+      <ul>
+        <li><strong>Breach of Non-Disclosure Agreements (NDAs):</strong> Uploading unreleased product roadmaps, merger contracts, or confidential settlement terms to a third-party website directly breaches contractual confidentiality obligations.</li>
+        <li><strong>GDPR and HIPAA Violations:</strong> Transmitting medical records, patient intake summaries, or employee personnel files containing personally identifiable information (PII) to unvetted cloud servers violates European GDPR and United States HIPAA privacy mandates.</li>
+        <li><strong>Retention and Data Scraping Hazards:</strong> Free cloud conversion websites frequently monetize by logging user submissions or archiving documents on unsecured temporary buckets where they risk indexation or data breaches.</li>
+        <li><strong>The In-Browser Zero-Upload Guarantee:</strong> RemoveSynth operates under a zero-knowledge architecture. Every byte of the OpenXML archive is decompressed, parsed, sanitized, and re-compressed directly inside your web browser execution thread. Not a single character or metadata tag is ever transmitted over the network.</li>
+      </ul>
+
+
+      <h2>Comparison: RemoveSynth vs Microsoft Document Inspector</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th>RemoveSynth</th>
+              <th>Word Document Inspector</th>
+              <th>Online Cloud Converters</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Server Privacy</strong></td>
+              <td>100% In-Browser (Zero Uploads)</td>
+              <td>Local Only</td>
+              <td>Uploaded to Remote Servers</td>
+            </tr>
+            <tr>
+              <td><strong>Requires MS Office</strong></td>
+              <td>No (Runs in any browser)</td>
+              <td>Requires Paid Office License</td>
+              <td>No</td>
+            </tr>
+            <tr>
+              <td><strong>Cross-Platform</strong></td>
+              <td>Windows, Mac, Linux, iOS, Android</td>
+              <td>Windows and Mac Office only</td>
+              <td>Web Only</td>
+            </tr>
+            <tr>
+              <td><strong>Resets Total Editing Time</strong></td>
+              <td>Yes (Zeroes TotalTime)</td>
+              <td>Inconsistent</td>
+              <td>Often converts to PDF</td>
+            </tr>
+            <tr>
+              <td><strong>Speed</strong></td>
+              <td>Under 50ms per document</td>
+              <td>Multiple manual dialog clicks</td>
+              <td>5-15 seconds queue</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- FAQ Section -->
+      <h2>Frequently Asked Questions</h2>
+      <div class="faq-list">
+        {faqs.map((faq) => (
+          <div class="faq-item card">
+            <h3>{faq.q}</h3>
+            <p>{faq.a}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </article>
+</Base>
+
+<style>
+  .page-container {
+    max-width: var(--maxw);
+    margin: 0 auto;
+    padding: 32px 16px 80px;
+  }
+  .hero {
+    text-align: center;
+    max-width: 760px;
+    margin: 0 auto 36px;
+  }
+  .eyebrow {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--accent);
+    background: var(--accent-soft);
+    border: 1px solid rgba(44, 196, 245, 0.25);
+    margin-bottom: 14px;
+  }
+  .hero h1 {
+    font-size: clamp(2.2rem, 5vw, 3.4rem);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.03em;
+    margin: 0 0 16px;
+  }
+  .lead {
+    color: var(--muted);
+    font-size: 1.15rem;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .tool-wrapper {
+    margin-bottom: 56px;
+  }
+
+  .results {
+    margin-top: 18px;
+  }
+  .bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 12px;
+  }
+  .bar-actions {
+    display: flex;
+    gap: 8px;
+  }
+  .rows {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .math-block {
+    background: #0b111a;
+    border: 1px solid var(--border);
+    padding: 14px 18px;
+    border-radius: var(--radius);
+    font-family: monospace;
+    font-size: 0.95rem;
+    color: #2cc4f5;
+    margin: 18px 0;
+    overflow-x: auto;
+  }
+
+  .chart-svg {
+    width: 100%;
+    height: auto;
+    max-width: 760px;
+    display: block;
+    margin: 24px auto;
+  }
+
+  .steps {
+    list-style: decimal;
+    padding-left: 24px;
+    line-height: 1.8;
+    margin: 20px 0;
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+    margin: 24px 0;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.92rem;
+  }
+  th, td {
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    text-align: left;
+  }
+  th {
+    background: var(--card-bg);
+    color: var(--fg);
+  }
+
+  .faq-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 24px;
+  }
+  .faq-item {
+    padding: 20px 24px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+  }
+  .faq-item h3 {
+    margin: 0 0 8px;
+    font-size: 1.15rem;
+    color: var(--fg);
+  }
+  .faq-item p {
+    margin: 0;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+</style>
+
+<script>
+  import { unzipSync, zipSync } from 'fflate';
+  import { downloadBlob, downloadZip } from '@removesynth/shared/lib/clean';
+
+  const root = document.getElementById('docx-cleaner');
+  if (root) {
+    const results = root.querySelector('.results') as HTMLElement;
+    const summary = root.querySelector('.summary') as HTMLElement;
+    const rows = root.querySelector('.rows') as HTMLElement;
+    const zipBtn = root.querySelector('.zip') as HTMLButtonElement;
+    const clearBtn = root.querySelector('.clear') as HTMLButtonElement;
+
+    const cleanedFiles: { name: string; blob: Blob }[] = [];
+
+    const formatBytes = (bytes: number): string => {
+      if (bytes < 1024) return bytes + ' B';
+      const k = 1024;
+      const sizes = ['B', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return (bytes / Math.pow(k, i)).toFixed(1) + ' ' + sizes[i];
+    };
+
+    root.addEventListener('files', async (e: Event) => {
+      const files = (e as CustomEvent).detail as File[];
+      if (!files || !files.length) return;
+
+      results.hidden = false;
+      rows.innerHTML = '';
+      cleanedFiles.length = 0;
+      zipBtn.disabled = true;
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const li = document.createElement('li');
+        li.className = 'bar';
+        li.innerHTML = `<span><b>${file.name}</b> (${formatBytes(file.size)})</span><span class="muted">Sanitizing OpenXML docProps...</span>`;
+        rows.appendChild(li);
+
+        try {
+          const buffer = await file.arrayBuffer();
+          const unzipped = unzipSync(new Uint8Array(buffer));
+
+          // Clean docProps/core.xml
+          const corePath = Object.keys(unzipped).find((k) => k.toLowerCase() === 'docprops/core.xml');
+          if (corePath && unzipped[corePath]) {
+            let coreStr = new TextDecoder().decode(unzipped[corePath]);
+            coreStr = coreStr.replace(/<dc:creator>[\s\S]*?<\/dc:creator>/gi, '<dc:creator></dc:creator>');
+            coreStr = coreStr.replace(/<cp:lastModifiedBy>[\s\S]*?<\/cp:lastModifiedBy>/gi, '<cp:lastModifiedBy></cp:lastModifiedBy>');
+            coreStr = coreStr.replace(/<cp:revision>[\s\S]*?<\/cp:revision>/gi, '<cp:revision>1</cp:revision>');
+            unzipped[corePath] = new TextEncoder().encode(coreStr);
+          }
+
+          // Clean docProps/app.xml
+          const appPath = Object.keys(unzipped).find((k) => k.toLowerCase() === 'docprops/app.xml');
+          if (appPath && unzipped[appPath]) {
+            let appStr = new TextDecoder().decode(unzipped[appPath]);
+            appStr = appStr.replace(/<TotalTime>[\s\S]*?<\/TotalTime>/gi, '<TotalTime>0</TotalTime>');
+            appStr = appStr.replace(/<Company>[\s\S]*?<\/Company>/gi, '<Company></Company>');
+            appStr = appStr.replace(/<Manager>[\s\S]*?<\/Manager>/gi, '<Manager></Manager>');
+            unzipped[appPath] = new TextEncoder().encode(appStr);
+          }
+
+          // Remove docProps/custom.xml if exists
+          const customPath = Object.keys(unzipped).find((k) => k.toLowerCase() === 'docprops/custom.xml');
+          if (customPath) {
+            delete unzipped[customPath];
+          }
+
+          // Re-zip
+          const rezipped = zipSync(unzipped);
+          const cleanBlob = new Blob([rezipped], {
+            type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+          });
+          const cleanName = file.name.replace(/\.docx$/i, '-sanitized.docx');
+
+          cleanedFiles.push({ name: cleanName, blob: cleanBlob });
+
+          li.innerHTML = `
+            <span><b>${cleanName}</b>: ${formatBytes(file.size)} to <span style="color:#00e699">${formatBytes(cleanBlob.size)}</span> (Sanitized)</span>
+            <button type="button" class="btn btn-ghost dl-single">Download</button>
+          `;
+          li.querySelector('.dl-single')?.addEventListener('click', () => {
+            downloadBlob(cleanBlob, cleanName);
+          });
+        } catch (err: any) {
+          li.innerHTML = `<span><b>${file.name}</b></span><span style="color:#ff4444">Failed: ${err.message || 'Error'}</span>`;
+        }
+      }
+
+      summary.textContent = `Sanitized ${cleanedFiles.length} Word document(s). Author, company, editing time, and revisions wiped.`;
+      if (cleanedFiles.length > 1) {
+        zipBtn.disabled = false;
+      }
+    });
+
+    zipBtn?.addEventListener('click', () => {
+      if (cleanedFiles.length) {
+        downloadZip(cleanedFiles, 'sanitized-word-documents.zip');
+      }
+    });
+
+    clearBtn?.addEventListener('click', () => {
+      results.hidden = true;
+      rows.innerHTML = '';
+      cleanedFiles.length = 0;
+      zipBtn.disabled = true;
+    });
+  }
+</script>

@@ -1,0 +1,169 @@
+---
+import '@removesynth/shared/styles/base.css';
+import '../styles/theme.css';
+import { SITES } from '@removesynth/shared/sites';
+import { SITE } from '../site';
+
+interface Props {
+  title: string;
+  description: string;
+  schema?: Record<string, unknown> | Record<string, unknown>[];
+  ogType?: 'website' | 'article';
+}
+
+const { title, description, schema, ogType = 'website' } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const schemas = schema ? (Array.isArray(schema) ? schema : [schema]) : [];
+const path = Astro.url.pathname;
+
+const NAV = [
+  { href: '/', label: 'AI label remover' },
+  { href: '/ai-metadata-checker/', label: 'Checker' },
+  { href: '/platforms/', label: 'Platforms' },
+  { href: '/exports/', label: 'AI tools' },
+  { href: '/blog/', label: 'Blog' },
+];
+
+const p = (slug: string, label: string) => ({ href: `/${slug}/`, label });
+const FOOTER = [
+  {
+    heading: 'Clean',
+    links: [
+      p('ai-metadata-remover', 'AI metadata remover'),
+      p('metadata-remover', 'Metadata remover'),
+      p('c2pa-remover', 'C2PA remover'),
+      p('exif-cleaner', 'EXIF cleaner'),
+      p('xmp-remover', 'XMP remover'),
+    ],
+  },
+  {
+    heading: 'Check',
+    links: [
+      p('ai-metadata-checker', 'AI metadata checker'),
+      p('ai-image-checker', 'AI image checker'),
+      p('c2pa-checker', 'C2PA checker'),
+      p('image-privacy-analyzer', 'Image privacy analyzer'),
+      p('calculate-metadata', 'Calculate metadata'),
+    ],
+  },
+  {
+    heading: 'Platforms',
+    links: [
+      p('instagram', 'Instagram'),
+      p('tiktok', 'TikTok'),
+      p('facebook', 'Facebook'),
+      p('twitter', 'X (Twitter)'),
+      p('youtube', 'YouTube'),
+      p('platforms', 'All platforms'),
+    ],
+  },
+  {
+    heading: 'AI tools',
+    links: [
+      p('midjourney', 'Midjourney'),
+      p('dalle', 'DALL·E'),
+      p('firefly', 'Adobe Firefly'),
+      p('stable-diffusion', 'Stable Diffusion'),
+      p('chatgpt-image', 'ChatGPT Image'),
+      p('exports', 'All AI tools'),
+    ],
+  },
+  {
+    heading: 'LabelSynth',
+    links: [
+      p('about', 'About'),
+      p('contact', 'Contact'),
+      p('glossary', 'Glossary'),
+      p('privacy', 'Privacy'),
+      p('terms', 'Terms'),
+      p('disclaimer', 'Disclaimer'),
+    ],
+  },
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <meta name="theme-color" content="#100b1c" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500&display=swap"
+    />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:site_name" content={SITE.name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    {schemas.map((s) => <script type="application/ld+json" set:html={JSON.stringify(s)} />)}
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container header-inner">
+        <a href="/" class="logo" aria-label={`${SITE.name} home`}>
+          <span class="logo-mark" aria-hidden="true"></span>
+          <span>Label<b>Synth</b></span>
+        </a>
+        <nav aria-label="Main">
+          <ul class="nav">
+            {NAV.map((item) => (
+              <li>
+                <a
+                  href={item.href}
+                  aria-current={(item.href === '/' ? path === '/' : path.startsWith(item.href)) ? 'page' : undefined}
+                >
+                  {item.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <div>
+          <a href="/" class="logo">{SITE.name}</a>
+          <p class="muted">Strip AI labels and metadata before you upload.</p>
+        </div>
+        <div class="footer-cols">
+          {FOOTER.map((group) => (
+            <div>
+              <h2 class="footer-heading">{group.heading}</h2>
+              <ul class="footer-links">
+                {group.links.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
+              </ul>
+            </div>
+          ))}
+        </div>
+        <p class="muted small">
+          LabelSynth removes metadata that can trigger AI labels on social platforms. It edits files you
+          own; follow each platform’s rules and any disclosure laws. It can’t remove pixel watermarks or
+          invisible watermarks like SynthID. Not affiliated with Meta, TikTok, Pinterest, LinkedIn, OpenAI,
+          Adobe or the C2PA.
+        </p>
+        <p class="muted small">
+          &copy; {new Date().getFullYear()} {SITE.name} · a <a href={SITES.removesynth}>RemoveSynth</a> project
+          · checking? try <a href={SITES.checkaiornot}>CheckAIorNot</a>
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>

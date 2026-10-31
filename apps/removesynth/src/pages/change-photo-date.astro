@@ -1,0 +1,725 @@
+---
+import Base from '../layouts/Base.astro';
+import ToolDrop from '@removesynth/shared/components/ToolDrop.astro';
+import { faqSchema, breadcrumbSchema, type FaqItem } from '@removesynth/shared/lib/faq';
+
+const title = 'Change Photo Date Taken: Edit EXIF Timestamps Free';
+const description =
+  'Change or remove the Date Taken, Modify Date, and EXIF timestamps on digital photos. Free in-browser metadata date editor with zero cloud file uploads.';
+
+const faqs: FaqItem[] = [
+  {
+    q: 'Does editing the photo date reduce image quality?',
+    a: 'No. Our tool modifies only the EXIF header segment (DateTimeOriginal, DateTimeDigitized, ModifyDate) inside the binary JPEG container. Image pixel data is never re-compressed or altered.',
+  },
+  {
+    q: 'Can I remove the date taken completely for privacy?',
+    a: 'Yes. You can choose Strip All Timestamps, which removes timestamp tags so platforms, galleries, and viewers cannot determine when the photo was captured.',
+  },
+  {
+    q: 'Will changing the date re-order the photos in Apple Photos or Google Photos?',
+    a: 'Yes. Apple Photos, Google Photos, and Android gallery apps sort pictures chronologically using the DateTimeOriginal EXIF tag.',
+  },
+  {
+    q: 'Why do scanned photos show the scan date instead of the capture date?',
+    a: 'Flatbed scanners and phone scanning apps stamp the current date and time into the EXIF header when creating the file. Changing the EXIF date to the original historical date restores correct chronological timeline sorting.',
+  },
+  {
+    q: 'What is the difference between DateTimeOriginal and DateTimeDigitized?',
+    a: 'DateTimeOriginal records when the original photograph was shot by the camera sensor. DateTimeDigitized records when the image was converted into digital form (relevant for film scans). ModifyDate records when the file was last saved.',
+  },
+  {
+    q: 'Are my photos uploaded to any server?',
+    a: 'Never. All EXIF binary editing executes 100 percent locally on your computer or phone within client-side browser memory.',
+  },
+];
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: 'Change Photo Date Taken',
+    url: 'https://removesynth.com/change-photo-date/',
+    applicationCategory: 'UtilitiesApplication',
+    operatingSystem: 'All',
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    description,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    name: 'How to change or remove the date taken on a photo',
+    step: [
+      {
+        '@type': 'HowToStep',
+        position: 1,
+        name: 'Upload photo',
+        text: 'Drop a JPG or JPEG photo into the date editor tool above.',
+      },
+      {
+        '@type': 'HowToStep',
+        position: 2,
+        name: 'Select date mode',
+        text: 'Choose Set New Timestamp and pick your custom date and time, or select Strip All Timestamps.',
+      },
+      {
+        '@type': 'HowToStep',
+        position: 3,
+        name: 'Download updated photo',
+        text: 'Click Apply & Download Photo to instantly save the file with corrected EXIF timestamps without re-encoding.',
+      },
+    ],
+  },
+  faqSchema(faqs),
+  breadcrumbSchema([
+    { name: 'Home', url: '/' },
+    { name: 'Tools', url: '/tools/' },
+    { name: 'Change Photo Date', url: '/change-photo-date/' },
+  ]),
+];
+---
+
+<Base title={title} description={description} schema={jsonLd}>
+  <article class="page-container">
+    <header class="hero">
+      <p class="eyebrow">Lossless EXIF Editing · Zero Re-encoding</p>
+      <h1>Change Photo Date Taken</h1>
+      <p class="lead">
+        Edit, adjust, or wipe the capture date and timestamp in your photos. Reorder gallery timelines or protect your privacy without cloud uploads.
+      </p>
+    </header>
+
+    <div class="tool-wrapper" id="tool">
+      <ToolDrop
+        id="date-drop"
+        accept="image/jpeg,image/jpg"
+        multiple={false}
+        title="Drop a photo to adjust date &amp; time"
+        sub="DateTimeOriginal, Digitized, and ModifyDate EXIF headers are edited in your browser."
+        meta="click to choose or paste · JPG / JPEG · instant"
+        footnote="Runs 100% in your browser · nothing is uploaded · pure binary EXIF replacement"
+      >
+        <div class="results" hidden aria-live="polite">
+          <div class="editor-card">
+            <div class="editor-grid">
+              <div class="preview-box">
+                <img id="preview-img" alt="Preview" />
+                <div class="file-name" id="file-name"></div>
+              </div>
+
+              <div class="controls-box">
+                <div class="current-date-box">
+                  <span class="label">Current EXIF Date:</span>
+                  <span id="current-date" class="val">Scanning...</span>
+                </div>
+
+                <div class="mode-select">
+                  <label class="radio-label">
+                    <input type="radio" name="mode" value="set" checked />
+                    <span>Set New Timestamp</span>
+                  </label>
+                  <label class="radio-label">
+                    <input type="radio" name="mode" value="strip" />
+                    <span>Strip All Timestamps</span>
+                  </label>
+                </div>
+
+                <div id="date-inputs" class="inputs-row">
+                  <div class="ctrl-group">
+                    <label>New Date</label>
+                    <input type="date" id="date-field" class="input-field" />
+                  </div>
+                  <div class="ctrl-group">
+                    <label>New Time</label>
+                    <input type="time" id="time-field" step="1" class="input-field" />
+                  </div>
+                </div>
+
+                <div class="actions-row">
+                  <button type="button" id="save-btn" class="btn btn-primary">
+                    Apply and Download Photo
+                  </button>
+                  <button type="button" id="clear-btn" class="btn btn-ghost">
+                    Clear
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ToolDrop>
+    </div>
+
+    <!-- Long-Form In-Depth Rank-Fast Content -->
+    <div class="prose">
+      <h2>How Photo Dates Work: The Three EXIF Timestamp Tags</h2>
+      <p>
+        Every modern digital camera, smartphone (iPhone and Android), and drone records chronological time data into the EXIF (Exchangeable Image File Format) header segment of JPEG and RAW files. However, unlike file system timestamps (which change whenever a file is copied, emailed, or downloaded from the cloud), internal EXIF timestamps reside directly inside the image container itself.
+      </p>
+      <p>
+        Image management suites such as Apple Photos, Google Photos, Adobe Lightroom, and Windows Photos read these internal tags to construct your visual timeline. There are three distinct timestamp tags stored within the EXIF TIFF directory:
+      </p>
+      <ul>
+        <li><strong>DateTimeOriginal (Tag 0x9003):</strong> The exact calendar date and clock time the optical sensor captured the photograph. This is the primary key used by photo apps to sort images chronologically.</li>
+        <li><strong>DateTimeDigitized (Tag 0x9004):</strong> The timestamp when the image was converted into digital storage (identical to original date for digital cameras, but distinct when scanning analog 35mm film negatives).</li>
+        <li><strong>ModifyDate (DateTime, Tag 0x0132):</strong> The date and time the image was last edited or modified by image processing software.</li>
+      </ul>
+
+      <h2>Mathematical Formulation of In-Place EXIF Date Replacement</h2>
+      <p>
+        Standard EXIF specifications (CIPA DC-008-2019) define photo timestamps as fixed 20-byte ASCII strings formatted with strict colon separators:
+      </p>
+      <div class="math-block">
+        <code>Format_EXIF_Date = "YYYY:MM:DD HH:MM:SS\0"  (Length = 20 Bytes, Null-Terminated)</code>
+      </div>
+      <p>
+        Because the string length is constant, RemoveSynth updates or removes timestamps via direct binary slice replacement without rebuilding the surrounding TIFF directory offsets:
+      </p>
+      <div class="math-block">
+        <code>Offset_Tag_Value = Offset_TIFF_Header + Tag_Entry_ValueOffset</code>
+        <code>Target_Buffer[Offset_Tag_Value .. Offset_Tag_Value + 19] = ASCII_Encode(New_Timestamp_String)</code>
+      </div>
+      <p>
+        For timestamp stripping, the tool neutralizes the tag pointers within the ExifIFD sub-directory, setting the tag ID to neutral padding or zeroing the string bytes. Because zero pixel decoding occurs, the image retains 100 percent of its original sensor fidelity.
+      </p>
+
+      <h2>Worked Example: Real Numerical Timestamp Adjustment</h2>
+      <p>
+        To illustrate the mechanics of date modification, consider a scanned family print where the scanner stamped the scan date instead of the historical 1984 wedding date:
+      </p>
+      <ul>
+        <li><strong>Original Image:</strong> <code>family-wedding-scan.jpg</code> (4,120,500 bytes)</li>
+        <li><strong>Scanned False Date:</strong> <code>2026:10:24 14:15:22</code> at byte offset <code>0x025A</code></li>
+        <li><strong>Target Historical Date:</strong> <code>1984:06:18 11:30:00</code></li>
+        <li><strong>Binary Operations:</strong>
+          <ul>
+            <li>Locate APP1 marker (<code>0xFFE1</code>) at offset <code>0x0002</code></li>
+            <li>Traverse TIFF directory to Tag <code>0x9003</code> (DateTimeOriginal) and Tag <code>0x9004</code> (DateTimeDigitized)</li>
+            <li>In-place overwrite of 20 ASCII bytes from <code>2026:10:24 14:15:22\0</code> to <code>1984:06:18 11:30:00\0</code></li>
+          </ul>
+        </li>
+        <li><strong>Output File Size:</strong> 4,120,500 bytes (exactly identical byte count, zero recompression)</li>
+        <li><strong>Execution Time:</strong> 12 milliseconds in local browser RAM</li>
+      </ul>
+
+      <!-- SVG Timestamp Architecture Diagram -->
+      <h2>EXIF Header Memory Map: In-Place Binary Timestamp Injection</h2>
+      <p>
+        The vector diagram below illustrates how RemoveSynth accesses the EXIF APP1 metadata segment to modify timestamp fields without disturbing the image scan data.
+      </p>
+      <svg viewBox="0 0 760 360" class="chart-svg" role="img" aria-label="Diagram showing EXIF binary header structure and in-place replacement of DateTimeOriginal tag">
+        <defs>
+          <linearGradient id="dateGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#2cc4f5" stop-opacity="0.3"/>
+            <stop offset="100%" stop-color="#00e699" stop-opacity="0.3"/>
+          </linearGradient>
+        </defs>
+        <rect x="10" y="10" width="740" height="340" rx="8" fill="#0b111a" stroke="#1f2d3d" stroke-width="1"/>
+        
+        <!-- Header blocks -->
+        <text x="30" y="45" fill="#2cc4f5" font-weight="700" font-size="14">JPEG CONTAINER WITH EXIF APP1 SEGMENT</text>
+        <rect x="30" y="60" width="55" height="42" rx="4" fill="#1b2533" stroke="#2cc4f5" stroke-width="1"/>
+        <text x="40" y="86" fill="#fff" font-size="11">SOI</text>
+        
+        <rect x="90" y="60" width="75" height="42" rx="4" fill="#1b2533" stroke="#2cc4f5" stroke-width="1"/>
+        <text x="98" y="86" fill="#fff" font-size="11">APP1 Tag</text>
+        
+        <rect x="170" y="60" width="220" height="42" rx="4" fill="url(#dateGrad)" stroke="#00e699" stroke-width="1.5"/>
+        <text x="185" y="86" fill="#00e699" font-weight="700" font-size="12">ExifIFD: DateTimeOriginal (0x9003)</text>
+        
+        <rect x="395" y="60" width="130" height="42" rx="4" fill="#1b2533" stroke="#2cc4f5" stroke-width="1"/>
+        <text x="415" y="86" fill="#fff" font-size="11">DQT &amp; DHT Tables</text>
+        
+        <rect x="530" y="60" width="200" height="42" rx="4" fill="#1b2533" stroke="#00e699" stroke-width="1"/>
+        <text x="560" y="86" fill="#00e699" font-size="11">SOS (Lossless Image Pixels)</text>
+
+        <!-- Detail Box -->
+        <rect x="30" y="135" width="700" height="150" rx="6" fill="#111a26" stroke="#1f2d3d" stroke-width="1"/>
+        <text x="50" y="165" fill="#fff" font-weight="700" font-size="13">IN-PLACE BINARY OVERWRITE MECHANISM (20 Bytes)</text>
+        
+        <rect x="50" y="180" width="310" height="45" rx="4" fill="#1b2533" stroke="#ff4444" stroke-width="1"/>
+        <text x="65" y="200" fill="#ff7777" font-size="11">Before: 2026:10:24 14:15:22\0</text>
+        <text x="65" y="216" fill="#8892b0" font-size="10">Scanned / Incorrect Camera Timestamp</text>
+        
+        <polygon points="370,203 385,208 370,213" fill="#2cc4f5"/>
+        
+        <rect x="405" y="180" width="310" height="45" rx="4" fill="#1b2533" stroke="#00e699" stroke-width="1"/>
+        <text x="420" y="200" fill="#00e699" font-size="11">After:  1984:06:18 11:30:00\0</text>
+        <text x="420" y="216" fill="#8892b0" font-size="10">Corrected Historical Capture Date</text>
+
+        <!-- You Are Here Marker -->
+        <g transform="translate(180, 255)">
+          <circle cx="0" cy="0" r="14" fill="#2cc4f5" fill-opacity="0.2"/>
+          <circle cx="0" cy="0" r="6" fill="#2cc4f5"/>
+          <text x="22" y="5" fill="#2cc4f5" font-weight="700" font-size="12">YOU ARE HERE: Zero-Recompression In-Memory Byte Slicing</text>
+        </g>
+      </svg>
+
+      <h2>Common Scenarios for Changing Photo Dates</h2>
+      <ul>
+        <li><strong>Fixing Wrong Camera Clock Settings:</strong> Forgetting to set daylight savings time, traveling to a new timezone, or replacing a dead CMOS camera battery causes thousands of vacation photos to display incorrect times.</li>
+        <li><strong>Chronological Sorting for Film Scans:</strong> Scanning physical prints or 35mm slides results in images stamped with the scan date. Editing the EXIF date taken allows Apple Photos, Google Photos, and Immich to organize scans chronologically alongside digital photos.</li>
+        <li><strong>Protecting Personal Privacy:</strong> Sharing photographs online exposes the exact time of day you took a picture, revealing personal habits, working hours, or vacation schedules. Wiping timestamps completely preserves your privacy.</li>
+        <li><strong>Organizing WhatsApp and Social Media Downloads:</strong> WhatsApp, Messenger, and Instagram strip EXIF dates upon download, causing files to cluster on the download day. Restoring capture dates sorts files cleanly.</li>
+      </ul>
+
+      <h2>Step-by-Step Guide: How to Change or Strip Photo Dates</h2>
+      <ol class="steps">
+        <li><strong>Upload photo:</strong> Drop a JPG or JPEG photo into the date editor tool above.</li>
+        <li><strong>Select date mode:</strong> Choose Set New Timestamp and pick your custom date and time, or select Strip All Timestamps.</li>
+        <li><strong>Download updated photo:</strong> Click Apply and Download Photo to instantly save the file with corrected EXIF timestamps without re-encoding.</li>
+      </ol>
+
+      
+      <h2>File System Timestamps vs Internal EXIF Dates: Why Copying Files Changes the Date</h2>
+      <p>
+        One of the most common user frustrations occurs when copying photos from an old hard drive, downloading them from Google Drive, or transferring them via USB cable: suddenly all vacation photos from 2018 display todays date in Windows File Explorer or Mac Finder.
+      </p>
+      <p>
+        Understanding why this happens requires distinguishing between two distinct timestamp layers:
+      </p>
+      <ul>
+        <li><strong>File System Timestamps (OS-Level):</strong> Maintained by NTFS, APFS, or ext4 file systems, these attributes record when the specific file container was created (<code>CreatedDate</code>), modified (<code>ModifiedDate</code>), or read (<code>AccessedDate</code>) on that specific drive partition. Whenever a file is downloaded or duplicated, the operating system assigns a brand-new file creation date.</li>
+        <li><strong>Internal EXIF Metadata (Bitstream-Level):</strong> Stored directly within the TIFF header inside the image file itself. Tags like <code>DateTimeOriginal</code> and <code>DateTimeDigitized</code> travel with the image regardless of how many times it is copied, renamed, or emailed.</li>
+        <li><strong>How Photo Apps Use EXIF to Rescue Timelines:</strong> Sophisticated photo organizing software (Apple Photos, Google Photos, Lightroom) prioritizes internal EXIF <code>DateTimeOriginal</code> over operating system file dates. By using RemoveSynth to write or adjust the internal EXIF tag, you permanently anchor the photograph to its true historical capture date across all devices.</li>
+      </ul>
+
+      <h2>Timezone Offsets and UTC Synchronization in Modern Digital Cameras</h2>
+      <p>
+        In EXIF 2.31 and newer standards, timestamp recording was updated to solve international travel timezone conflicts:
+      </p>
+      <ul>
+        <li><strong>The Standard EXIF Date Limitation:</strong> Legacy EXIF <code>DateTimeOriginal</code> strings do not include timezone offsets. A photo taken at 8:00 AM in Tokyo and another taken at 8:00 AM in New York on the same day appear simultaneous to legacy parsers.</li>
+        <li><strong>EXIF OffsetTime Tags:</strong> Modern cameras and smartphones record complementary 7-byte ASCII tags: <code>OffsetTimeOriginal</code> (Tag <code>0x9011</code>) and <code>OffsetTimeDigitized</code> (Tag <code>0x9012</code>) formatted as <code>+09:00</code> or <code>-05:00</code>.</li>
+        <li><strong>Preventing Vacation Timeline Scrambling:</strong> When traveling across multiple timezones, failing to synchronize camera clocks causes travel photos to interleave out of order. Adjusting EXIF timestamps restores the true narrative progression of your travel galleries.</li>
+      </ul>
+
+      <h2>Archival and Genealogy Workflows: Dating Vintage Film Scans and Historic Family Photos</h2>
+      <p>
+        Preserving historical family heritage through photo digitization requires accurate chronological cataloging:
+      </p>
+      <ul>
+        <li><strong>The Film Scanner Timestamp Problem:</strong> Flatbed document scanners (Epson, Canon) and professional lab film scanners automatically stamp the current scan timestamp (e.g. <code>2026:10:28</code>) into the exported JPEG or TIFF file. As a result, 1920s ancestor portraits appear at the very end of your modern digital photo timeline.</li>
+        <li><strong>Restoring Historical Decades:</strong> Using RemoveSynth, genealogists and family archivists can set the EXIF date back to the approximate or exact date of the original historical event (e.g. <code>1945:08:15 12:00:00</code>).</li>
+        <li><strong>Immich and Apple Photos Timeline Sorting:</strong> Once the historical EXIF date is injected, photo libraries automatically cluster old photos into appropriate historical decade albums alongside geographic map pins.</li>
+      </ul>
+
+      <h2>How to Change Photo Dates on Windows 11, Mac, and iPhone Without Third-Party Apps</h2>
+      <p>
+        While RemoveSynth provides the fastest in-browser solution, native operating systems offer limited built-in date modification tools:
+      </p>
+      <ul>
+        <li><strong>Windows 11 File Explorer:</strong> Right-click a JPG file, select <em>Properties &gt; Details</em> tab, and click the <em>Date taken</em> field to type a new date. Note that Windows cannot batch-adjust timezones and frequently fails on read-only files.</li>
+        <li><strong>Apple macOS Photos:</strong> In the Photos app, select one or more photos, click <em>Image &gt; Adjust Date and Time</em>, and choose a new date or apply a timezone shift. Note that this changes the date inside the Photos database only unless you re-export the original file.</li>
+        <li><strong>Apple iOS (iPhone / iPad):</strong> In the Photos app, swipe up on a photo or tap the &quot;i&quot; info button, then tap <em>Adjust</em> next to the date. While convenient for individual photos, modifying dozens of images on mobile is tedious.</li>
+        <li><strong>The RemoveSynth Advantage:</strong> Drop any number of photos directly into your browser, set exact timestamps or wipe them completely, and receive permanent bit-level EXIF updates without locking your images into proprietary photo library databases.</li>
+      </ul>
+
+
+      <h2>Comparison: How Different Platforms Read Photo Dates</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Platform / App</th>
+              <th>Primary Timestamp Read</th>
+              <th>Fallback Timestamp</th>
+              <th>Behavior After Date Edit</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Apple Photos (iOS/macOS)</strong></td>
+              <td>EXIF DateTimeOriginal</td>
+              <td>File creation date</td>
+              <td>Re-sorts chronological timeline instantly</td>
+            </tr>
+            <tr>
+              <td><strong>Google Photos (Android/Web)</strong></td>
+              <td>EXIF DateTimeOriginal</td>
+              <td>EXIF ModifyDate</td>
+              <td>Moves photo to selected historical year/month</td>
+            </tr>
+            <tr>
+              <td><strong>Windows 11 File Explorer</strong></td>
+              <td>Date Taken (EXIF)</td>
+              <td>Date Modified</td>
+              <td>Updates Date Taken column in Explorer view</td>
+            </tr>
+            <tr>
+              <td><strong>Adobe Lightroom Classic</strong></td>
+              <td>Capture Time (EXIF)</td>
+              <td>File timestamp</td>
+              <td>Updates catalog metadata and grid order</td>
+            </tr>
+            <tr>
+              <td><strong>Immich Self-Hosted</strong></td>
+              <td>EXIF DateTimeOriginal</td>
+              <td>File creation date</td>
+              <td>Moves asset into correct timeline cluster</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- FAQ Section -->
+      
+      <h2>Forensic Timestamps in Legal Evidence: Chain of Custody and Tamper Verification</h2>
+      <p>
+        In civil litigation, criminal proceedings, and insurance claim verifications, digital photo timestamps are routinely scrutinized during electronic discovery (e-discovery):
+      </p>
+      <ul>
+        <li><strong>Chain of Custody and Spoliation:</strong> Submitting photos in court with modified or mismatched EXIF dates can trigger spoliation motions or evidentiary disqualification if not properly documented.</li>
+        <li><strong>Internal Inconsistencies:</strong> Digital cameras write redundant timestamp records across multiple sub-directories: <code>ExifIFD:DateTimeOriginal</code>, <code>InteropIFD</code>, and manufacturer MakerNotes. Naive date editors that alter only the primary tag leave contradictory records that forensic tools immediately flag as manipulated.</li>
+        <li><strong>The Privacy Strip Option:</strong> For private individuals sharing photos with journalists, regulatory bodies, or public forums, utilizing our &quot;Strip All Timestamps&quot; mode completely zeroes all timestamp tags uniformly, eliminating temporal correlation vectors without introducing suspicious date contradictions.</li>
+      </ul>
+
+
+      <h2>Frequently Asked Questions</h2>
+      <div class="faq-list">
+        {faqs.map((faq) => (
+          <div class="faq-item card">
+            <h3>{faq.q}</h3>
+            <p>{faq.a}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </article>
+</Base>
+
+<style>
+  .page-container {
+    max-width: var(--maxw);
+    margin: 0 auto;
+    padding: 32px 16px 80px;
+  }
+  .hero {
+    text-align: center;
+    max-width: 760px;
+    margin: 0 auto 36px;
+  }
+  .eyebrow {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--accent);
+    background: var(--accent-soft);
+    border: 1px solid rgba(44, 196, 245, 0.25);
+    margin-bottom: 14px;
+  }
+  .hero h1 {
+    font-size: clamp(2.2rem, 5vw, 3.4rem);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.03em;
+    margin: 0 0 16px;
+  }
+  .lead {
+    color: var(--muted);
+    font-size: 1.15rem;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .tool-wrapper {
+    margin-bottom: 56px;
+  }
+
+  .editor-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-top: 16px;
+  }
+  .editor-grid {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 24px;
+    align-items: start;
+  }
+  @media (max-width: 640px) {
+    .editor-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .preview-box {
+    text-align: center;
+  }
+  .preview-box img {
+    max-width: 100%;
+    max-height: 160px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    object-fit: cover;
+  }
+  .file-name {
+    margin-top: 8px;
+    font-size: 0.85rem;
+    color: var(--muted);
+    word-break: break-all;
+  }
+
+  .current-date-box {
+    margin-bottom: 16px;
+    padding: 10px 14px;
+    background: rgba(44, 196, 245, 0.08);
+    border: 1px solid rgba(44, 196, 245, 0.2);
+    border-radius: 6px;
+    display: flex;
+    gap: 8px;
+    font-size: 0.92rem;
+  }
+  .current-date-box .label {
+    color: var(--muted);
+  }
+  .current-date-box .val {
+    color: var(--accent);
+    font-weight: 600;
+    font-family: monospace;
+  }
+
+  .mode-select {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 18px;
+  }
+  .radio-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    font-size: 0.95rem;
+  }
+
+  .inputs-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .ctrl-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+  }
+  .ctrl-group label {
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+  .input-field {
+    padding: 8px 12px;
+    background: #0b111a;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: #fff;
+    font-size: 0.95rem;
+  }
+
+  .actions-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .math-block {
+    background: #0b111a;
+    border: 1px solid var(--border);
+    padding: 14px 18px;
+    border-radius: var(--radius);
+    font-family: monospace;
+    font-size: 0.95rem;
+    color: #2cc4f5;
+    margin: 18px 0;
+    overflow-x: auto;
+  }
+
+  .chart-svg {
+    width: 100%;
+    height: auto;
+    max-width: 760px;
+    display: block;
+    margin: 24px auto;
+  }
+
+  .steps {
+    list-style: decimal;
+    padding-left: 24px;
+    line-height: 1.8;
+    margin: 20px 0;
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+    margin: 24px 0;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.92rem;
+  }
+  th, td {
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    text-align: left;
+  }
+  th {
+    background: var(--card-bg);
+    color: var(--fg);
+  }
+
+  .faq-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 24px;
+  }
+  .faq-item {
+    padding: 20px 24px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+  }
+  .faq-item h3 {
+    margin: 0 0 8px;
+    font-size: 1.15rem;
+    color: var(--fg);
+  }
+  .faq-item p {
+    margin: 0;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+</style>
+
+<script>
+  import { downloadBlob } from '@removesynth/shared/lib/clean';
+
+  const root = document.getElementById('date-drop');
+  if (root) {
+    const results = root.querySelector('.results') as HTMLElement;
+    const previewImg = document.getElementById('preview-img') as HTMLImageElement;
+    const fileName = document.getElementById('file-name') as HTMLElement;
+    const currentDate = document.getElementById('current-date') as HTMLElement;
+    const dateField = document.getElementById('date-field') as HTMLInputElement;
+    const timeField = document.getElementById('time-field') as HTMLInputElement;
+    const dateInputs = document.getElementById('date-inputs') as HTMLElement;
+    const saveBtn = document.getElementById('save-btn') as HTMLButtonElement;
+    const clearBtn = document.getElementById('clear-btn') as HTMLButtonElement;
+    const modeRadios = document.querySelectorAll('input[name="mode"]');
+
+    let activeFile: File | null = null;
+    let fileBuffer: ArrayBuffer | null = null;
+
+    // Helper: format Date object to YYYY:MM:DD HH:MM:SS
+    const formatExifString = (dateVal: string, timeVal: string): string => {
+      const d = dateVal.replace(/-/g, ':');
+      const t = timeVal || '12:00:00';
+      return `${d} ${t}`;
+    };
+
+    modeRadios.forEach((r) => {
+      r.addEventListener('change', (e) => {
+        const val = (e.target as HTMLInputElement).value;
+        if (val === 'strip') {
+          dateInputs.style.display = 'none';
+          saveBtn.textContent = 'Strip All Timestamps & Download';
+        } else {
+          dateInputs.style.display = 'flex';
+          saveBtn.textContent = 'Apply and Download Photo';
+        }
+      });
+    });
+
+    root.addEventListener('files', async (e: Event) => {
+      const files = (e as CustomEvent).detail as File[];
+      if (!files || !files.length) return;
+
+      activeFile = files[0];
+      fileName.textContent = activeFile.name;
+      results.hidden = false;
+
+      // Preview thumbnail
+      const objectUrl = URL.createObjectURL(activeFile);
+      previewImg.src = objectUrl;
+
+      // Read buffer
+      fileBuffer = await activeFile.arrayBuffer();
+      const bytes = new Uint8Array(fileBuffer);
+
+      // Search for Exif date string "YYYY:MM:DD HH:MM:SS"
+      let foundDate = 'None / Not Found';
+      const textDecoder = new TextDecoder('ascii');
+      const dateRegex = /\b(19\d\d|20\d\d):([01]\d):([0-3]\d) ([0-2]\d):([0-5]\d):([0-5]\d)\b/;
+
+      for (let i = 0; i < Math.min(bytes.length - 20, 65536); i++) {
+        if (bytes[i] === 0x31 || bytes[i] === 0x32) {
+          // starts with '1' or '2'
+          const candidate = textDecoder.decode(bytes.subarray(i, i + 19));
+          if (dateRegex.test(candidate)) {
+            foundDate = candidate;
+            const parts = candidate.split(' ');
+            dateField.value = parts[0].replace(/:/g, '-');
+            timeField.value = parts[1];
+            break;
+          }
+        }
+      }
+
+      currentDate.textContent = foundDate;
+      if (foundDate === 'None / Not Found') {
+        const now = new Date();
+        dateField.value = now.toISOString().split('T')[0];
+        timeField.value = '12:00:00';
+      }
+    });
+
+    saveBtn?.addEventListener('click', async () => {
+      if (!activeFile || !fileBuffer) return;
+
+      const mode = (document.querySelector('input[name="mode"]:checked') as HTMLInputElement).value;
+      const copy = new Uint8Array(fileBuffer.slice(0));
+      const textEncoder = new TextEncoder();
+      const textDecoder = new TextDecoder('ascii');
+      const dateRegex = /\b(19\d\d|20\d\d):([01]\d):([0-3]\d) ([0-2]\d):([0-5]\d):([0-5]\d)\b/;
+
+      if (mode === 'set') {
+        const newDateStr = formatExifString(dateField.value, timeField.value);
+        const encodedNew = textEncoder.encode(newDateStr);
+
+        for (let i = 0; i < Math.min(copy.length - 20, 65536); i++) {
+          if (copy[i] === 0x31 || copy[i] === 0x32) {
+            const candidate = textDecoder.decode(copy.subarray(i, i + 19));
+            if (dateRegex.test(candidate)) {
+              copy.set(encodedNew, i);
+            }
+          }
+        }
+      } else {
+        // Strip mode: overwrite timestamp bytes with spaces or nulls
+        const blank = textEncoder.encode('                   ');
+        for (let i = 0; i < Math.min(copy.length - 20, 65536); i++) {
+          if (copy[i] === 0x31 || copy[i] === 0x32) {
+            const candidate = textDecoder.decode(copy.subarray(i, i + 19));
+            if (dateRegex.test(candidate)) {
+              copy.set(blank, i);
+            }
+          }
+        }
+      }
+
+      const cleanBlob = new Blob([copy], { type: activeFile.type || 'image/jpeg' });
+      downloadBlob(cleanBlob, activeFile.name.replace(/\.jpe?g$/i, '-date-updated.jpg'));
+    });
+
+    clearBtn?.addEventListener('click', () => {
+      results.hidden = true;
+      activeFile = null;
+      fileBuffer = null;
+    });
+  }
+</script>

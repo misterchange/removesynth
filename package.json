@@ -1,0 +1,17 @@
+{
+  "name": "removesynth-workspace",
+  "private": true,
+  "type": "module",
+  "workspaces": ["apps/*", "packages/*"],
+  "scripts": {
+    "dev:removesynth": "npm run dev -w removesynth",
+    "dev:checkaiornot": "npm run dev -w checkaiornot",
+    "dev:labelsynth": "npm run dev -w labelsynth",
+    "build": "npm run build -w removesynth -w checkaiornot -w labelsynth",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "vitest": "^5.0.5",
+    "wrangler": "^4.151.1"
+  }
+}

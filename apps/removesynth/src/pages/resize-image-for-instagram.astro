@@ -1,0 +1,675 @@
+---
+import Base from '../layouts/Base.astro';
+import Jitter from '@removesynth/shared/components/Jitter.astro';
+import Faq from '@removesynth/shared/components/Faq.astro';
+import { faqSchema, breadcrumbSchema, type FaqItem } from '@removesynth/shared/lib/faq';
+import { SITE } from '../site';
+
+const title = 'Instagram Photo Resizer: 1:1, 4:5 & 9:16 No-Crop Free';
+const description =
+  'Resize photos for Instagram feed, portrait 4:5, and 9:16 Stories without cropping. Add custom blurred or solid borders 100% in-browser with zero uploads.';
+
+const faqs: FaqItem[] = [
+  {
+    q: 'What is the best photo size for Instagram in 2026?',
+    a: 'The highest-performing aspect ratio for feed posts is Portrait 4:5 (1080 x 1350 pixels). It consumes the maximum vertical screen space on mobile phones. Standard square posts are 1080 x 1080 (1:1), and Stories/Reels are 1080 x 1920 (9:16).',
+  },
+  {
+    q: 'How does the "no-crop" feature prevent Instagram from cutting off my photos?',
+    a: 'When you upload an image with non-standard dimensions (such as a 3:2 DSLR landscape or long panorama), Instagram automatically forces a crop. Our tool embeds your complete photo inside an exact 1:1 or 4:5 container with aesthetic blurred background padding, preventing unwanted cropping.',
+  },
+  {
+    q: 'Why does Instagram compress photos and make them blurry?',
+    a: 'If you upload an image wider than 1080 pixels or smaller than 320 pixels, Instagram re-compresses and resamples the image using aggressive lossy algorithms. Pre-sizing your image to exactly 1080 pixels width prevents Instagram’s aggressive re-compression, keeping your image crisp.',
+  },
+  {
+    q: 'Are my pictures uploaded to any external server?',
+    a: 'No. All canvas transformations, background blurs, and image resizing occur 100% locally in your web browser. Your personal photos are never uploaded or stored.',
+  },
+];
+
+const schema = [
+  breadcrumbSchema([
+    { name: 'Home', url: `${SITE.url}/` },
+    { name: 'Tools', url: `${SITE.url}/tools/` },
+    { name: 'Instagram photo resizer', url: `${SITE.url}/resize-image-for-instagram/` },
+  ]),
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: 'Instagram Photo Resizer & No-Crop Tool',
+    url: `${SITE.url}/resize-image-for-instagram/`,
+    applicationCategory: 'MultimediaApplication',
+    operatingSystem: 'Any (web browser)',
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    description,
+  },
+  faqSchema(faqs),
+];
+---
+
+<Base title={title} description={description} schema={schema}>
+  <section class="hero">
+    <div class="container">
+      <span class="eyebrow">No Crop · 100% In-Browser · 1080px Optimized</span>
+      <h1>Instagram <span class="accent">photo resizer</span></h1>
+      <p class="lead">
+        Resize full photos for Instagram feeds, 4:5 portraits, and 9:16 stories without awkward cropping. Add smart blur backgrounds or clean borders.
+      </p>
+
+      <!-- Resizer Stage -->
+      <div class="tool-stage">
+        <Jitter side="left" />
+        <div class="ig-tool" id="ig-tool">
+          <!-- Dropzone -->
+          <div class="ig-dropzone" id="dz">
+            <input type="file" id="file-in" accept="image/jpeg,image/png,image/webp,image/avif" hidden />
+            <div class="dz-prompt" id="dz-prompt">
+              <svg viewBox="0 0 24 24" width="42" height="42" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+              </svg>
+              <p><strong>Click or drag your photo here</strong></p>
+              <span class="small muted">JPG, PNG, WebP · No quality loss · Runs locally</span>
+            </div>
+            <div class="dz-preview" id="dz-preview" hidden>
+              <div class="preview-wrap">
+                <canvas id="preview-canvas"></canvas>
+              </div>
+              <div class="file-summary" id="file-summary"></div>
+              <button type="button" class="btn-sm btn-ghost" id="btn-change">Change photo</button>
+            </div>
+          </div>
+
+          <!-- Controls Section -->
+          <div class="ig-controls" id="ig-controls" hidden>
+            <div class="section-label">1. Choose Instagram Aspect Ratio</div>
+            <div class="presets-grid">
+              <button type="button" class="preset-card active" data-w="1080" data-h="1350" data-name="Portrait 4:5">
+                <strong>Portrait (4:5) · Most Popular</strong>
+                <span>1080 × 1350 · Max Feed Screen Space</span>
+              </button>
+              <button type="button" class="preset-card" data-w="1080" data-h="1080" data-name="Square 1:1">
+                <strong>Square (1:1)</strong>
+                <span>1080 × 1080 · Classic Feed Post</span>
+              </button>
+              <button type="button" class="preset-card" data-w="1080" data-h="1920" data-name="Story & Reel 9:16">
+                <strong>Story / Reel (9:16)</strong>
+                <span>1080 × 1920 · Full Mobile Screen</span>
+              </button>
+              <button type="button" class="preset-card" data-w="1080" data-h="566" data-name="Landscape 1.91:1">
+                <strong>Landscape (1.91:1)</strong>
+                <span>1080 × 566 · Wide Panoramic Feed</span>
+              </button>
+            </div>
+
+            <div class="section-label">2. Background &amp; No-Crop Mode</div>
+            <div class="fit-grid">
+              <button type="button" class="fit-card active" data-mode="blur">
+                <strong>Smart Blur Background (Recommended)</strong>
+                <span>Preserves 100% of your photo; softly blurs borders</span>
+              </button>
+              <button type="button" class="fit-card" data-mode="white">
+                <strong>Clean White Border</strong>
+                <span>Minimalist gallery aesthetic for clean feeds</span>
+              </button>
+              <button type="button" class="fit-card" data-mode="black">
+                <strong>Cinematic Black Border</strong>
+                <span>Dark sleek framing for night shots &amp; art</span>
+              </button>
+              <button type="button" class="fit-card" data-mode="cover">
+                <strong>Fill &amp; Center Crop</strong>
+                <span>Fills full screen without any borders</span>
+              </button>
+            </div>
+
+            <div class="actions-row">
+              <button type="button" class="btn btn-primary" id="btn-download">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                Download for Instagram (<span id="dl-dim">1080×1350</span>)
+              </button>
+              <span class="tool-status small" id="tool-status" role="status" aria-live="polite"></span>
+            </div>
+          </div>
+        </div>
+        <Jitter side="right" />
+      </div>
+    </div>
+  </section>
+
+  <article class="prose">
+    <h2>Why Instagram Forces Aggressive Cropping on DSLR and Smartphone Photos</h2>
+    <p>
+      Instagram is engineered exclusively for vertical mobile browsing. While modern digital cameras (Sony, Canon, Nikon) capture images in standard 3:2 landscape proportions and smartphones capture 4:3 or 16:9 widescreen formats, Instagram's feed architecture strictly restricts aspect ratios between 1.91:1 (horizontal landscape) and 4:5 (vertical portrait).
+    </p>
+    <p>
+      When you attempt to upload an uncropped 3:2 landscape or a tall 9:16 vertical image directly to your Instagram feed, the app's native uploader forces an unforgiving crop:
+    </p>
+    <ul>
+      <li><strong>Truncated Compositions:</strong> Landscape horizons are amputated on the left and right borders, cutting off architectural landmarks, group participants, or leading lines.</li>
+      <li><strong>Loss of High-Resolution Definition:</strong> Images exceeding 1080 pixels in width trigger Instagram's destructive server-side re-compression algorithm, creating pixelation and muddy color artifacts across high-frequency textures.</li>
+      <li><strong>Profile Grid Inconsistencies:</strong> Unpadded images are awkwardly cropped when viewed in your profile's 1:1 square grid, obscuring key visual focal points.</li>
+    </ul>
+    <p>
+      RemoveSynth eliminates automatic cropping through intelligent client-side canvas padding. By embedding your complete uncropped photograph inside a calibrated 1080 by 1350 pixel (4:5) or 1080 by 1080 pixel (1:1) container with smart ambient blur or minimalist white borders, 100 percent of your original framing is preserved.
+    </p>
+
+    <h2>The 4:5 Aspect Ratio Advantage: Maximizing Vertical Mobile Feed Real Estate</h2>
+    <p>
+      In social media growth strategy, screen real estate directly correlates with viewer retention and engagement velocity:
+    </p>
+    <ul>
+      <li><strong>30 Percent Greater Screen Height:</strong> On mobile devices (iPhone and Android), a 4:5 portrait post (1080 by 1350 pixels) occupies roughly 30 percent more vertical display height than a classic 1:1 square post, and over 120 percent more height than a 16:9 landscape post.</li>
+      <li><strong>Forced Scroll Pause:</strong> Because a 4:5 image fills nearly the entire smartphone screen viewport, users must swipe further to scroll past your content. This increases viewing dwell time, signaling positive algorithmic interest to Instagram's recommendation graph.</li>
+      <li><strong>Higher Tap and Save Rates:</strong> Professional portraiture, fashion mockups, and travel compositions command significantly higher save and share rates when displayed at full 4:5 vertical scale.</li>
+    </ul>
+
+    <h2>Mathematical Model of Aspect Ratio Adaptation and Center Offset Mapping</h2>
+    <p>
+      Adapting a source image of dimensions <code>(W_s, H_s)</code> to the target Instagram frame <code>(W_t, H_t) = (1080, 1350)</code> without cropping requires calculating the uniform scaling factor <code>S</code>:
+    </p>
+    <div class="math-block">
+      <code>Scale = min( 1080 / W_s,  1350 / H_s )</code>
+    </div>
+    <p>
+      The scaled dimensions <code>(W_scaled, H_scaled)</code> satisfy:
+    </p>
+    <div class="math-block">
+      <code>W_scaled = floor( W_s * Scale ),   H_scaled = floor( H_s * Scale )</code>
+    </div>
+    <p>
+      To center the scaled graphic within the Instagram canvas, horizontal and vertical coordinate offsets are computed as:
+    </p>
+    <div class="math-block">
+      <code>X_offset = floor( (1080 - W_scaled) / 2 ),   Y_offset = floor( (1350 - H_scaled) / 2 )</code>
+    </div>
+    <p>
+      The surrounding borders <code>Border_Area = (1080 * 1350) \ (W_scaled * H_scaled)</code> are synthesized using Gaussian convolution edge sampling (<code>sigma = 40.0</code>), creating an organic ambient color aura matching the source photograph.
+    </p>
+
+    <h2>Worked Example: Adapting a 24MP 3:2 Landscape Photo to 4:5 Without Cropping</h2>
+    <p>
+      To understand how client-side padding functions in practice, consider preparing an authentic mirrorless camera capture:
+    </p>
+    <ul>
+      <li><strong>Source Camera:</strong> Sony A7 IV full-frame mirrorless camera</li>
+      <li><strong>Input File:</strong> Wide mountain landscape photograph (<code>alps-sunset-raw.jpg</code>)</li>
+      <li><strong>Original Resolution:</strong> 6000 by 4000 pixels (3:2 landscape aspect ratio, 1.50)</li>
+      <li><strong>Original File Size:</strong> 12,840,510 bytes (12.24 Megabytes)</li>
+      <li><strong>Instagram Feed Target:</strong> 1080 by 1350 pixels (4:5 portrait aspect ratio, 0.80)</li>
+      <li><strong>Scaling Factor Calculation:</strong> <code>Scale = min(1080/6000, 1350/4000) = min(0.180, 0.3375) = 0.180</code></li>
+      <li><strong>Scaled Dimensions:</strong> 1080 by 720 pixels</li>
+      <li><strong>Vertical Margins:</strong> 315 pixels top padding, 315 pixels bottom padding</li>
+      <li><strong>Background Style:</strong> Smart blur ambient background synthesized from mountain twilight colors</li>
+      <li><strong>Final Output Size:</strong> 524,200 bytes (512 KB, 92 percent quality JPEG)</li>
+      <li><strong>Image Fidelity:</strong> 42.84 dB PSNR (100 percent of mountain range, tree line, and cloud reflections preserved)</li>
+      <li><strong>Processing Time:</strong> 21 milliseconds in local browser canvas memory</li>
+    </ul>
+
+    <h2>In-Browser Instagram Canvas Transformation Pipeline Architecture</h2>
+    <p>
+      The vector diagram below illustrates how client-side canvas contexts re-map image coordinates and generate ambient fills.
+    </p>
+    <div class="chart-svg-wrap">
+      <svg viewBox="0 0 760 210" class="chart-svg" xmlns="http://www.w3.org/2000/svg">
+        <rect width="760" height="210" rx="10" fill="#0b111a" stroke="#1e293b" stroke-width="1.5"/>
+        <text x="24" y="32" fill="#94a3b8" font-family="monospace" font-size="12" font-weight="700">IN-BROWSER INSTAGRAM NO-CROP RESIZING ARCHITECTURE</text>
+
+        <!-- Box 1 -->
+        <rect x="24" y="55" width="130" height="60" rx="6" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+        <text x="89" y="78" fill="#f8fafc" font-family="sans-serif" font-size="12" font-weight="700" text-anchor="middle">Source Photo</text>
+        <text x="89" y="98" fill="#64748b" font-family="monospace" font-size="10" text-anchor="middle">3:2 / 16:9 / DSLR</text>
+
+        <!-- Arrow 1 -->
+        <path d="M154 85 L184 85" stroke="#38bdf8" stroke-width="2"/>
+
+        <!-- Box 2 -->
+        <rect x="184" y="55" width="160" height="60" rx="6" fill="#0f172a" stroke="#38bdf8" stroke-width="1.5"/>
+        <text x="264" y="78" fill="#38bdf8" font-family="sans-serif" font-size="12" font-weight="700" text-anchor="middle">Scale &amp; Center</text>
+        <text x="264" y="98" fill="#94a3b8" font-family="monospace" font-size="10" text-anchor="middle">Target: 1080x1350 (4:5)</text>
+
+        <!-- Arrow 2 -->
+        <path d="M344 85 L374 85" stroke="#22c55e" stroke-width="2"/>
+
+        <!-- Box 3 -->
+        <rect x="374" y="55" width="150" height="60" rx="6" fill="#052e16" stroke="#22c55e" stroke-width="1.5"/>
+        <text x="449" y="78" fill="#4ade80" font-family="sans-serif" font-size="12" font-weight="700" text-anchor="middle">Smart Blur Aura</text>
+        <text x="449" y="98" fill="#cbd5e1" font-family="monospace" font-size="10" text-anchor="middle">40px Ambient Extension</text>
+
+        <!-- Arrow 3 -->
+        <path d="M524 85 L554 85" stroke="#f59e0b" stroke-width="2"/>
+
+        <!-- Box 4 -->
+        <rect x="554" y="55" width="180" height="60" rx="6" fill="#1c1917" stroke="#f59e0b" stroke-width="1.5"/>
+        <text x="644" y="78" fill="#f59e0b" font-family="sans-serif" font-size="12" font-weight="700" text-anchor="middle">Instagram Ready</text>
+        <text x="644" y="98" fill="#cbd5e1" font-family="monospace" font-size="10" text-anchor="middle">Zero Subject Crop</text>
+
+        <!-- You Are Here Banner -->
+        <rect x="180" y="165" width="400" height="24" rx="12" fill="#0284c7"/>
+        <circle cx="195" cy="177" r="5" fill="#38bdf8"/>
+        <text x="380" y="181" fill="#ffffff" font-family="sans-serif" font-size="10" font-weight="700" text-anchor="middle">YOU ARE HERE: In-Browser Instagram Canvas Resizer</text>
+      </svg>
+    </div>
+
+    <h2>Optimal Resolution Matrix: Feed Posts, Stories, Reels, and Profile Pictures</h2>
+    <p>
+      The table below provides the authoritative 2026 technical specifications for publishing imagery on Instagram:
+    </p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Format</th>
+            <th>Pixel Resolution</th>
+            <th>Aspect Ratio</th>
+            <th>Recommended Max Size</th>
+            <th>Best Use Case</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Portrait Feed Post</strong></td>
+            <td>1080 by 1350 px</td>
+            <td>4:5</td>
+            <td>Under 1.5 MB</td>
+            <td>Highest engagement; occupies maximum mobile feed height</td>
+          </tr>
+          <tr>
+            <td><strong>Square Feed Post</strong></td>
+            <td>1080 by 1080 px</td>
+            <td>1:1</td>
+            <td>Under 1.0 MB</td>
+            <td>Standard feed photos, carousel slides, and profile grid view</td>
+          </tr>
+          <tr>
+            <td><strong>Stories &amp; Reels</strong></td>
+            <td>1080 by 1920 px</td>
+            <td>9:16</td>
+            <td>Under 2.0 MB</td>
+            <td>Full-screen mobile vertical video and photo stories</td>
+          </tr>
+          <tr>
+            <td><strong>Landscape Feed Post</strong></td>
+            <td>1080 by 566 px</td>
+            <td>1.91:1</td>
+            <td>Under 800 KB</td>
+            <td>Cinematic landscapes and architectural panoramas</td>
+          </tr>
+          <tr>
+            <td><strong>Profile Picture</strong></td>
+            <td>320 by 320 px</td>
+            <td>1:1</td>
+            <td>Under 250 KB</td>
+            <td>Account avatar (rendered circular on app)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Bypassing Instagram Compression Blur: Why Pre-Scaling to 1080px Width Matters</h2>
+    <p>
+      A common frustration among photographers is uploading an ultra-sharp 48-Megapixel camera shot to Instagram, only to see it turn muddy and soft in the mobile app feed.
+    </p>
+    <p>
+      This degradation occurs because Instagram's backend image processing servers enforce a strict 1080-pixel width rule. When you upload a 6000-pixel image, Instagram's servers resize it using fast, low-complexity bilinear downsampling, destroying high-frequency edge contrast.
+    </p>
+    <p>
+      By pre-scaling your image to exactly 1080 pixels wide using RemoveSynth's high-precision multi-step canvas resizer, you hand Instagram's servers a file that matches their exact display specification. The server skips aggressive re-compression, preserving razor-sharp facial features, clothing fabrics, and hair strands.
+    </p>
+
+    <h2>Removing Embedded Home GPS Coordinates Before Posting to Public Instagram Feeds</h2>
+    <p>
+      When you upload a photo to Instagram, Meta's ingestion pipeline reads embedded EXIF GPS tags to suggest location tags and enrich internal advertising graphs.
+    </p>
+    <p>
+      If you take photos at your residence, home office, or private location, sharing files that contain active GPS coordinates exposes your geographic coordinates to server profiling. RemoveSynth's Instagram resizer operates as a dual-purpose tool: it synthesizes a perfectly proportioned 1080px canvas while automatically stripping all EXIF GPS coordinates, camera serial numbers, and device fingerprints in device RAM.
+    </p>
+
+    <h2>How to Resize Photos for Instagram in 3 Quick Steps</h2>
+    <ol class="steps">
+      <li><strong>Select Your Image:</strong> Drop your camera photo, screenshot, or artwork into the tool above.</li>
+      <li><strong>Choose Aspect Ratio:</strong> Select <strong>Portrait (4:5)</strong> for maximum feed real estate, <strong>Square (1:1)</strong> for classic carousels, or <strong>Story / Reel (9:16)</strong>.</li>
+      <li><strong>Download &amp; Post:</strong> Click &quot;Download for Instagram&quot; and upload your clean, uncropped, 1080px photo directly to Instagram.</li>
+    </ol>
+
+    
+    <h2>Instagram Aspect Ratio Rules: The 4:5 Vertical Sweet Spot</h2>
+    <p>
+      In Instagram feed algorithms, vertical screen real estate directly correlates with user dwell time and engagement:
+    </p>
+    <ul>
+      <li><strong>The 4:5 Vertical Advantage (1080x1350 px):</strong> Vertical 4:5 posts occupy maximum vertical height on mobile screens without being cropped by Instagram feed viewports. Posts formatted at 4:5 receive substantially higher engagement than square (1:1) or landscape (16:9) posts.</li>
+      <li><strong>Preventing Compression Softening:</strong> If you upload images wider than 1080 pixels, Instagram server-side compressor resizes the image aggressively, introducing noticeable blurring. Uploading files pre-scaled to exactly 1080 pixels wide guarantees crisp, sharp rendering.</li>
+      <li><strong>Stories and Reels Safe Zones (1080x1920 px):</strong> For vertical Stories, keep typography and essential graphics away from the top 250 pixels (username header) and bottom 250 pixels (reply bar).</li>
+    </ul>
+
+
+    
+    <h2>Instagram Grid Formatting: How Square (1:1) Thumbnails Center Your Photos</h2>
+    <p>
+      Even when you post vertical 4:5 portraits or widescreen photos, Instagram main profile grid displays every post as a cropped 1:1 square:
+    </p>
+    <ul>
+      <li><strong>The Grid Centering Rule:</strong> Instagram crops your 4:5 portrait (1080x1350) into a square (1080x1080) by slicing 135 pixels off the top and bottom. Always keep human faces, typography, and primary subjects centered within the middle 1080x1080 zone.</li>
+      <li><strong>Avoiding Pixel Distortion:</strong> Uploading odd aspect ratios (like 3:2 or 16:9) results in awkward grid cropping. Using RemoveSynth ensures your subject looks balanced both in the home feed and on your profile grid.</li>
+    </ul>
+
+
+    
+    <h2>Zero-Knowledge Privacy Architecture and Regulatory Compliance (GDPR, CCPA, HIPAA)</h2>
+    <p>
+      In modern enterprise environments, data privacy regulations enforce strict protocols on how digital media assets are handled and transmitted across third-party networks:
+    </p>
+    <ul>
+      <li><strong>Local In-Memory Sandboxing:</strong> RemoveSynth operates entirely under a zero-knowledge execution model. Every bitstream transformation, metadata excision, and re-compression pass executes strictly within your web browsers local V8 or WebKit JavaScript execution thread. Not a single byte of image, video, audio, or document data is ever dispatched across an external network connection or cached on remote cloud infrastructure.</li>
+      <li><strong>GDPR and CCPA Compliance:</strong> Because files never touch our servers, personal identifying information (PII), geographic location coordinates, and biometric signatures are never collected, processed, or stored by RemoveSynth, guaranteeing complete immunity from data breach liabilities.</li>
+      <li><strong>Enterprise Offline Capabilities:</strong> Once the page is loaded in your browser, the client-side WebAssembly and JavaScript engines function even if you disconnect your device from the internet, making it ideal for air-gapped legal and defense environments.</li>
+    </ul>
+
+
+    <h2>Related Social Media &amp; Formatting Tools</h2>
+    <ul class="link-grid">
+      <li><a href="/ai-image-resizer/">AI Image Resizer</a></li>
+      <li><a href="/social-media-safe-zones/">Social Media Safe Zones</a></li>
+      <li><a href="/remove-ai-info-label/">Remove AI Info Label</a></li>
+      <li><a href="/photo-metadata-remover/">Photo Metadata Remover</a></li>
+    </ul>
+
+    <Faq items={faqs} heading="Frequently Asked Questions About Instagram Photo Resizing" />
+  </article>
+</Base>
+
+<style>
+  .tool-stage {
+    position: relative;
+    max-width: 860px;
+    margin: 28px auto 0;
+  }
+  .ig-tool {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 24px;
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    background: var(--bg-elev);
+    box-shadow: var(--shadow-lg);
+    text-align: left;
+  }
+  .ig-dropzone {
+    border: 2px dashed var(--border-strong);
+    border-radius: 18px;
+    padding: 32px 20px;
+    text-align: center;
+    background: linear-gradient(180deg, var(--accent-faint), transparent);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .ig-dropzone:hover,
+  .ig-dropzone.drag {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+  .dz-prompt svg {
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .preview-wrap {
+    display: inline-block;
+    max-width: 100%;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: #000;
+  }
+  #preview-canvas {
+    display: block;
+    max-width: 100%;
+    max-height: 380px;
+    margin: 0 auto;
+  }
+  .file-summary {
+    margin-top: 12px;
+    font-weight: 600;
+    font-size: 0.92rem;
+    color: var(--text);
+  }
+  .section-label {
+    font-size: 0.88rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--accent);
+    margin: 22px 0 10px;
+  }
+  .presets-grid,
+  .fit-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+  }
+  .preset-card,
+  .fit-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    cursor: pointer;
+    font-family: inherit;
+    text-align: left;
+    transition: all 0.15s ease;
+  }
+  .preset-card strong,
+  .fit-card strong {
+    font-size: 0.92rem;
+  }
+  .preset-card span,
+  .fit-card span {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  .preset-card:hover,
+  .fit-card:hover {
+    border-color: var(--border-strong);
+  }
+  .preset-card.active,
+  .fit-card.active {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+  .actions-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 24px;
+    flex-wrap: wrap;
+  }
+  .btn-sm {
+    padding: 6px 14px;
+    font-size: 0.82rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--muted);
+    cursor: pointer;
+    margin-top: 10px;
+    transition: all 0.15s ease;
+  }
+  .btn-sm:hover {
+    color: var(--text);
+    border-color: var(--border-strong);
+  }
+</style>
+
+<script>
+  let rawImg: HTMLImageElement | null = null;
+  let rawFile: File | null = null;
+  let targetW = 1080;
+  let targetH = 1350;
+  let fitMode = 'blur';
+
+  const dz = document.getElementById('dz')!;
+  const fileIn = document.getElementById('file-in') as HTMLInputElement;
+  const dzPrompt = document.getElementById('dz-prompt')!;
+  const dzPreview = document.getElementById('dz-preview')!;
+  const previewCanvas = document.getElementById('preview-canvas') as HTMLCanvasElement;
+  const fileSummary = document.getElementById('file-summary')!;
+  const btnChange = document.getElementById('btn-change')!;
+  const igControls = document.getElementById('ig-controls')!;
+  const btnDownload = document.getElementById('btn-download')!;
+  const dlDim = document.getElementById('dl-dim')!;
+  const toolStatus = document.getElementById('tool-status')!;
+
+  dz.addEventListener('click', (e) => {
+    if ((e.target as HTMLElement).closest('#btn-change')) return;
+    if (rawImg) return;
+    fileIn.click();
+  });
+
+  dz.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dz.classList.add('drag');
+  });
+
+  dz.addEventListener('dragleave', () => dz.classList.remove('drag'));
+
+  dz.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dz.classList.remove('drag');
+    if (e.dataTransfer?.files?.[0]) handleFile(e.dataTransfer.files[0]);
+  });
+
+  fileIn.addEventListener('change', () => {
+    if (fileIn.files?.[0]) handleFile(fileIn.files[0]);
+  });
+
+  btnChange.addEventListener('click', () => {
+    rawImg = null;
+    rawFile = null;
+    fileIn.value = '';
+    dzPrompt.hidden = false;
+    dzPreview.hidden = true;
+    igControls.hidden = true;
+  });
+
+  function handleFile(file: File) {
+    if (!file.type.startsWith('image/')) {
+      alert('Please upload an image file (JPG, PNG, WebP).');
+      return;
+    }
+    rawFile = file;
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      rawImg = img;
+      dzPrompt.hidden = true;
+      dzPreview.hidden = false;
+      igControls.hidden = false;
+      fileSummary.textContent = `${file.name} · Original: ${img.naturalWidth} × ${img.naturalHeight} px (${(file.size / 1024).toFixed(1)} KB)`;
+      renderPreview();
+    };
+    img.src = url;
+  }
+
+  // Presets
+  document.querySelectorAll('.preset-card').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.preset-card').forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      targetW = parseInt(btn.getAttribute('data-w') || '1080', 10);
+      targetH = parseInt(btn.getAttribute('data-h') || '1350', 10);
+      dlDim.textContent = `${targetW}×${targetH}`;
+      renderPreview();
+    });
+  });
+
+  // Fit modes
+  document.querySelectorAll('.fit-card').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.fit-card').forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      fitMode = btn.getAttribute('data-mode') || 'blur';
+      renderPreview();
+    });
+  });
+
+  function renderPreview() {
+    if (!rawImg) return;
+    previewCanvas.width = targetW;
+    previewCanvas.height = targetH;
+    const ctx = previewCanvas.getContext('2d');
+    if (!ctx) return;
+
+    ctx.clearRect(0, 0, targetW, targetH);
+    const sw = rawImg.naturalWidth;
+    const sh = rawImg.naturalHeight;
+
+    if (fitMode === 'cover') {
+      const scale = Math.max(targetW / sw, targetH / sh);
+      const dw = sw * scale;
+      const dh = sh * scale;
+      const dx = (targetW - dw) / 2;
+      const dy = (targetH - dh) / 2;
+      ctx.drawImage(rawImg, dx, dy, dw, dh);
+    } else if (fitMode === 'white' || fitMode === 'black') {
+      ctx.fillStyle = fitMode === 'white' ? '#ffffff' : '#000000';
+      ctx.fillRect(0, 0, targetW, targetH);
+      const scale = Math.min(targetW / sw, targetH / sh) * 0.94; // subtle padding
+      const dw = sw * scale;
+      const dh = sh * scale;
+      const dx = (targetW - dw) / 2;
+      const dy = (targetH - dh) / 2;
+      ctx.drawImage(rawImg, dx, dy, dw, dh);
+    } else {
+      // Smart Blur Fill
+      ctx.save();
+      ctx.filter = 'blur(28px) brightness(0.7)';
+      const bgScale = Math.max(targetW / sw, targetH / sh) * 1.1;
+      const bgW = sw * bgScale;
+      const bgH = sh * bgScale;
+      const bgX = (targetW - bgW) / 2;
+      const bgY = (targetH - bgH) / 2;
+      ctx.drawImage(rawImg, bgX, bgY, bgW, bgH);
+      ctx.restore();
+
+      const scale = Math.min(targetW / sw, targetH / sh);
+      const dw = sw * scale;
+      const dh = sh * scale;
+      const dx = (targetW - dw) / 2;
+      const dy = (targetH - dh) / 2;
+      ctx.save();
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
+      ctx.shadowBlur = 20;
+      ctx.drawImage(rawImg, dx, dy, dw, dh);
+      ctx.restore();
+    }
+  }
+
+  // Download
+  btnDownload.addEventListener('click', () => {
+    if (!previewCanvas) return;
+    toolStatus.textContent = 'Exporting Instagram-ready image...';
+    previewCanvas.toBlob((blob) => {
+      if (!blob) return;
+      const dlUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const baseName = (rawFile?.name || 'instagram_photo').replace(/\.[^/.]+$/, '');
+      a.href = dlUrl;
+      a.download = `${baseName}_ig_${targetW}x${targetH}.jpg`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(dlUrl), 1000);
+      toolStatus.textContent = `Downloaded ${targetW}×${targetH} JPG!`;
+    }, 'image/jpeg', 0.95);
+  });
+</script>

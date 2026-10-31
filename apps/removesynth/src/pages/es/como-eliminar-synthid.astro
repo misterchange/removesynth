@@ -1,0 +1,93 @@
+---
+import Base from '../../layouts/Base.astro';
+import Faq from '@removesynth/shared/components/Faq.astro';
+import { faqSchema, breadcrumbSchema, type FaqItem } from '@removesynth/shared/lib/faq';
+import { SITE } from '../../site';
+
+const title = 'Cómo eliminar SynthID: Guía paso a paso';
+const description =
+  'Cómo eliminar las marcas de agua digitales de SynthID de una imagen o un vídeo en cinco pasos, por qué recortar o hacer capturas no funciona y qué revisar.';
+
+const steps = [
+  { name: 'Abre el SynthID remover', text: 'Ve al SynthID remover en la página de inicio de removesynth.com.' },
+  { name: 'Sube tu archivo', text: 'Arrastra una imagen, un vídeo o un audio al recuadro, o haz clic para elegirlo.' },
+  { name: 'Confirma tus derechos', text: 'Marca la casilla para confirmar que el archivo es tuyo o que puedes procesarlo.' },
+  { name: 'Procesa el archivo', text: 'Haz clic en «Procesar archivo» y espera a que termine el servidor.' },
+  { name: 'Descarga el resultado', text: 'Compara el antes y el después y haz clic en «Descargar».' },
+];
+
+const faqs: FaqItem[] = [
+  {
+    q: '¿Photoshop u otro editor elimina SynthID?',
+    a: 'Normalmente no. SynthID está diseñado para resistir recortes, cambios de tamaño, filtros y compresión.',
+  },
+  {
+    q: '¿Una captura de pantalla elimina SynthID?',
+    a: 'No de forma fiable. La marca de agua está en los píxeles, así que la captura la copia junto con la imagen.',
+  },
+  {
+    q: '¿Sirve borrar los metadatos?',
+    a: 'No. Eso solo quita datos EXIF o C2PA. SynthID no está en los metadatos, sino en el contenido.',
+  },
+  {
+    q: '¿Cuánto tarda?',
+    a: 'Las imágenes suelen estar listas en pocos segundos. En los vídeos depende de la duración y la resolución.',
+  },
+];
+
+const schema = [
+  breadcrumbSchema([
+    { name: 'Inicio', url: `${SITE.url}/es/` },
+    { name: 'Cómo eliminar SynthID', url: `${SITE.url}/es/como-eliminar-synthid/` },
+  ]),
+  {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    name: 'Cómo eliminar las marcas de agua digitales de SynthID',
+    inLanguage: 'es',
+    description,
+    step: steps.map((s, i) => ({ '@type': 'HowToStep', position: i + 1, name: s.name, text: s.text })),
+  },
+  faqSchema(faqs),
+];
+---
+
+<Base title={title} description={description} schema={schema} ogType="article">
+  <article class="prose">
+    <header class="hero" style="text-align:left;padding-bottom:0">
+      <span class="eyebrow">Guía</span>
+      <h1>Cómo eliminar las marcas de agua digitales de SynthID</h1>
+      <p class="lead" style="margin-left:0">
+        SynthID está en los píxeles de las imágenes y vídeos de IA, así que editar no basta. Así se
+        procesa un archivo con RemoveSynth en cinco pasos.
+      </p>
+    </header>
+
+    <h2>Paso a paso</h2>
+    <ol class="steps">
+      {steps.map((s) => (
+        <li>
+          <strong>{s.name}.</strong> {s.text}
+        </li>
+      ))}
+    </ol>
+    <p><a class="btn" href="/es/">Abrir el SynthID remover</a></p>
+
+    <h2>Por qué editar no es suficiente</h2>
+    <p>
+      Google diseñó SynthID para resistir lo que normalmente se hace con imágenes y vídeos: recortar,
+      cambiar el tamaño, aplicar filtros, cambiar colores, comprimir y volver a guardar. Borrar los
+      metadatos tampoco sirve, porque SynthID no se guarda ahí. Más información en
+      <a href="/es/que-es-synthid/">¿Qué es SynthID?</a>
+    </p>
+
+    <h2>Antes y después</h2>
+    <ul>
+      <li><strong>Antes:</strong> guarda una copia del original y asegúrate de que tienes derechos sobre el archivo.</li>
+      <li><strong>Después:</strong> revisa la vista previa para confirmar que el archivo se ve como esperas.</li>
+      <li><strong>Siempre:</strong> sé transparente sobre cómo se creó tu contenido.</li>
+    </ul>
+
+    <Faq items={faqs} heading="Preguntas frecuentes" />
+  </article>
+</Base>

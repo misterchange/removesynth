@@ -1,0 +1,101 @@
+---
+import { renderInline } from '../lib/inline';
+import { isFaqHeading, isLinksHeading, faqPairs, faqParagraphs } from '../lib/doc';
+import type { Block } from '../data/registry';
+
+interface Props {
+  blocks: Block[];
+}
+const { blocks } = Astro.props;
+
+type Node =
+  | { kind: 'block'; block: Block }
+  | { kind: 'faq'; heading: string; items: { q: string; a: string }[] }
+  | { kind: 'links'; heading: string; items: string[] };
+
+const linkOnly = (items: string[]) =>
+  items.length > 1 && items.every((i) => /^(\[\[[^\]|]+\|[^\]]+\]\]\s*)+$/.test(i.trim()));
+
+const nodes: Node[] = [];
+for (let i = 0; i < blocks.length; i++) {
+  const b = blocks[i];
+  if (b.type === 'h2' && isFaqHeading(b.text)) {
+    const items = faqPairs(faqParagraphs(blocks, i));
+    if (items.length) {
+      nodes.push({ kind: 'faq', heading: b.text, items });
+      // Skip the paragraphs we consumed.
+      while (i + 1 < blocks.length && blocks[i + 1].type === 'p') i++;
+      continue;
+    }
+  }
+  if (b.type === 'h2' && isLinksHeading(b.text)) {
+    const next = blocks[i + 1];
+    if (next && next.type === 'ul') {
+      nodes.push({ kind: 'links', heading: b.text, items: next.items });
+      i++;
+      continue;
+    }
+  }
+  nodes.push({ kind: 'block', block: b });
+}
+---
+
+{
+  nodes.map((n) => {
+    if (n.kind === 'faq') {
+      return (
+        <section class="faq">
+          <h2>{n.heading}</h2>
+          {n.items.map((item) => (
+            <details>
+              <summary set:html={renderInline(item.q)} />
+              <p set:html={renderInline(item.a)} />
+            </details>
+          ))}
+        </section>
+      );
+    }
+    if (n.kind === 'links') {
+      return (
+        <section class="related">
+          <h2>{n.heading}</h2>
+          <ul class="link-grid">
+            {n.items.map((i) => <li set:html={renderInline(i)} />)}
+          </ul>
+        </section>
+      );
+    }
+    const b = n.block;
+    if (b.type === 'h1') return null;
+    if (b.type === 'h2') return <h2 set:html={renderInline(b.text)} />;
+    if (b.type === 'h3') return <h3 set:html={renderInline(b.text)} />;
+    if (b.type === 'h4') return <h4 set:html={renderInline(b.text)} />;
+    if (b.type === 'ul') {
+      if (linkOnly(b.items)) {
+        return <ul class="link-grid">{b.items.map((i) => <li set:html={renderInline(i)} />)}</ul>;
+      }
+      return <ul>{b.items.map((i) => <li set:html={renderInline(i)} />)}</ul>;
+    }
+    return <p set:html={renderInline(b.text)} />;
+  })
+}
+
+<style>
+  .link-grid {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(240px, 100%), 1fr));
+    gap: 8px;
+  }
+  .link-grid :global(li) {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--bg-elev);
+    padding: 8px 12px;
+    margin: 0;
+  }
+  .link-grid :global(a) {
+    font-weight: 500;
+  }
+</style>

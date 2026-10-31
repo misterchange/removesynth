@@ -1,0 +1,22 @@
+---
+import HubPage from '../../components/HubPage.astro';
+import { GENERATORS } from '@removesynth/shared/data/explainers';
+
+const items = GENERATORS.map((g) => ({
+  href: `/generators/${g.slug}/`,
+  tag: g.maker,
+  title: g.name,
+  text: g.intro,
+}));
+---
+
+<HubPage
+  title="What Metadata AI Image Generators Add to Images & Media"
+  description="Which watermarks and metadata ChatGPT, Adobe Firefly, Gemini, Meta AI, Midjourney, Stable Diffusion, FLUX and Bing add to AI images, and how to check a file."
+  eyebrow="AI generators"
+  h1="What AI generators add to your images"
+  intro="Content Credentials, IPTC tags, prompts and invisible watermarks: what each AI tool leaves in its files."
+  path="/generators/"
+  crumb="AI generators"
+  items={items}
+/>

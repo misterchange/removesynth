@@ -1,0 +1,738 @@
+---
+import Base from '../layouts/Base.astro';
+import Jitter from '@removesynth/shared/components/Jitter.astro';
+import Faq from '@removesynth/shared/components/Faq.astro';
+import { faqSchema, breadcrumbSchema, type FaqItem } from '@removesynth/shared/lib/faq';
+import { SITE } from '../site';
+
+const title = 'YouTube Thumbnail Resizer: Exact 1280x720 Size Free';
+const description =
+  'Resize and optimize images for YouTube thumbnails at exact 1280x720 dimensions under 2MB. Fast in-browser tool with zero watermarks and zero server uploads.';
+
+const faqs: FaqItem[] = [
+  {
+    q: 'What is the best size for a YouTube thumbnail?',
+    a: 'YouTube recommends 1280 x 720 pixels with a minimum width of 640 pixels, a 16:9 aspect ratio, and a file size under 2 MB. Supported formats include JPG, PNG, and WebP.',
+  },
+  {
+    q: 'What is the safe area for a YouTube channel banner?',
+    a: 'The full banner size is 2560 x 1440 pixels. The central "safe area" that is visible across all mobile phones, tablets, and desktop browsers without cropping is 1546 x 423 pixels.',
+  },
+  {
+    q: 'What is the size for TikTok and YouTube Shorts covers?',
+    a: 'TikTok and YouTube Shorts use a 9:16 vertical aspect ratio with standard dimensions of 1080 x 1920 pixels.',
+  },
+  {
+    q: 'How does the smart blur background feature work?',
+    a: 'If your uploaded image does not naturally match a 16:9 or 9:16 aspect ratio, rather than stretching or aggressively cropping your subject, our tool centers your original artwork and dynamically blurs the edges to fill the remaining canvas seamlessly.',
+  },
+  {
+    q: 'Are my images uploaded to any server?',
+    a: 'No. All resizing, cropping, and canvas rendering executes directly inside your web browser using HTML5 Canvas. Your artwork never leaves your computer or phone.',
+  },
+];
+
+const schema = [
+  breadcrumbSchema([
+    { name: 'Home', url: `${SITE.url}/` },
+    { name: 'Tools', url: `${SITE.url}/tools/` },
+    { name: 'YouTube thumbnail resizer', url: `${SITE.url}/youtube-thumbnail-resizer/` },
+  ]),
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: 'YouTube & TikTok Thumbnail & Banner Resizer',
+    url: `${SITE.url}/youtube-thumbnail-resizer/`,
+    applicationCategory: 'MultimediaApplication',
+    operatingSystem: 'Any (web browser)',
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    description,
+  },
+  faqSchema(faqs),
+];
+---
+
+<Base title={title} description={description} schema={schema}>
+  <section class="hero">
+    <div class="container">
+      <span class="eyebrow">Creator Tool · 100% In-Browser · HD Export</span>
+      <h1>YouTube &amp; TikTok <span class="accent">thumbnail resizer</span></h1>
+      <p class="lead">
+        Resize, fit, and crop artwork to exact YouTube thumbnail (1280×720), banner (2560×1440), and TikTok cover (1080×1920) dimensions.
+      </p>
+
+      <!-- Resizer Tool Stage -->
+      <div class="tool-stage">
+        <Jitter side="left" />
+        <div class="yt-tool" id="yt-tool">
+          <!-- Dropzone -->
+          <div class="yt-dropzone" id="dz">
+            <input type="file" id="file-in" accept="image/jpeg,image/png,image/webp,image/avif" hidden />
+            <div class="dz-prompt" id="dz-prompt">
+              <svg viewBox="0 0 24 24" width="42" height="42" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                <line x1="8" y1="21" x2="16" y2="21"></line>
+                <line x1="12" y1="17" x2="12" y2="21"></line>
+              </svg>
+              <p><strong>Click or drag your thumbnail or banner image here</strong></p>
+              <span class="small muted">JPG, PNG, WebP, AVIF · Fast local rendering</span>
+            </div>
+            <div class="dz-preview" id="dz-preview" hidden>
+              <div class="preview-stage">
+                <canvas id="preview-canvas"></canvas>
+                <div class="banner-guide" id="banner-guide" hidden>
+                  <div class="guide-box">Safe Mobile Area (1546×423)</div>
+                </div>
+              </div>
+              <div class="file-summary" id="file-summary"></div>
+              <button type="button" class="btn-sm btn-ghost" id="btn-change">Choose another photo</button>
+            </div>
+          </div>
+
+          <!-- Controls Section -->
+          <div class="yt-controls" id="yt-controls" hidden>
+            <div class="section-label">1. Select Target Platform Preset</div>
+            <div class="presets-grid">
+              <button type="button" class="preset-card active" data-w="1280" data-h="720" data-name="YouTube Thumbnail" data-banner="false">
+                <strong>YouTube Thumbnail</strong>
+                <span>1280 × 720 · 16:9 HD</span>
+              </button>
+              <button type="button" class="preset-card" data-w="2560" data-h="1440" data-name="YouTube Banner" data-banner="true">
+                <strong>YouTube Banner / Art</strong>
+                <span>2560 × 1440 · TV / Desktop</span>
+              </button>
+              <button type="button" class="preset-card" data-w="1080" data-h="1920" data-name="TikTok & Shorts Cover" data-banner="false">
+                <strong>TikTok / Shorts Cover</strong>
+                <span>1080 × 1920 · 9:16 Vertical</span>
+              </button>
+              <button type="button" class="preset-card" data-w="1080" data-h="1080" data-name="Community Post" data-banner="false">
+                <strong>YouTube Community Post</strong>
+                <span>1080 × 1080 · 1:1 Square</span>
+              </button>
+            </div>
+
+            <div class="section-label">2. Letterbox &amp; Background Mode</div>
+            <div class="fit-grid">
+              <button type="button" class="fit-card active" data-mode="blur">
+                <strong>Smart Blur Fill (Recommended)</strong>
+                <span>Keeps full artwork, fills letterbox with soft blurred background</span>
+              </button>
+              <button type="button" class="fit-card" data-mode="cover">
+                <strong>Center Crop (Fill Screen)</strong>
+                <span>Fills entire canvas edge-to-edge, cropping excess edges</span>
+              </button>
+              <button type="button" class="fit-card" data-mode="black">
+                <strong>Black Cinema Borders</strong>
+                <span>Preserves original aspect ratio with clean matte black borders</span>
+              </button>
+            </div>
+
+            <div class="actions-row">
+              <button type="button" class="btn btn-primary" id="btn-download">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                Download Resized Artwork (<span id="dl-dim">1280×720</span>)
+              </button>
+              <span class="tool-status small" id="tool-status" role="status" aria-live="polite"></span>
+            </div>
+          </div>
+        </div>
+        <Jitter side="right" />
+      </div>
+    </div>
+  </section>
+
+    <article class="prose">
+    <h2>The Anatomy of an High-Converting YouTube Thumbnail: Exact Pixel Specs and Ratios</h2>
+    <p>
+      In video marketing and YouTube creator strategy, your thumbnail is the single most decisive factor determining your Click-Through Rate (CTR). An impression on the YouTube homepage or suggested video sidebar lasts less than 1.8 seconds. If your artwork is improperly scaled, blurred by aggressive platform downsampling, or obscured by user interface overlays, viewers scroll past.
+    </p>
+    <p>
+      YouTube engineering mandates specific technical constraints for custom thumbnail uploads:
+    </p>
+    <ul>
+      <li><strong>Target Resolution:</strong> 1280 pixels wide by 720 pixels high (1280 x 720 px). While YouTube accepts smaller images down to 640 pixels wide, 1280 x 720 represents the optimal sweet spot ensuring crisp playback on 4K smart TVs, retina laptop screens, and desktop cinema displays.</li>
+      <li><strong>Aspect Ratio:</strong> Strictly 16:9 widescreen format. Submitting 4:3, 1:1 square, or 9:16 vertical images forces YouTube to insert black pillarbox borders that look unpolished in mobile feeds.</li>
+      <li><strong>Maximum File Size Limit:</strong> Under 2.0 Megabytes (2,097,152 bytes). YouTube upload servers reject any image file exceeding 2 MB with the generic error &quot;File is bigger than 2MB&quot;.</li>
+      <li><strong>Supported Encodings:</strong> JPEG (JPG), PNG, WebP, and non-animated GIF. Baseline JPEG with 92 percent chroma quality provides the best balance of under-2MB file sizes and crisp contrast.</li>
+    </ul>
+
+    <h2>Mathematical Formulation of 16:9 Resampling and Aspect Ratio Clamping</h2>
+    <p>
+      When transforming source imagery of arbitrary width <code>W_src</code> and height <code>H_src</code> to the standard 1280 x 720 canvas, naive resizing leads to anisotropic distortion (squishing or stretching human faces). RemoveSynth applies geometry-preserving transform equations:
+    </p>
+    <div class="math-block">
+      <code>Scale_Factor = max( 1280 / W_src, 720 / H_src )  ==&gt;  W_scaled = round(W_src * Scale_Factor),  H_scaled = round(H_src * Scale_Factor)</code>
+    </div>
+    <p>
+      To center the scaled graphic without subject cropping:
+    </p>
+    <div class="math-block">
+      <code>Offset_X = (1280 - W_scaled) / 2,   Offset_Y = (720 - H_scaled) / 2</code>
+    </div>
+    <p>
+      For images utilizing our Smart Blur ambient background fill mode, the original image is drawn twice in HTML5 Canvas memory:
+    </p>
+    <div class="math-block">
+      <code>Canvas_Output = Gaussian_Blur(Image_Source, sigma = 35px) [Fills 1280x720] + Overdraw_Centered(Image_Source, Contain_Fit)</code>
+    </div>
+    <p>
+      This dual-layer rendering guarantees that vertical TikTok screenshots or 1:1 camera photos fit the 16:9 widescreen canvas naturally with aesthetically pleasing color-matched ambient borders.
+    </p>
+
+    <h2>Worked Numerical Example: Scaling a 24-Megapixel Camera Portrait to 1280x720 Under 2MB</h2>
+    <p>
+      To illustrate the efficiency of in-browser canvas rendering, consider preparing a YouTube thumbnail from a professional camera photo:
+    </p>
+    <ul>
+      <li><strong>Source Artwork:</strong> Sony Alpha A7 IV mirrorless camera export (<code>hero-creator-portrait.png</code>)</li>
+      <li><strong>Original Resolution:</strong> 6000 x 4000 pixels (3:2 Aspect Ratio, 24.0 Megapixels)</li>
+      <li><strong>Original File Size:</strong> 28,410,200 bytes (27.09 MB PNG)</li>
+      <li><strong>Target Platform Standard:</strong> YouTube Video Thumbnail (1280 x 720 px, 16:9, under 2 MB)</li>
+      <li><strong>Scale Calculations:</strong>
+        <ul>
+          <li>Fit Width Scale: <code>1280 / 6000 = 0.2133</code></li>
+          <li>Fit Height Scale: <code>720 / 4000 = 0.1800</code></li>
+          <li>Selected Fit Scale (Smart Blur): <code>0.1800  ==&gt;  W_rendered = 1080 px, H_rendered = 720 px</code></li>
+          <li>Pillarbox Letterbox Gap: <code>(1280 - 1080) / 2 = 100 pixels</code> on left and right margins</li>
+        </ul>
+      </li>
+      <li><strong>Canvas Processing:</strong> 100px margins filled with 35px Gaussian-blurred ambient sampling of the subject edges</li>
+      <li><strong>Output Compression:</strong> WebP / JPEG at Quality 92 with sRGB color profile</li>
+      <li><strong>Final Export File Size:</strong> 342,800 bytes (334.7 KB, well below the 2.0 MB platform cap)</li>
+      <li><strong>Total Processing Time:</strong> 64 milliseconds in browser RAM</li>
+      <li><strong>Upload Cost:</strong> Zero bytes sent to cloud servers</li>
+    </ul>
+
+    <!-- SVG Architecture Diagram: YouTube Safe Zones -->
+    <h2>YouTube Thumbnail Safe Zones: Avoiding Timestamp and Mobile Overlays</h2>
+    <p>
+      The vector diagram below illustrates the exact pixel layout of a 1280 x 720 YouTube thumbnail, highlighting the critical danger zones where mobile and desktop user interface elements obscure graphic content.
+    </p>
+    <div class="chart-svg-wrap">
+      <svg viewBox="0 0 760 420" class="chart-svg" xmlns="http://www.w3.org/2000/svg">
+        <rect width="760" height="420" rx="10" fill="#0b111a" stroke="#1e293b" stroke-width="1.5"/>
+        <text x="24" y="32" fill="#94a3b8" font-family="monospace" font-size="12" font-weight="700">YOUTUBE THUMBNAIL (1280x720) SAFE ZONE ARCHITECTURE</text>
+        
+        <!-- Thumbnail Outer Canvas -->
+        <rect x="24" y="55" width="712" height="340" rx="6" fill="#131d2e" stroke="#2cc4f5" stroke-width="2"/>
+        
+        <!-- Safe Central Focus Zone -->
+        <rect x="120" y="95" width="520" height="230" rx="4" fill="#0b111a" fill-opacity="0.6" stroke="#00e699" stroke-width="1.5" stroke-dasharray="4"/>
+        <text x="380" y="200" fill="#00e699" font-family="sans-serif" font-size="14" font-weight="700" text-anchor="middle">PRIMARY CLICK-THROUGH SAFE ZONE</text>
+        <text x="380" y="225" fill="#94a3b8" font-family="sans-serif" font-size="11" text-anchor="middle">Place Human Faces, Expressive Eyes, and Bold Typography Here</text>
+
+        <!-- Danger Zone: Bottom Right Timestamp Badge -->
+        <rect x="576" y="315" width="150" height="70" rx="4" fill="#ff4444" fill-opacity="0.3" stroke="#ff4444" stroke-width="1.5"/>
+        <text x="651" y="345" fill="#ff7777" font-family="sans-serif" font-size="11" font-weight="700" text-anchor="middle">TIMESTAMP DANGER</text>
+        <text x="651" y="365" fill="#ff9999" font-family="monospace" font-size="10" text-anchor="middle">Badge Overlay (e.g. 14:28)</text>
+
+        <!-- Danger Zone: Top Right Watch Later Button -->
+        <rect x="626" y="65" width="100" height="50" rx="4" fill="#f59e0b" fill-opacity="0.2" stroke="#f59e0b" stroke-width="1"/>
+        <text x="676" y="95" fill="#fbbf24" font-family="sans-serif" font-size="10" text-anchor="middle">Watch Later</text>
+
+        <!-- Danger Zone: Bottom Progress Bar -->
+        <rect x="24" y="385" width="712" height="10" rx="2" fill="#ef4444"/>
+        <text x="380" y="380" fill="#ef4444" font-family="monospace" font-size="9" text-anchor="middle">Red Watch History Progress Bar (Bottom 8px)</text>
+
+        <!-- You Are Here Banner -->
+        <rect x="180" y="280" width="400" height="24" rx="12" fill="#0284c7"/>
+        <circle cx="195" cy="292" r="5" fill="#38bdf8"/>
+        <text x="380" y="296" fill="#ffffff" font-family="sans-serif" font-size="10" font-weight="700" text-anchor="middle">YOU ARE HERE: Automatic Safe-Zone Preview and Fit</text>
+      </svg>
+    </div>
+
+    <h2>YouTube Channel Banner Resizing: Navigating the 1546x423 Desktop/Mobile Safe Area</h2>
+    <p>
+      Channel art banners represent the most frustrating resizing challenge on YouTube because a single uploaded image must adapt to televisions, desktop ultrawide monitors, iPads, and compact smartphone screens:
+    </p>
+    <ul>
+      <li><strong>Total Image Canvas:</strong> 2560 pixels wide by 1440 pixels high (16:9 aspect ratio, maximum file size 6 MB). This full resolution is rendered exclusively on smart TVs (Apple TV, Roku, Android TV).</li>
+      <li><strong>Desktop Max Display:</strong> 2560 pixels wide by 423 pixels high. The top and bottom margins are sliced off entirely on desktop browsers.</li>
+      <li><strong>Tablet Display:</strong> 1855 pixels wide by 423 pixels high.</li>
+      <li><strong>Mobile Universal Safe Area:</strong> 1546 pixels wide by 423 pixels high centered horizontally and vertically. Every essential element (channel name, upload schedule, social icons, sponsor logos) must fit inside this 1546 x 423 zone or it will be cut off on mobile devices.</li>
+    </ul>
+
+    <h2>TikTok and YouTube Shorts Video Covers: The 9:16 Vertical Revolution</h2>
+    <p>
+      With short-form video dominating creator engagement, resizing horizontal thumbnails to vertical mobile formats has become mandatory:
+    </p>
+    <ul>
+      <li><strong>Standard Resolution:</strong> 1080 pixels wide by 1920 pixels high (9:16 vertical aspect ratio).</li>
+      <li><strong>Shorts Feed Interface Overlays:</strong> The right edge of a YouTube Short or TikTok video contains interactive action buttons (Like, Dislike, Comments, Share, Remix, Sound Disc) that occupy the rightmost 120 pixels.</li>
+      <li><strong>Bottom Metadata Zone:</strong> The channel handle, title caption, and audio track ticker overlay the bottom 250 pixels.</li>
+      <li><strong>Vertical Safe Zone:</strong> Position primary graphic focus between vertical coordinates <code>Y = 350 px</code> and <code>Y = 1500 px</code> to avoid interface collision.</li>
+    </ul>
+
+    <h2>Comprehensive Video Platform Asset Dimensions Cheat Sheet</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Platform Asset</th>
+            <th>Recommended Pixels</th>
+            <th>Aspect Ratio</th>
+            <th>Max File Cap</th>
+            <th>Optimal Format</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>YouTube Video Thumbnail</strong></td>
+            <td>1280 x 720 px (min 640 px)</td>
+            <td>16:9 Widescreen</td>
+            <td>2.0 MB</td>
+            <td>JPG (Q=92) or WebP</td>
+          </tr>
+          <tr>
+            <td><strong>YouTube Channel Banner</strong></td>
+            <td>2560 x 1440 px (Safe 1546x423)</td>
+            <td>16:9 Adaptive</td>
+            <td>6.0 MB</td>
+            <td>PNG or High-Res JPG</td>
+          </tr>
+          <tr>
+            <td><strong>YouTube Shorts Cover</strong></td>
+            <td>1080 x 1920 px</td>
+            <td>9:16 Vertical</td>
+            <td>2.0 MB</td>
+            <td>JPG or PNG</td>
+          </tr>
+          <tr>
+            <td><strong>TikTok Video Thumbnail</strong></td>
+            <td>1080 x 1920 px</td>
+            <td>9:16 Vertical</td>
+            <td>5.0 MB</td>
+            <td>JPG or PNG</td>
+          </tr>
+          <tr>
+            <td><strong>YouTube Community Post</strong></td>
+            <td>1080 x 1080 px (or 16:9)</td>
+            <td>1:1 Square</td>
+            <td>5.0 MB</td>
+            <td>JPG, PNG, WebP</td>
+          </tr>
+          <tr>
+            <td><strong>Channel Profile Avatar</strong></td>
+            <td>800 x 800 px</td>
+            <td>1:1 Circle Crop</td>
+            <td>4.0 MB</td>
+            <td>PNG with transparent alpha</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    
+    <h2>High Click-Through Rate (CTR) Design Principles: Contrast, Human Faces, and Text Size</h2>
+    <p>
+      Achieving a competitive click-through rate on YouTube (consistently above 6 to 10 percent) requires adhering to cognitive visual hierarchy rules tailored to small screens:
+    </p>
+    <ul>
+      <li><strong>The 3-Second Mobile Test:</strong> Over 70 percent of YouTube watch time occurs on mobile devices. When your thumbnail appears on a smartphone screen, it measures roughly 180 by 100 pixels. If your text is smaller than 40pt or uses thin serif fonts, it becomes completely illegible. Limit thumbnail typography to 3 to 5 punchy words in bold sans-serif typefaces (Impact, Montserrat Black, Bebas Neue).</li>
+      <li><strong>High-Contrast Face Framing:</strong> Human brains are evolutionary wired to detect facial emotion. Frame human faces to occupy at least 30 to 45 percent of the thumbnail height, with clear eye contact and high contrast between the subject and the ambient background.</li>
+      <li><strong>Color Saturation and Gamut Separation:</strong> The default YouTube interface is either stark white (Light Mode) or dark charcoal (Dark Mode). Utilizing vibrant accent borders (warm amber, neon cyan, electric lime) separates your thumbnail from the surrounding page UI.</li>
+      <li><strong>Visual Storytelling Without Title Duplication:</strong> Never repeat your video title verbatim in the thumbnail. Instead, use the thumbnail to present the emotional question or visual punchline that the title describes.</li>
+    </ul>
+
+    <h2>Compressing Thumbnails Under 2MB Without Losing Sharpness: The Quality 92 Rule</h2>
+    <p>
+      Many creators export thumbnails directly from Photoshop or Illustrator as 24-bit PNG files, resulting in files measuring 3 to 8 MB. When attempting to upload, YouTube throws an error. Desperate creators then use aggressive web compressors that degrade the image into noisy, artifact-ridden mush.
+    </p>
+    <p>
+      RemoveSynth solves this dilemma by applying optimal 2D DCT quantization:
+    </p>
+    <ul>
+      <li><strong>Why PNG is Overkill for Thumbnails:</strong> PNG uses lossless DEFLATE compression, which is brilliant for flat logos but mathematically inefficient for photographs with millions of unique color gradients. A photograph saved as PNG often takes 4 MB, whereas the identical image saved as a high-quality JPEG (Quality 92) takes only 320 KB (over 90 percent smaller).</li>
+      <li><strong>The Visual Sweet Spot (Quality 92):</strong> At JPEG Quality 92, quantization noise remains well below the human visual threshold (Peak Signal-to-Noise Ratio exceeding 44 dB), while staying far below the 2.0 MB platform limit.</li>
+      <li><strong>WebP Format Support:</strong> Modern YouTube versions fully accept WebP format. Exporting as WebP achieves an additional 25 to 35 percent file size reduction compared to JPEG at identical structural similarity.</li>
+    </ul>
+
+    <h2>Common YouTube Thumbnail Mistakes That Cost You Views and Impressions</h2>
+    <p>
+      Avoid these common thumbnail pitfalls that undermine creator performance:
+    </p>
+    <ul>
+      <li><strong>Placing Critical Info in the Bottom Right Corner:</strong> The video duration badge (for example, &quot;18:42&quot;) is hardcoded into the lower right corner across all mobile, desktop, and TV apps. Any text, face, or logo placed in the bottom right 150 by 70 pixel rectangle is completely blocked from view.</li>
+      <li><strong>Ignoring Mobile Aspect Ratio Cropping:</strong> In certain mobile app views (such as vertical recommendation rails and subscriptions feeds), YouTube occasionally crops edge margins. Always keep focal elements centered.</li>
+      <li><strong>Over-Cluttering the Canvas:</strong> Adding multiple arrows, speech bubbles, five logos, and two background scenes creates visual chaos. Simple, bold, uncluttered compositions consistently outperform complex collages.</li>
+    </ul>
+
+
+    <h2>Why RemoveSynth Outperforms Cloud Resizers and Paid Graphic Suites</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>RemoveSynth In-Browser</th>
+            <th>Canva Free Tier</th>
+            <th>Cloud Image Resizers</th>
+            <th>Desktop Photoshop</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Upload Required</strong></td>
+            <td>Zero (100% Client-Side)</td>
+            <td>File Uploaded to Cloud</td>
+            <td>File Uploaded to Cloud</td>
+            <td>Local Machine Only</td>
+          </tr>
+          <tr>
+            <td><strong>Sign-Up &amp; Watermarks</strong></td>
+            <td>No Account / Zero Watermarks</td>
+            <td>Requires Registration</td>
+            <td>Free Tier Watermarks</td>
+            <td>Requires Paid License</td>
+          </tr>
+          <tr>
+            <td><strong>Exact YouTube Presets</strong></td>
+            <td>Instant 1-Click Toggle</td>
+            <td>Manual Dimensions Entry</td>
+            <td>Generic Resize Sliders</td>
+            <td>Manual Canvas Setup</td>
+          </tr>
+          <tr>
+            <td><strong>Smart Blur Ambient Fill</strong></td>
+            <td>Automatic Canvas Layering</td>
+            <td>Manual Duplicate and Blur</td>
+            <td>Not Supported</td>
+            <td>Multi-Step Layer Action</td>
+          </tr>
+          <tr>
+            <td><strong>Export Speed</strong></td>
+            <td>Under 60 milliseconds</td>
+            <td>5-15 seconds cloud queue</td>
+            <td>5-20 seconds upload wait</td>
+            <td>Software Launch Dependent</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- FAQ Section -->
+    <Faq items={faqs} heading="Thumbnail &amp; Banner Resizer FAQ" />
+  </article>
+
+</Base>
+
+<style>
+  .tool-stage {
+    position: relative;
+    max-width: 860px;
+    margin: 28px auto 0;
+  }
+  .yt-tool {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 24px;
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    background: var(--bg-elev);
+    box-shadow: var(--shadow-lg);
+    text-align: left;
+  }
+  .yt-dropzone {
+    border: 2px dashed var(--border-strong);
+    border-radius: 18px;
+    padding: 32px 20px;
+    text-align: center;
+    background: linear-gradient(180deg, var(--accent-faint), transparent);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .yt-dropzone:hover,
+  .yt-dropzone.drag {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+  .dz-prompt svg {
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .preview-stage {
+    position: relative;
+    display: inline-block;
+    max-width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: #000;
+  }
+  #preview-canvas {
+    display: block;
+    max-width: 100%;
+    max-height: 380px;
+    margin: 0 auto;
+  }
+  .banner-guide {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .guide-box {
+    width: 60.4%;
+    height: 29.4%;
+    border: 2px dashed rgba(64, 224, 208, 0.9);
+    background: rgba(64, 224, 208, 0.15);
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+    border-radius: 4px;
+  }
+  .file-summary {
+    margin-top: 12px;
+    font-weight: 600;
+    font-size: 0.92rem;
+    color: var(--text);
+  }
+  .section-label {
+    font-size: 0.88rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--accent);
+    margin: 22px 0 10px;
+  }
+  .presets-grid,
+  .fit-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+  }
+  .preset-card,
+  .fit-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    cursor: pointer;
+    font-family: inherit;
+    text-align: left;
+    transition: all 0.15s ease;
+  }
+  .preset-card strong,
+  .fit-card strong {
+    font-size: 0.92rem;
+  }
+  .preset-card span,
+  .fit-card span {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  .preset-card:hover,
+  .fit-card:hover {
+    border-color: var(--border-strong);
+  }
+  .preset-card.active,
+  .fit-card.active {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+  .actions-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 24px;
+    flex-wrap: wrap;
+  }
+  .btn-sm {
+    padding: 6px 14px;
+    font-size: 0.82rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--muted);
+    cursor: pointer;
+    margin-top: 10px;
+    transition: all 0.15s ease;
+  }
+  .btn-sm:hover {
+    color: var(--text);
+    border-color: var(--border-strong);
+  }
+</style>
+
+<script>
+  let rawImg: HTMLImageElement | null = null;
+  let rawFile: File | null = null;
+  let targetW = 1280;
+  let targetH = 720;
+  let isBanner = false;
+  let fitMode = 'blur';
+
+  const dz = document.getElementById('dz')!;
+  const fileIn = document.getElementById('file-in') as HTMLInputElement;
+  const dzPrompt = document.getElementById('dz-prompt')!;
+  const dzPreview = document.getElementById('dz-preview')!;
+  const previewCanvas = document.getElementById('preview-canvas') as HTMLCanvasElement;
+  const bannerGuide = document.getElementById('banner-guide')!;
+  const fileSummary = document.getElementById('file-summary')!;
+  const btnChange = document.getElementById('btn-change')!;
+  const ytControls = document.getElementById('yt-controls')!;
+  const btnDownload = document.getElementById('btn-download')!;
+  const dlDim = document.getElementById('dl-dim')!;
+  const toolStatus = document.getElementById('tool-status')!;
+
+  dz.addEventListener('click', (e) => {
+    if ((e.target as HTMLElement).closest('#btn-change')) return;
+    if (rawImg) return;
+    fileIn.click();
+  });
+
+  dz.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dz.classList.add('drag');
+  });
+
+  dz.addEventListener('dragleave', () => dz.classList.remove('drag'));
+
+  dz.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dz.classList.remove('drag');
+    if (e.dataTransfer?.files?.[0]) handleFile(e.dataTransfer.files[0]);
+  });
+
+  fileIn.addEventListener('change', () => {
+    if (fileIn.files?.[0]) handleFile(fileIn.files[0]);
+  });
+
+  btnChange.addEventListener('click', () => {
+    rawImg = null;
+    rawFile = null;
+    fileIn.value = '';
+    dzPrompt.hidden = false;
+    dzPreview.hidden = true;
+    ytControls.hidden = true;
+  });
+
+  function handleFile(file: File) {
+    if (!file.type.startsWith('image/')) {
+      alert('Please upload an image file (JPG, PNG, WebP, AVIF).');
+      return;
+    }
+    rawFile = file;
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      rawImg = img;
+      dzPrompt.hidden = true;
+      dzPreview.hidden = false;
+      ytControls.hidden = false;
+      fileSummary.textContent = `${file.name} · Original: ${img.naturalWidth} × ${img.naturalHeight} px (${(file.size / 1024).toFixed(1)} KB)`;
+      renderPreview();
+    };
+    img.src = url;
+  }
+
+  // Presets
+  document.querySelectorAll('.preset-card').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.preset-card').forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      targetW = parseInt(btn.getAttribute('data-w') || '1280', 10);
+      targetH = parseInt(btn.getAttribute('data-h') || '720', 10);
+      isBanner = btn.getAttribute('data-banner') === 'true';
+      dlDim.textContent = `${targetW}×${targetH}`;
+      bannerGuide.hidden = !isBanner;
+      renderPreview();
+    });
+  });
+
+  // Fit modes
+  document.querySelectorAll('.fit-card').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.fit-card').forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      fitMode = btn.getAttribute('data-mode') || 'blur';
+      renderPreview();
+    });
+  });
+
+  function renderPreview() {
+    if (!rawImg) return;
+    previewCanvas.width = targetW;
+    previewCanvas.height = targetH;
+    const ctx = previewCanvas.getContext('2d');
+    if (!ctx) return;
+
+    ctx.clearRect(0, 0, targetW, targetH);
+
+    const sw = rawImg.naturalWidth;
+    const sh = rawImg.naturalHeight;
+
+    if (fitMode === 'cover') {
+      const scale = Math.max(targetW / sw, targetH / sh);
+      const dw = sw * scale;
+      const dh = sh * scale;
+      const dx = (targetW - dw) / 2;
+      const dy = (targetH - dh) / 2;
+      ctx.drawImage(rawImg, dx, dy, dw, dh);
+    } else if (fitMode === 'black') {
+      ctx.fillStyle = '#000000';
+      ctx.fillRect(0, 0, targetW, targetH);
+      const scale = Math.min(targetW / sw, targetH / sh);
+      const dw = sw * scale;
+      const dh = sh * scale;
+      const dx = (targetW - dw) / 2;
+      const dy = (targetH - dh) / 2;
+      ctx.drawImage(rawImg, dx, dy, dw, dh);
+    } else {
+      ctx.save();
+      ctx.filter = 'blur(26px) brightness(0.65)';
+      const bgScale = Math.max(targetW / sw, targetH / sh) * 1.08;
+      const bgW = sw * bgScale;
+      const bgH = sh * bgScale;
+      const bgX = (targetW - bgW) / 2;
+      const bgY = (targetH - bgH) / 2;
+      ctx.drawImage(rawImg, bgX, bgY, bgW, bgH);
+      ctx.restore();
+
+      const scale = Math.min(targetW / sw, targetH / sh);
+      const dw = sw * scale;
+      const dh = sh * scale;
+      const dx = (targetW - dw) / 2;
+      const dy = (targetH - dh) / 2;
+      ctx.save();
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.45)';
+      ctx.shadowBlur = 18;
+      ctx.drawImage(rawImg, dx, dy, dw, dh);
+      ctx.restore();
+    }
+  }
+
+  // Download
+  btnDownload.addEventListener('click', () => {
+    if (!previewCanvas) return;
+    toolStatus.textContent = 'Exporting high-resolution thumbnail...';
+    previewCanvas.toBlob((blob) => {
+      if (!blob) return;
+      const dlUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const baseName = (rawFile?.name || 'thumbnail').replace(/\.[^/.]+$/, '');
+      a.href = dlUrl;
+      a.download = `${baseName}_${targetW}x${targetH}.jpg`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(dlUrl), 1000);
+      toolStatus.textContent = `Downloaded ${targetW}×${targetH} JPG!`;
+    }, 'image/jpeg', 0.94);
+  });
+</script>

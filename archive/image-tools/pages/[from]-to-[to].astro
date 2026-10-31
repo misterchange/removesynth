@@ -1,0 +1,105 @@
+---
+import Base from '../layouts/Base.astro';
+import ImageTool from '../components/ImageTool.astro';
+import Faq from '@removesynth/shared/components/Faq.astro';
+import { faqSchema, breadcrumbSchema } from '@removesynth/shared/lib/faq';
+import { SITE } from '../site';
+import { PAIRS, FORMATS, pairSlug, type Pair } from '../data/image-tools';
+
+export function getStaticPaths() {
+  return PAIRS.map((p) => ({ params: { from: p.from, to: p.to }, props: { p } }));
+}
+
+const { p } = Astro.props as { p: Pair };
+const A = FORMATS[p.from];
+const B = FORMATS[p.to];
+const path = `/${pairSlug(p)}/`;
+const title = `${A.name} to ${B.name} Converter: Convert ${A.name} to ${B.name} Online, Free`;
+const description = `Convert ${A.name} to ${B.name} for free in your browser. Batch up to 30 files, no sign-up, no watermark, and your images are never uploaded.`;
+const related = PAIRS.filter((x) => x !== p && (x.from === p.from || x.to === p.to));
+
+const schema = [
+  breadcrumbSchema([
+    { name: 'Home', url: `${SITE.url}/` },
+    { name: 'Image converter', url: `${SITE.url}/image-converter/` },
+    { name: `${A.name} to ${B.name}`, url: `${SITE.url}${path}` },
+  ]),
+  {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    name: `How to convert ${A.name} to ${B.name}`,
+    step: [
+      { '@type': 'HowToStep', position: 1, text: `Drop your ${A.name} files into the converter.` },
+      { '@type': 'HowToStep', position: 2, text: `Keep the output set to ${B.name}.` },
+      { '@type': 'HowToStep', position: 3, text: `Download the ${B.name} files one by one or as a ZIP.` },
+    ],
+  },
+  faqSchema(p.faqs),
+];
+---
+
+<Base title={title} description={description} schema={schema}>
+  <section class="hero">
+    <div class="container">
+      <span class="eyebrow">Free · Batch up to 30 · No upload</span>
+      <h1>{A.name} to <span class="accent">{B.name}</span></h1>
+      <p class="lead">Convert {A.name} images to {B.name} in seconds, right in your browser.</p>
+      <ImageTool mode="convert" to={p.to} title={`Drop ${A.name} files`} sub={`We convert them to ${B.name} in your browser.`} />
+    </div>
+  </section>
+
+  <article class="prose">
+    <h2>Why convert {A.name} to {B.name}?</h2>
+    <ul>{p.why.map((w) => <li>{w}</li>)}</ul>
+    <p class="callout">{p.note}</p>
+
+    <h2>How to convert {A.name} to {B.name}</h2>
+    <ol class="steps">
+      <li>Drop your {A.name} files into the box above, or tap it to choose them. You can add up to 30.</li>
+      <li>The output is already set to {B.name}. {p.to !== 'png' && 'Adjust the quality if you want a smaller file.'}</li>
+      <li>Download each file, or all of them at once as a ZIP.</li>
+    </ol>
+
+    <h2>{A.name} vs {B.name}</h2>
+    <table>
+      <thead><tr><th></th><th>{A.name}</th><th>{B.name}</th></tr></thead>
+      <tbody>
+        <tr><td>Compression</td><td>{A.compression}</td><td>{B.compression}</td></tr>
+        <tr><td>Transparency</td><td>{A.transparency ? 'Yes' : 'No'}</td><td>{B.transparency ? 'Yes' : 'No'}</td></tr>
+        <tr><td>Animation</td><td>{A.animation ? 'Yes' : 'No'}</td><td>{B.animation ? 'Yes' : 'No'}</td></tr>
+        <tr><td>Opens in</td><td>{A.support}</td><td>{B.support}</td></tr>
+      </tbody>
+    </table>
+
+    <h2>What is {A.name}?</h2>
+    <p>{A.about}</p>
+    <h2>What is {B.name}?</h2>
+    <p>{B.about}</p>
+
+    <h2>Related tools</h2>
+    <ul class="link-grid">
+      {related.map((r) => <li><a href={`/${pairSlug(r)}/`}>{FORMATS[r.from].name} to {FORMATS[r.to].name}</a></li>)}
+      <li><a href="/image-converter/">All conversions</a></li>
+      <li><a href="/compress-image-to-kb/">Compress image to KB</a></li>
+    </ul>
+
+    <Faq items={p.faqs} heading={`${A.name} to ${B.name} FAQ`} />
+  </article>
+</Base>
+
+<style>
+  .link-grid {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(160px, 100%), 1fr));
+    gap: 8px;
+  }
+  .link-grid a {
+    display: block;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--bg-elev);
+  }
+</style>

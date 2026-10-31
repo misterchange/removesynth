@@ -1,0 +1,87 @@
+---
+import Base from '../../layouts/Base.astro';
+import Uploader from '../../components/Uploader.astro';
+import Faq from '@removesynth/shared/components/Faq.astro';
+import { faqSchema, breadcrumbSchema, type FaqItem } from '@removesynth/shared/lib/faq';
+import { SITE } from '../../site';
+
+const title = 'SynthID entfernen: kostenlos für Bilder & Videos';
+const description =
+  'SynthID online entfernen: KI-Bild, Video oder Audio hochladen, direkt im Browser bearbeiten und in Originalqualität herunterladen. Kostenlos & ohne Login.';
+
+const faqs: FaqItem[] = [
+  {
+    q: 'Kann ich SynthID aus einem Bild entfernen?',
+    a: 'Ja. Lade das Bild oben hoch, klicke auf „Datei bearbeiten“ und lade die bearbeitete Version herunter. PNG, JPG und WebP werden unterstützt.',
+  },
+  {
+    q: 'Kann ich SynthID aus einem Video entfernen?',
+    a: 'Ja. MP4, WebM und MOV werden unterstützt. Videos brauchen je nach Länge und Auflösung etwas länger als Bilder.',
+  },
+  {
+    q: 'Sieht die Datei danach anders aus?',
+    a: 'Sie sollte gleich aussehen. RemoveSynth behält Auflösung und Format bei.',
+  },
+  {
+    q: 'Welche KI-Tools fügen SynthID hinzu?',
+    a: 'Google versieht Inhalte aus seinen KI-Produkten mit SynthID, darunter Gemini, Imagen, Veo und Lyria.',
+  },
+];
+
+const schema = [
+  breadcrumbSchema([
+    { name: 'Start', url: `${SITE.url}/de/` },
+    { name: 'SynthID entfernen', url: `${SITE.url}/de/synthid-entfernen/` },
+  ]),
+  faqSchema(faqs),
+];
+---
+
+<Base title={title} description={description} schema={schema}>
+  <section class="hero">
+    <div class="container">
+      <span class="eyebrow">Online · Kostenlos · Ohne Anmeldung</span>
+      <h1>SynthID <span class="accent">entfernen</span></h1>
+      <p class="lead">
+        Entferne SynthID aus KI-generierten Bildern, Videos und Audiodateien. Hochladen, bearbeiten
+        und im selben Format herunterladen.
+      </p>
+      <Uploader />
+    </div>
+  </section>
+
+  <article class="prose">
+    <h2>SynthID aus Bildern entfernen</h2>
+    <p>
+      Bilder aus Googles KI-Tools wie Gemini und Imagen tragen ein unsichtbares SynthID-Wasserzeichen
+      in ihren Pixeln. Lege ein PNG, JPG oder WebP in das Feld oben, um es zu bearbeiten. Du bekommst
+      das Bild in derselben Auflösung zurück.
+    </p>
+
+    <h2>SynthID aus Videos entfernen</h2>
+    <p>
+      Videos aus Tools wie Veo sind Bild für Bild markiert. Lade eine MP4-, WebM- oder MOV-Datei hoch,
+      und RemoveSynth bearbeitet den ganzen Clip. Längere oder hochauflösende Videos dauern länger.
+    </p>
+
+    <h2>SynthID aus Audio entfernen</h2>
+    <p>
+      Auch Musik aus Lyria kann SynthID enthalten. Wähle oben den Tab „Audio“ und lade eine MP3-,
+      WAV-, M4A-, OGG- oder FLAC-Datei hoch.
+    </p>
+
+    <h2>Bevor du loslegst</h2>
+    <ul>
+      <li>Lade nur Dateien hoch, die du selbst erstellt hast oder nutzen darfst.</li>
+      <li>Behalte eine Kopie deiner Originaldatei.</li>
+      <li>Gib bearbeitete KI-Inhalte nicht als echte Fotos oder Aufnahmen aus.</li>
+    </ul>
+
+    <div class="callout">
+      Mehr Hintergrund: <a href="/de/was-ist-synthid/">Was ist SynthID?</a> oder die
+      <a href="/de/synthid-entfernen-anleitung/">Schritt-für-Schritt-Anleitung</a>.
+    </div>
+
+    <Faq items={faqs} heading="Häufige Fragen zum Entfernen von SynthID" />
+  </article>
+</Base>

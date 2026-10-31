@@ -1,0 +1,96 @@
+---
+import Base from '../../layouts/Base.astro';
+import Faq from '@removesynth/shared/components/Faq.astro';
+import Checker from '@removesynth/shared/components/Checker.astro';
+import { faqSchema, breadcrumbSchema } from '@removesynth/shared/lib/faq';
+import { PLATFORMS, GENERATORS, type Platform } from '@removesynth/shared/data/explainers';
+import { SITES } from '@removesynth/shared/sites';
+import { SITE } from '../../site';
+
+export function getStaticPaths() {
+  return PLATFORMS.map((p) => ({ params: { slug: p.slug }, props: { p } }));
+}
+
+const { p } = Astro.props as { p: Platform };
+const url = `${SITE.url}/platforms/${p.slug}/`;
+const schema = [
+  breadcrumbSchema([
+    { name: 'Home', url: `${SITE.url}/` },
+    { name: 'Platforms', url: `${SITE.url}/platforms/` },
+    { name: p.name, url },
+  ]),
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: p.title,
+    description: p.description,
+    publisher: { '@type': 'Organization', name: SITE.name, url: SITE.url },
+  },
+  faqSchema(p.faqs),
+];
+const others = PLATFORMS.filter((x) => x.slug !== p.slug);
+---
+
+<Base title={p.title} description={p.description} schema={schema} ogType="article">
+  <section class="hero">
+    <div class="container">
+      <span class="eyebrow">{p.owner} · label: “{p.label}”</span>
+      <h1>How {p.name} labels <span class="accent">AI content</span></h1>
+      <p class="lead">{p.intro}</p>
+      <Checker
+        title={`Check a file before posting to ${p.name}`}
+        cleanerUrl={`${SITES.removesynth}/photo-metadata-remover/`}
+        synthidUrl="/synthid-detector/"
+      />
+    </div>
+  </section>
+
+  <article class="prose">
+    <h2>What {p.name} looks at</h2>
+    <ul>{p.signals.map((s) => <li>{s}</li>)}</ul>
+
+    <h2>When you have to disclose AI</h2>
+    <p>{p.rules}</p>
+    <p class="muted small">Platform rules change often. Check {p.name}’s help center for the current wording.</p>
+
+    <h2>What the checker above shows you</h2>
+    <p>
+      Drop the image you plan to post into the checker above. It shows the Content Credentials, IPTC
+      tags and generator details {p.name} may read, plus private data like your GPS location. To remove
+      personal details while keeping AI labels intact, use the
+      <a href={`${SITES.removesynth}/photo-metadata-remover/`}>photo metadata remover</a>.
+    </p>
+
+    <h2>If a label looks wrong</h2>
+    <ul>{p.wrongLabel.map((s) => <li>{s}</li>)}</ul>
+
+    <h2>Which AI tools add metadata</h2>
+    <ul class="link-grid">
+      {GENERATORS.map((g) => <li><a href={`${SITES.removesynth}/generators/${g.slug}/`}>{g.name}</a></li>)}
+    </ul>
+
+    <Faq items={p.faqs} heading={`${p.name} AI label FAQ`} />
+
+    <h2>Other platforms</h2>
+    <ul class="link-grid">
+      {others.map((o) => <li><a href={`/platforms/${o.slug}/`}>{o.name}</a></li>)}
+    </ul>
+  </article>
+</Base>
+
+<style>
+  .link-grid {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(200px, 100%), 1fr));
+    gap: 8px;
+  }
+  .link-grid a {
+    display: block;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--bg-elev);
+  }
+</style>

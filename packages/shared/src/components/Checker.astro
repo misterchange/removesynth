@@ -1,0 +1,177 @@
+---
+// AI metadata checker: drop zone + results. Reads C2PA, IPTC, XMP, EXIF and PNG metadata in the
+// browser. Links in the results point at the cleaner and SynthID guide, which may live on another site.
+import ToolDrop from './ToolDrop.astro';
+
+interface Props {
+  title?: string;
+  cleanerUrl: string;
+  synthidUrl: string;
+}
+
+const { title = 'Drop an image to check', cleanerUrl, synthidUrl } = Astro.props;
+---
+
+<div class="ai-checker" data-cleaner={cleanerUrl} data-synthid={synthidUrl}>
+  <ToolDrop
+    id="checker"
+    accept="image/jpeg,image/png,image/webp,image/heic,image/heif,image/avif,.heic,.heif,.avif"
+    title={title}
+    sub="We read its C2PA, IPTC, XMP, EXIF and PNG metadata."
+    meta="click to choose or paste one · JPG · PNG · WebP · HEIC · AVIF"
+    footnote="Runs in your browser · nothing is uploaded"
+  >
+    <div class="results" hidden aria-live="polite"></div>
+  </ToolDrop>
+</div>
+
+<style>
+  .results {
+    margin-top: 16px;
+    display: grid;
+    gap: 14px;
+  }
+  .results :global(.verdict) {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 14px 16px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    background: var(--bg-elev-2);
+  }
+  .results :global(.verdict.ai) {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+  .results :global(.verdict strong) {
+    display: block;
+    font-size: 1.05rem;
+  }
+  .results :global(.verdict p) {
+    margin: 2px 0 0;
+    color: var(--muted);
+    font-size: 0.92rem;
+  }
+  .results :global(.badge-dot) {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-top: 6px;
+    flex: none;
+    background: var(--muted);
+  }
+  .results :global(.verdict.ai .badge-dot) {
+    background: var(--accent);
+    box-shadow: 0 0 12px var(--accent-glow);
+  }
+  .results :global(h3) {
+    margin: 6px 0 0;
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .results :global(dl) {
+    margin: 0;
+    display: grid;
+    grid-template-columns: minmax(120px, 34%) 1fr;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .results :global(dt),
+  .results :global(dd) {
+    margin: 0;
+    padding: 9px 12px;
+    border-top: 1px solid var(--border);
+    font-size: 0.92rem;
+    overflow-wrap: anywhere;
+  }
+  .results :global(dt) {
+    color: var(--muted);
+  }
+  .results :global(dt:nth-of-type(1)),
+  .results :global(dd:nth-of-type(1)) {
+    border-top: 0;
+  }
+  .results :global(.empty) {
+    color: var(--muted);
+    margin: 0;
+    font-size: 0.92rem;
+  }
+  .results :global(.actions) {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+</style>
+
+<script>
+  import { inspect, hasAiProvenance, type Finding } from '../lib/inspect';
+
+  const wrap = document.querySelector('.ai-checker') as HTMLElement | null;
+  const root = document.getElementById('checker');
+  if (wrap && root) {
+    const results = root.querySelector('.results') as HTMLElement;
+
+    const el = <K extends keyof HTMLElementTagNameMap>(tag: K, cls?: string, text?: string) => {
+      const e = document.createElement(tag);
+      if (cls) e.className = cls;
+      if (text !== undefined) e.textContent = text;
+      return e;
+    };
+    const link = (href: string, cls: string, text: string) => {
+      const a = el('a', cls, text) as HTMLAnchorElement;
+      a.href = href;
+      return a;
+    };
+    const list = (items: Finding[], empty: string) => {
+      if (!items.length) return el('p', 'empty', empty);
+      const dl = el('dl');
+      for (const f of items) dl.append(el('dt', '', f.label), el('dd', '', f.value));
+      return dl;
+    };
+
+    root.addEventListener('files', async (e) => {
+      const file = (e as CustomEvent<File[]>).detail[0];
+      results.hidden = false;
+      results.replaceChildren(el('p', 'empty', `Reading ${file.name}…`));
+      try {
+        const report = await inspect(new Uint8Array(await file.arrayBuffer()));
+        const isAi = hasAiProvenance(report);
+        const camera = report.ai.some((f) => f.tone === 'camera');
+
+        const verdict = el('div', `verdict${isAi ? ' ai' : ''}`);
+        const text = el('div');
+        text.append(
+          el('strong', '', isAi ? 'AI labels found in this file' : camera ? 'Declared as a camera photo' : 'No AI metadata found'),
+          el(
+            'p',
+            '',
+            isAi
+              ? 'Platforms that read C2PA or IPTC metadata can use this to label the image as AI.'
+              : 'The file doesn’t declare itself as AI. That doesn’t prove it’s real, and invisible watermarks like SynthID aren’t visible to this check.',
+          ),
+        );
+        verdict.append(el('span', 'badge-dot'), text);
+
+        const actions = el('div', 'actions');
+        if (report.privacy.length) actions.append(link(wrap.dataset.cleaner!, 'btn', 'Remove private data'));
+        actions.append(link(wrap.dataset.synthid!, 'btn btn-ghost', 'Check for SynthID'));
+
+        results.replaceChildren(
+          el('p', 'empty', `${file.name} · ${report.format.toUpperCase()} · ${(file.size / 1024).toFixed(0)} KB`),
+          verdict,
+          el('h3', '', 'AI provenance'),
+          list(report.ai, 'No C2PA, IPTC or generator tags found.'),
+          el('h3', '', 'Private details'),
+          list(report.privacy, 'No location, device or personal fields found.'),
+          actions,
+        );
+      } catch {
+        results.replaceChildren(el('p', 'empty', 'Sorry, this file couldn’t be read. Try a JPG, PNG, WebP or HEIC image.'));
+      }
+    });
+  }
+</script>

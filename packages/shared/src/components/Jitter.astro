@@ -1,0 +1,103 @@
+---
+// Decorative flickering monospace glyphs, placed beside the hero tool. Purely visual (aria-hidden).
+interface Props {
+  side: 'left' | 'right';
+  seed?: number;
+}
+
+const { side } = Astro.props;
+const ROWS = 10;
+const COLS = 22;
+---
+
+<div class={`jitter jitter-${side}`} aria-hidden="true" data-rows={ROWS} data-cols={COLS}></div>
+
+<style>
+  .jitter {
+    position: absolute;
+    top: 0;
+    width: 230px;
+    display: grid;
+    grid-template-columns: repeat(22, 1fr);
+    font-family: var(--mono);
+    font-size: 15px;
+    line-height: 24px;
+    color: var(--jitter);
+    pointer-events: none;
+    user-select: none;
+    white-space: pre;
+    -webkit-mask-image: radial-gradient(closest-side, #000 55%, transparent 100%);
+    mask-image: radial-gradient(closest-side, #000 55%, transparent 100%);
+  }
+  .jitter-left {
+    right: calc(100% + 28px);
+  }
+  .jitter-right {
+    left: calc(100% + 28px);
+  }
+  .jitter :global(span) {
+    text-align: center;
+    transition: color 0.4s;
+  }
+  .jitter :global(.hot) {
+    color: var(--accent);
+  }
+  @media (max-width: 1260px) {
+    .jitter {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  const TOKENS = ['0x3F', 'f:120', 'ID', '1080', '30fps', 'C2PA', 'px', '0.97', '', 'synth', '00:12', 'frame', '0xA1', '4K'];
+  const NOISE = '0123456789:.-·';
+
+  function init(el: HTMLElement) {
+    const rows = Number(el.dataset.rows);
+    const cols = Number(el.dataset.cols);
+    const cells: HTMLSpanElement[] = [];
+    for (let i = 0; i < rows * cols; i++) {
+      const s = document.createElement('span');
+      s.textContent = ' ';
+      cells.push(s);
+    }
+    el.replaceChildren(...cells);
+
+    const rand = (n: number) => Math.floor(Math.random() * n);
+
+    const writeToken = () => {
+      const token = TOKENS[rand(TOKENS.length)];
+      const row = rand(rows);
+      const col = rand(cols - token.length + 1);
+      const hot = Math.random() < 0.18;
+      [...token].forEach((ch, i) => {
+        const c = cells[row * cols + col + i];
+        c.textContent = ch;
+        c.classList.toggle('hot', hot);
+      });
+    };
+
+    const tick = () => {
+      for (let k = 0; k < 7; k++) {
+        const c = cells[rand(cells.length)];
+        const r = Math.random();
+        c.classList.remove('hot');
+        c.textContent = r < 0.68 ? ' ' : NOISE[rand(NOISE.length)];
+      }
+      if (Math.random() < 0.3) writeToken();
+    };
+
+    // Start with a populated field so it never looks empty.
+    for (let i = 0; i < 60; i++) tick();
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    let timer = 0;
+    const start = () => (timer = window.setInterval(tick, 110));
+    const stop = () => window.clearInterval(timer);
+    document.addEventListener('visibilitychange', () => (document.hidden ? stop() : start()));
+    start();
+  }
+
+  document.querySelectorAll<HTMLElement>('.jitter').forEach(init);
+</script>

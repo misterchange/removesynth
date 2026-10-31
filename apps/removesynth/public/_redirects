@@ -1,0 +1,8 @@
+/synthid-remover/ / 301
+/synthid-remover / 301
+/ai-metadata-checker/ https://checkaiornot.com/ 301
+/ai-metadata-checker https://checkaiornot.com/ 301
+/synthid-detector/ https://checkaiornot.com/synthid-detector/ 301
+/synthid-detector https://checkaiornot.com/synthid-detector/ 301
+/platforms/* https://checkaiornot.com/platforms/:splat 301
+/platforms https://checkaiornot.com/platforms/ 301

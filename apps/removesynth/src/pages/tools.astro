@@ -1,0 +1,73 @@
+---
+import HubPage from '../components/HubPage.astro';
+
+const items = [
+  { href: '/', tag: 'Images · video · audio', title: 'SynthID remover', text: 'Remove SynthID from AI-generated images, videos and audio.' },
+  { href: '/avif-to-jpg/', tag: 'In your browser · 94K Vol', title: 'AVIF to JPG converter', text: 'Convert modern AVIF images to universally supported JPG in seconds.' },
+  { href: '/remove-c2pa-from-video/', tag: 'MP4 · WebM · MOV', title: 'Remove C2PA from video', text: 'Strip C2PA manifests from AI video (Sora, Veo, Kling, Runway) for TikTok and Reels.' },
+  { href: '/add-camera-exif/', tag: 'In your browser · EXIF injector', title: 'Add camera EXIF to photo', text: 'Inject realistic Sony, Canon, Nikon, and iPhone camera EXIF metadata into photos and AI images.' },
+  { href: '/etsy-photo-cleaner/', tag: 'Etsy & eBay Sellers · Batch 30', title: 'Etsy & eBay listing photo cleaner', text: 'Clean AI prompts, C2PA, and camera serials from product mockups before listing.' },
+  { href: '/compress-image-for-whatsapp/', tag: 'In your browser · HD photo', title: 'Compress image for WhatsApp', text: 'Reduce file weight while keeping facial details sharp and scrubbing location.' },
+  { href: '/compress-image-for-discord/', tag: '10 MB & 25 MB limits', title: 'Compress image for Discord', text: 'Fix file-too-powerful errors for Discord avatars, banners, and channel uploads.' },
+  { href: '/invisible-character-remover/', tag: 'Text utility · Instant', title: 'Invisible character & ZWSP remover', text: 'Detect and strip hidden zero-width spaces, soft hyphens, and unicode tracking marks.' },
+  { href: '/youtube-thumbnail-resizer/', tag: 'YouTube & TikTok · 49K Vol', title: 'YouTube & TikTok thumbnail resizer', text: 'Resize artwork to exact 1280x720 thumbnail and 2560x1440 banner sizes with smart blur padding.' },
+  { href: '/geotag-photo/', tag: 'Interactive map · 14K Vol', title: 'Geotag photo & GPS injector', text: 'Add, change, or inject realistic EXIF GPS coordinates into any photo using an interactive map.' },
+  { href: '/resize-image-for-instagram/', tag: 'No-crop 4:5 · 8K Vol', title: 'Instagram photo resizer', text: 'Resize photos for Instagram feeds without cropping. Smart blur backgrounds for 1:1, 4:5, and 9:16.' },
+  { href: '/video-metadata-remover/', tag: 'Lossless MP4/MOV · 200+ KWs', title: 'Video & MP4 metadata remover', text: 'Strip GPS location tracks, creation dates, camera tags, and editing history without re-encoding.' },
+  { href: '/compress-video-for-discord/', tag: '10 MB & 25 MB Limits', title: 'Compress video for Discord', text: 'Fix "Your file is too powerful!" errors and compress videos to fit Discord’s free 10 MB limit.' },
+  { href: '/exif-viewer/', tag: 'Visual Inspector · 15K Vol', title: 'Online visual EXIF viewer', text: 'Inspect camera exposure badges, f-stop, shutter speed, ISO, and GPS coordinates with 1-click cleaner.' },
+  { href: '/exif-editor/', tag: 'Lossless binary · Tag-by-tag', title: 'Online EXIF metadata editor', text: 'Selectively edit, add, or delete individual artist, copyright, camera, and timestamp tags in your photos.' },
+  { href: '/remove-ai-info-label/', tag: 'Instagram & Facebook · 250+ KWs', title: 'Remove AI Info & Made with AI label', text: 'Stop Instagram, Facebook, and Threads from tagging your posts. Strips C2PA and IPTC AI source flags.' },
+  { href: '/remove-gemini-watermark/', tag: 'Nano Banana · 200K+ Vol', title: 'Remove Gemini & Nano Banana watermark', text: 'Disperse imperceptible SynthID frequency watermarks from Gemini and Imagen images in your browser.' },
+  { href: '/ai-image-resizer/', tag: 'Midjourney & DALL-E · 140+ KWs', title: 'AI image aspect ratio resizer', text: 'Fit square AI artwork to 16:9, 4:5, and 9:16 with smart blur backgrounds without cropping subjects.' },
+  { href: '/higgsfield/', tag: 'Higgsfield AI Video · Lossless', title: 'Higgsfield AI video cleaner', text: 'Clean container metadata, model stamps, and C2PA manifests from Higgsfield Cinema & DoP videos.' },
+  { href: '/seedance/', tag: 'ByteDance · 2.0 / 2.1 / 2.2', title: 'Seedance AI video cleaner', text: 'Sanitize Seedance 2.0, 2.1, and 2.2 MP4 videos for TikTok and Reels with zero re-encoding.' },
+  { href: '/dola-ai/', tag: 'Dola AI Video · Free', title: 'Dola AI video watermark remover', text: 'Clean Dola AI video watermarks, MP4 container atoms, and C2PA provenance credentials losslessly.' },
+  { href: '/hailuo-ai/', tag: 'MiniMax Video-01 · Viral', title: 'Hailuo AI video watermark remover', text: 'Sanitize Hailuo AI and MiniMax Video-01 container tags and C2PA credentials for TikTok and Shorts.' },
+  { href: '/kling-ai/', tag: 'Kling 1.0 / 1.5 / 2.0', title: 'Kling AI video cleaner', text: 'Wipe Kuaishou Kling AI container atoms and metadata tags without video quality loss.' },
+  { href: '/luma-dream-machine/', tag: 'Luma Ray-2 · Lossless', title: 'Luma Dream Machine cleaner', text: 'Strip container metadata and C2PA credentials from Luma Dream Machine and Ray-2 videos.' },
+  { href: '/viggle-ai/', tag: 'Character Motion · Memes', title: 'Viggle AI video cleaner', text: 'Clean Viggle AI character motion and dance video metadata tags and C2PA manifests.' },
+  { href: '/runway-ai/', tag: 'Runway Gen-3 & Gen-2 · Lossless', title: 'Runway AI video cleaner', text: 'Sanitize Runway Gen-3 Alpha, Turbo, and Gen-2 MP4 containers and C2PA manifests losslessly.' },
+  { href: '/pika-ai/', tag: 'Pika 2.0 & 2.1 · Fast', title: 'Pika AI video cleaner', text: 'Clean Pika AI and Pika 2.0 animated logo watermarks, MP4 container atoms, and encoder tags.' },
+  { href: '/pixverse-ai/', tag: 'PixVerse 4K · Lossless', title: 'PixVerse AI video cleaner', text: 'Remove PixVerse AI video container tags and C2PA credentials for TikTok and Instagram Reels.' },
+  { href: '/sora-ai/', tag: 'OpenAI Sora · C2PA Stripper', title: 'OpenAI Sora video cleaner', text: 'Neutralize OpenAI Sora C2PA Content Credentials manifests and MP4 metadata without quality loss.' },
+  { href: '/veo-ai/', tag: 'Google Veo 2 · DeepMind', title: 'Google Veo video cleaner', text: 'Wipe Google Veo and Veo 2 SynthID video container tags and encoder markers in under 1 second.' },
+  { href: '/wan-ai/', tag: 'Alibaba Wan 2.1 · Open Model', title: 'Alibaba Wan 2.1 video cleaner', text: 'Sanitize Wan 2.1 and Wanx open video model container metadata and tags losslessly.' },
+  { href: '/exiftool-online/', tag: 'CLI Alternative · Zero-upload', title: 'ExifTool online web alternative', text: 'Inspect all EXIF, IPTC, and XMP metadata tags and strip them in one click (exiftool -all=).' },
+  { href: '/social-media-safe-zones/', tag: 'Reels · TikTok · Shorts · 2026', title: 'Social media safe zones checker', text: 'Live interactive safe zone overlay simulator for Instagram Reels, TikTok, YouTube Shorts, and Snapchat.' },
+  { href: '/does-it-strip-metadata/', tag: 'Privacy Matrix · 12 Apps', title: 'Does it strip metadata? Platform checker', text: 'Find out if Signal, Telegram, WhatsApp, Discord, Instagram, and iMessage strip your photo GPS tags.' },
+  { href: '/pdf-resume-metadata-remover/', tag: 'Confidential · Blind hiring', title: 'PDF resume metadata remover', text: 'Scrub author names, software tags, and edit history from resumes before applying.' },
+  { href: '/ai-metadata-remover/', tag: 'In your browser · Batch 30', title: 'AI metadata & label remover', text: 'Strip C2PA, XMP, EXIF, and IPTC AI labels from photos before uploading to social media.' },
+  { href: '/ai-metadata-checker/', tag: 'In your browser · Instant', title: 'AI metadata checker', text: 'Inspect if a photo has C2PA, IPTC, camera details, GPS location, or AI generation tags.' },
+  { href: '/c2pa-remover/', tag: 'In your browser', title: 'C2PA Content Credentials remover', text: 'Strip cryptographic C2PA provenance manifests from images and photos.' },
+  { href: '/remove-synthid-from-images/', tag: 'PNG · JPG · WebP', title: 'Remove SynthID from images', text: 'Remove invisible SynthID pixel watermarks from Gemini and Imagen images.' },
+  { href: '/remove-synthid-from-video/', tag: 'MP4 · WebM · MOV', title: 'Remove SynthID from video', text: 'Clean SynthID watermarks across every video frame from Veo and YouTube.' },
+  { href: '/remove-synthid-from-audio/', tag: 'MP3 · WAV · FLAC', title: 'Remove SynthID from audio', text: 'Clean AI watermarks from synthetic music, speech, and soundscapes from Lyria and Gemini.' },
+  { href: '/remove-synthid-from-text/', tag: 'In your browser', title: 'Remove SynthID from text', text: 'Disrupt statistical token watermarking and sanitize AI text from Gemini and Gemma models.' },
+  { href: '/photo-metadata-remover/', tag: 'In your browser', title: 'Photo metadata remover', text: 'Remove GPS, camera, dates and names from photos. Keeps AI labels.' },
+  { href: '/heic-to-jpg/', tag: 'In your browser', title: 'HEIC to JPG', text: 'Convert iPhone photos to JPG, in batches of up to 30.' },
+  { href: '/docx-metadata-remover/', tag: 'In your browser · Word', title: 'Word & DOCX metadata remover', text: 'Strip author names, revision history, and company tags from Word (.docx) documents.' },
+  { href: '/audio-metadata-remover/', tag: 'MP3 · WAV · FLAC', title: 'Audio metadata & ID3 tag remover', text: 'Remove ID3 tags, artist names, artwork, and DAW comments with zero audio quality loss.' },
+  { href: '/jpg-to-pdf/', tag: 'In your browser · Multi-page', title: 'JPG to PDF converter', text: 'Convert single or multiple JPG, PNG, and WebP images into a single clean PDF.' },
+  { href: '/resize-image/', tag: 'In your browser · Social presets', title: 'Image resizer', text: 'Resize images by pixel dimensions, percentages, or Instagram/YouTube presets.' },
+  { href: '/change-photo-date/', tag: 'In your browser · Lossless', title: 'Change photo date taken', text: 'Edit or wipe the capture date and timestamp in your photos without re-encoding.' },
+  { href: '/anonymous-photo-cleaner/', tag: 'Reddit & 4chan safe share', title: 'Anonymous photo sanitizer', text: 'Wipe GPS location, camera serial numbers, and device fingerprints before sharing.' },
+  { href: '/photoshop-metadata-cleaner/', tag: 'Fix DocumentAncestors bloat', title: 'Photoshop & Lightroom metadata cleaner', text: 'Clean bloated edit history, layer ancestors, and Camera Raw settings to shrink files.' },
+  { href: '/bulk-metadata-remover/', tag: 'Batch up to 50 · ZIP export', title: 'Bulk metadata remover', text: 'Batch remove EXIF, GPS, and camera details from dozens of photos at once.' },
+  { href: '/remove-metadata-iphone/', tag: 'iOS & Safari · 1-Tap', title: 'Remove photo metadata on iPhone', text: 'Mobile-first tool and guide to strip GPS and private EXIF tags on iPhone.' },
+  { href: '/remove-metadata-android/', tag: 'Android & Chrome · 1-Tap', title: 'Remove photo metadata on Android', text: 'Strip location tags and Samsung/Pixel hardware details on Android devices.' },
+  { href: '/platforms/', tag: 'Upload guides', title: 'Social media platform prep', text: 'Checklists and upload guides for Instagram, TikTok, Facebook, YouTube, and Etsy.' },
+  { href: '/exports/', tag: 'Generator cleanup', title: 'AI generator export guides', text: 'How to clean exports from Midjourney, ChatGPT, DALL·E, Firefly, Flux, and more.' },
+];
+---
+
+<HubPage
+  title="Free AI Image Tools: SynthID Remover & Metadata Checker"
+  description="Explore free browser-based tools for AI images: remove SynthID, check C2PA & IPTC metadata, strip EXIF photo coordinates, and convert formats losslessly."
+  eyebrow="Free tools"
+  h1="Tools"
+  intro="Everything RemoveSynth offers, in one place. Most tools run entirely in your browser."
+  path="/tools/"
+  crumb="Tools"
+  items={items}
+/>

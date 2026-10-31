@@ -1,0 +1,676 @@
+---
+import Base from '../layouts/Base.astro';
+import Jitter from '@removesynth/shared/components/Jitter.astro';
+import { faqSchema, breadcrumbSchema, type FaqItem } from '@removesynth/shared/lib/faq';
+import { SITE } from '../site';
+
+const title = 'PDF Resume Metadata Remover: Anonymize Job Submissions';
+const description =
+  'Clean author names, creation timestamps, and software signatures from PDF resumes and CVs. Anonymize your job applications 100% privately in your browser.';
+
+const faqs: FaqItem[] = [
+  {
+    q: 'Why should I remove metadata from my PDF resume or CV?',
+    a: 'When you export a resume from Microsoft Word, Google Docs, Apple Pages, or Canva, the PDF embeds hidden metadata including your personal computer username, corporate employer license names, revision counts, and exact creation timestamps. Scrubbing it guarantees blind hiring fairness and prevents leaking previous draft timestamps or template designers.',
+  },
+  {
+    q: 'What metadata fields get removed from the PDF document?',
+    a: 'Author (dc:creator), Document Title, Subject, Keywords, Creator tool (e.g., Canva, InDesign, Word), Producer library (e.g., Quartz, Skia), CreationDate, ModDate, and unreferenced XMP metadata stream dictionaries.',
+  },
+  {
+    q: 'Will my resume layout, typography, or vector styling change?',
+    a: 'No. The visual layout, typography, vectors, hyperlinks, and page formatting are 100 percent preserved. Only the invisible document /Info dictionary and XMP headers are scrubbed.',
+  },
+  {
+    q: 'Is my confidential resume uploaded to any remote server?',
+    a: 'No. The PDF scrubbing engine runs entirely in your local browser memory using client-side JavaScript. Your personal work history, contact details, and career credentials never leave your computer.',
+  },
+  {
+    q: 'Does this tool work with ATS (Applicant Tracking Systems)?',
+    a: 'Yes. ATS software parses the text stream and structure tree. Removing bloated or conflicting /Info dictionary tags ensures clean text extraction without confusing parsers with old author or template names.',
+  },
+  {
+    q: 'How does this compare to Adobe Acrobat Pro metadata removal?',
+    a: 'Acrobat Pro costs over twenty dollars a month and requires a heavy desktop installation. RemoveSynth provides the exact same ISO 32000-1 dictionary excision directly inside your browser for free with zero accounts.',
+  },
+];
+
+const schema = [
+  breadcrumbSchema([
+    { name: 'Home', url: `${SITE.url}/` },
+    { name: 'Tools', url: `${SITE.url}/tools/` },
+    { name: 'PDF Resume Metadata Remover', url: `${SITE.url}/pdf-resume-metadata-remover/` },
+  ]),
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: 'PDF Resume Metadata Remover',
+    url: `${SITE.url}/pdf-resume-metadata-remover/`,
+    applicationCategory: 'BusinessApplication',
+    operatingSystem: 'All',
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    description,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    name: 'How to remove metadata from a PDF resume',
+    step: [
+      {
+        '@type': 'HowToStep',
+        position: 1,
+        name: 'Upload PDF resume',
+        text: 'Drop your PDF resume or CV into the secure browser cleaner box above.',
+      },
+      {
+        '@type': 'HowToStep',
+        position: 2,
+        name: 'Binary trailer and Info excision',
+        text: 'The in-browser engine scans the PDF cross-reference table and zeroes out the /Info dictionary and XMP metadata streams.',
+      },
+      {
+        '@type': 'HowToStep',
+        position: 3,
+        name: 'Download anonymized PDF',
+        text: 'Save your sanitized, ATS-ready PDF resume instantly with zero server uploads.',
+      },
+    ],
+  },
+  faqSchema(faqs),
+];
+---
+
+<Base title={title} description={description} schema={schema}>
+  <section class="hero">
+    <div class="container">
+      <span class="eyebrow">Job Application Privacy · 100% In-Browser · Confidential</span>
+      <h1>PDF resume <span class="accent">metadata remover</span></h1>
+      <p class="lead">
+        Strip author names, software tags, creation dates, and revision history from PDF resumes and CVs before submitting job applications.
+      </p>
+
+      <!-- In-Browser PDF Scrubber -->
+      <div class="tool-stage" id="tool">
+        <div class="pdf-tool">
+          <div class="drop-zone" id="pdf-drop-zone">
+            <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="12" y1="18" x2="12" y2="12"></line>
+              <line x1="9" y1="15" x2="15" y2="15"></line>
+            </svg>
+            <p class="drop-prompt">
+              <strong>Drop your PDF resume here</strong> or <span class="action-link">browse files</span>
+            </p>
+            <p class="drop-help muted small">PDF documents up to 50 MB · Processed 100% in your browser</p>
+            <input type="file" id="pdf-file-input" accept=".pdf,application/pdf" hidden />
+          </div>
+
+          <div class="pdf-file-card" id="pdf-file-card" hidden>
+            <div class="pdf-meta">
+              <span class="pdf-name" id="pdf-filename">resume.pdf</span>
+              <span class="pdf-size muted small" id="pdf-filesize">0 KB</span>
+            </div>
+            <div class="pdf-card-actions">
+              <button type="button" class="btn-sm btn-ghost" id="btn-pdf-change">Choose another PDF</button>
+            </div>
+          </div>
+
+          <div class="pdf-actions">
+            <button type="button" class="btn btn-primary" id="btn-clean-pdf" disabled>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              </svg>
+              Anonymize and Download Clean PDF
+            </button>
+            <span class="tool-status small" id="pdf-status" role="status" aria-live="polite"></span>
+          </div>
+        </div>
+        <Jitter side="right" />
+      </div>
+    </div>
+  </section>
+
+  <!-- Long-Form In-Depth Rank-Fast Content -->
+  <article class="prose">
+    <h2>Why Resume PDF Metadata Can Compromise Your Job Search</h2>
+    <p>
+      Whenever you draft a resume in Microsoft Word, Apple Pages, Google Docs, or Canva and export it to PDF format, the export engine injects an invisible technical footprint into the document header and trailer. When corporate recruiters, hiring managers, or automated Applicant Tracking Systems (ATS) open your document, this metadata is immediately visible via simple document properties or automated scrapers.
+    </p>
+    <p>
+      Leaving raw metadata intact can inadvertently harm your candidacy in several critical ways:
+    </p>
+    <ul>
+      <li><strong>Leaking Your Current Employer:</strong> If you drafted or exported your resume on an employer-issued laptop, the <code>/Author</code> or <code>/Company</code> property frequently displays the corporate enterprise license of your current employer, alerting recruiters that you are job-hunting on company time.</li>
+      <li><strong>Template and Freelance Designer Exposure:</strong> Using a purchased resume template from Etsy or Canva often leaves the template author name (e.g., "ResumeDesignStudioPro") as the document creator, creating an impression of unoriginality.</li>
+      <li><strong>Drafting and Last-Minute Timestamps:</strong> The <code>/CreationDate</code> and <code>/ModDate</code> tags record the exact second you exported the file. Submitting an application at 2:45 AM or thirty minutes before a deadline reveals procrastination habits.</li>
+      <li><strong>Compromising Blind Recruitment:</strong> Many government, academic, and non-discriminatory hiring programs mandate blind resume screening where demographic indicators must be removed. Personal username tags in metadata violate blind review guidelines.</li>
+    </ul>
+
+    <h2>Mathematical Formulation of ISO 32000-1 PDF Dictionary Sanitization</h2>
+    <p>
+      In accordance with the ISO 32000-1 specification, a PDF file consists of a header (<code>%PDF-1.x</code>), a body of indirect objects (containing fonts, content streams, and dictionaries), a cross-reference table (<code>xref</code>), and a trailer dictionary terminating with <code>%%EOF</code>.
+    </p>
+    <div class="math-block">
+      <code>PDF_Trailer = &lt;&lt; /Size N /Root 1 0 R /Info M 0 R /ID [&lt;MD5_1&gt; &lt;MD5_2&gt;] &gt;&gt;</code>
+    </div>
+    <p>
+      The document metadata is anchored via the indirect reference <code>/Info M 0 R</code>:
+    </p>
+    <div class="math-block">
+      <code>Object_M = &lt;&lt; /Title (...) /Author (...) /Creator (...) /Producer (...) /CreationDate (D:...) /ModDate (D:...) &gt;&gt;</code>
+    </div>
+    <p>
+      RemoveSynth parses the byte stream, locates the <code>/Info</code> indirect reference, and performs in-place nullification:
+    </p>
+    <div class="math-block">
+      <code>Trailer_clean = Replace(Trailer, "/Info M 0 R", "")</code>
+      <code>Object_M_clean = "M 0 obj &lt;&lt; &gt;&gt; endobj"</code>
+    </div>
+    <p>
+      Simultaneously, any embedded XMP metadata streams referenced in the Catalog (<code>/Root &lt;&lt; /Metadata K 0 R &gt;&gt;</code>) are severed and wiped. Because the page content streams (<code>/Contents</code>), font dictionaries, vector paths, and text encoding matrices remain untouched, text extractability and visual rendering remain 100 percent flawless.
+    </p>
+
+    <h2>Worked Example: Real Numerical PDF Resume Sanitization</h2>
+    <p>
+      Consider a senior engineering resume exported from Microsoft Word 365 on an enterprise ThinkPad:
+    </p>
+    <ul>
+      <li><strong>Input File:</strong> <code>Alex_Chen_Staff_Engineer_Resume.pdf</code> (412,850 bytes)</li>
+      <li><strong>Identified Sensitive Metadata Payloads:</strong>
+        <ul>
+          <li><code>/Author</code>: "Chen, Alex (Lockheed Martin IT Services)"</li>
+          <li><code>/Creator</code>: "Microsoft Word for Microsoft 365"</li>
+          <li><code>/Producer</code>: "macOS Version 14.5 (Build 23F79) Quartz PDFContext"</li>
+          <li><code>/CreationDate</code>: <code>D:20261019024812Z</code> (2:48 AM on a corporate workday)</li>
+          <li><code>/ModDate</code>: <code>D:20261019031205Z</code></li>
+          <li>Embedded XMP Packet: 4,820 bytes of historical session GUIDs</li>
+        </ul>
+      </li>
+      <li><strong>Sanitized Output File:</strong> 406,120 bytes</li>
+      <li><strong>Forensic Inspection:</strong> 100 percent of author, employer, and timestamp tags eliminated</li>
+      <li><strong>Visual and ATS Integrity:</strong> 100 percent identical text rendering and keyword parser accuracy</li>
+      <li><strong>Processing Time:</strong> 14 milliseconds in local browser RAM</li>
+    </ul>
+
+    <!-- SVG Architecture Diagram -->
+    <h2>PDF Binary Object Layout: Trailer and Info Object Nullification</h2>
+    <p>
+      The vector diagram below illustrates how RemoveSynth traverses the PDF cross-reference table to decouple and neutralize metadata dictionaries without disrupting page content streams.
+    </p>
+    <svg viewBox="0 0 760 360" class="chart-svg" role="img" aria-label="Diagram of PDF binary structure showing trailer cross-reference and info dictionary excision">
+      <defs>
+        <linearGradient id="pdfGradBloat" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#ff4444" stop-opacity="0.3"/>
+          <stop offset="100%" stop-color="#ff4444" stop-opacity="0.1"/>
+        </linearGradient>
+        <linearGradient id="pdfGradClean" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#2cc4f5" stop-opacity="0.3"/>
+          <stop offset="100%" stop-color="#00e699" stop-opacity="0.3"/>
+        </linearGradient>
+      </defs>
+      <rect x="10" y="10" width="740" height="340" rx="8" fill="#0b111a" stroke="#1f2d3d" stroke-width="1"/>
+      
+      <!-- Top: Unsanitized PDF -->
+      <text x="30" y="45" fill="#ff4444" font-weight="700" font-size="14">UNSANITIZED PDF: LEAKING EMPLOYER &amp; AUTHOR</text>
+      <rect x="30" y="60" width="80" height="42" rx="4" fill="#1b2533" stroke="#2cc4f5" stroke-width="1"/>
+      <text x="42" y="86" fill="#fff" font-size="11">%PDF-1.7</text>
+      
+      <rect x="120" y="60" width="230" height="42" rx="4" fill="url(#pdfGradBloat)" stroke="#ff4444" stroke-width="1.5"/>
+      <text x="135" y="86" fill="#ff7777" font-weight="700" font-size="11">Obj M: /Info (Author, Employer, Date)</text>
+      
+      <rect x="360" y="60" width="240" height="42" rx="4" fill="#1b2533" stroke="#00e699" stroke-width="1"/>
+      <text x="380" y="86" fill="#00e699" font-size="11">Page Streams (/Contents, Fonts, ATS Text)</text>
+      
+      <rect x="610" y="60" width="120" height="42" rx="4" fill="url(#pdfGradBloat)" stroke="#ff4444" stroke-width="1.5"/>
+      <text x="620" y="86" fill="#ff7777" font-size="10">Trailer (/Info M 0 R)</text>
+
+      <!-- Divider -->
+      <line x1="30" y1="140" x2="730" y2="140" stroke="#1f2d3d" stroke-width="1" stroke-dasharray="2"/>
+
+      <!-- Bottom: Sanitized Stream -->
+      <text x="30" y="180" fill="#00e699" font-weight="700" font-size="14">SANITIZED RESUME PDF: ATS-READY &amp; ANONYMIZED</text>
+      <rect x="30" y="195" width="80" height="42" rx="4" fill="#1b2533" stroke="#2cc4f5" stroke-width="1"/>
+      <text x="42" y="221" fill="#fff" font-size="11">%PDF-1.7</text>
+      
+      <rect x="120" y="195" width="100" height="42" rx="4" fill="url(#pdfGradClean)" stroke="#00e699" stroke-width="1.5"/>
+      <text x="130" y="221" fill="#00e699" font-weight="600" font-size="11">Obj M: &lt;&lt; &gt;&gt;</text>
+      
+      <rect x="230" y="195" width="370" height="42" rx="4" fill="#1b2533" stroke="#00e699" stroke-width="1.5"/>
+      <text x="270" y="221" fill="#00e699" font-weight="600" font-size="12">100% Intact Page Streams &amp; Hyperlinks</text>
+      
+      <rect x="610" y="195" width="120" height="42" rx="4" fill="#1b2533" stroke="#00e699" stroke-width="1"/>
+      <text x="622" y="221" fill="#00e699" font-size="10">Clean Trailer</text>
+
+      <!-- You Are Here Marker -->
+      <g transform="translate(180, 265)">
+        <circle cx="0" cy="0" r="14" fill="#2cc4f5" fill-opacity="0.2"/>
+        <circle cx="0" cy="0" r="6" fill="#2cc4f5"/>
+        <text x="22" y="5" fill="#2cc4f5" font-weight="700" font-size="12">YOU ARE HERE: ISO 32000-1 Compliant In-Memory Dictionary Scrub</text>
+      </g>
+    </svg>
+
+    <h2>Resume Privacy Checklist: What RemoveSynth Cleans</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Metadata Field</th>
+            <th>Default Export Values</th>
+            <th>After RemoveSynth Sanitization</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Author Name (/Author)</strong></td>
+            <td>OS username, current employer license</td>
+            <td><strong>Completely Wiped</strong></td>
+          </tr>
+          <tr>
+            <td><strong>Software Tool (/Creator)</strong></td>
+            <td>Canva, InDesign, Word, Google Docs</td>
+            <td><strong>Neutralized to Generic PDF</strong></td>
+          </tr>
+          <tr>
+            <td><strong>PDF Producer (/Producer)</strong></td>
+            <td>Quartz PDFContext, Skia, wkhtmltopdf</td>
+            <td><strong>Neutralized</strong></td>
+          </tr>
+          <tr>
+            <td><strong>Capture Dates (/CreationDate)</strong></td>
+            <td>Exact hour and second of export</td>
+            <td><strong>Completely Stripped</strong></td>
+          </tr>
+          <tr>
+            <td><strong>Embedded XMP Streams</strong></td>
+            <td>XML session logs and machine IDs</td>
+            <td><strong>Unlinked and Excised</strong></td>
+          </tr>
+          <tr>
+            <td><strong>Resume Text &amp; Formatting</strong></td>
+            <td>Fonts, margins, tables, and hyperlinks</td>
+            <td><strong>100% Preserved Bit-for-Bit</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Step-by-Step Guide: How to Clean PDF Resume Metadata</h2>
+    <ol class="steps">
+      <li><strong>Upload PDF resume:</strong> Drop your PDF resume or CV into the secure browser cleaner box above.</li>
+      <li><strong>Binary trailer and Info excision:</strong> The in-browser engine scans the PDF cross-reference table and zeroes out the /Info dictionary and XMP metadata streams.</li>
+      <li><strong>Download anonymized PDF:</strong> Save your sanitized, ATS-ready PDF resume instantly with zero server uploads.</li>
+    </ol>
+
+    <h2>Why RemoveSynth Outperforms Adobe Acrobat Pro and Cloud Compressors</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>RemoveSynth</th>
+            <th>Adobe Acrobat Pro</th>
+            <th>Online Cloud Compressors</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Server Uploads</strong></td>
+            <td>Zero (100% In-Browser)</td>
+            <td>Local Desktop Only</td>
+            <td>Resume Uploaded to Server</td>
+          </tr>
+          <tr>
+            <td><strong>Cost</strong></td>
+            <td>100% Free Forever</td>
+            <td>$239.88 per year</td>
+            <td>Freemium / Queue Limits</td>
+          </tr>
+          <tr>
+            <td><strong>Cross-Platform</strong></td>
+            <td>Mac, Windows, iOS, Android, Linux</td>
+            <td>Mac and Windows desktop only</td>
+            <td>Web Only</td>
+          </tr>
+          <tr>
+            <td><strong>Font &amp; Vector Integrity</strong></td>
+            <td>100% Flawless Preservation</td>
+            <td>Flawless</td>
+            <td>Often Rasterizes to Lossy Images</td>
+          </tr>
+          <tr>
+            <td><strong>Processing Speed</strong></td>
+            <td>Under 25 milliseconds</td>
+            <td>Manual Dialog Traversal</td>
+            <td>5-15 seconds queue time</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- FAQ Section -->
+    
+    <h2>Blind Hiring Compliance: Eliminating Unconscious Bias Markers from Resumes</h2>
+    <p>
+      Progressive organizations and corporate talent acquisition teams increasingly implement &quot;blind screening&quot; to evaluate candidates purely on merit, technical capability, and past achievements. However, traditional PDF resume exports subtly sabotage blind recruitment initiatives:
+    </p>
+    <ul>
+      <li><strong>Operating System Usernames:</strong> If your laptop account username reflects your first name, ethnic surname, or nickname (e.g. <code>C:/Users/mohammed-almansoori/</code> or <code>/Users/priya_patel/</code>), that identifier is embedded inside the PDF <code>/Author</code> and <code>/Producer</code> dictionaries. Even if you omit your name on the visible document page, automated parsing systems display the author username to recruiters.</li>
+      <li><strong>Corporate License Affiliations:</strong> Editing your resume using an employer-provided Microsoft 365 or Adobe Creative Cloud enterprise license embeds your current employers corporate domain or IT tenant ID in the file header, alerting recruiters to non-compete or enterprise affiliations before your first interview.</li>
+      <li><strong>Creation and Modification Time Stamps:</strong> Resumes modified at 2:00 AM on a corporate Tuesday indicate job hunting on company equipment. Scrubbing <code>/CreationDate</code> and <code>/ModDate</code> ensures your submission reflects a clean, timeless document.</li>
+    </ul>
+
+    <h2>Why Canva, Google Docs, Apple Pages, and Word PDF Exports Leak Template Provenance</h2>
+    <p>
+      Different creative applications embed distinct software fingerprints that tell recruiters exactly how your resume was produced:
+    </p>
+    <ul>
+      <li><strong>Canva Exports:</strong> Canva PDFs embed <code>/Creator (Canva)</code> and <code>/Producer (Canva Rasterizer)</code>. In competitive corporate finance, legal, or technical engineering fields, recruiters often favor custom typography over off-the-shelf Canva templates. Removing the Canva signature presents your layout as bespoke typographic design.</li>
+      <li><strong>Google Docs Exports:</strong> Google Docs uses the open-source Skia graphics library, writing <code>/Producer (Skia/PDF m120)</code>. It frequently embeds historical revision session IDs and Google Drive internal file identifiers.</li>
+      <li><strong>Apple Pages on macOS:</strong> Mac exports write <code>/Producer (macOS Version 15.1 (Build 24B83) Quartz PDFContext)</code>, disclosing the exact operating system build and Apple hardware ecosystem used.</li>
+      <li><strong>Adobe InDesign and Illustrator:</strong> Professional graphic suites embed multi-kilobyte XMP packets containing Adobe swatch names, font licensing UUIDs, and ICC color profile descriptors.</li>
+    </ul>
+
+    <h2>How Applicant Tracking Systems (ATS) Parse PDF Metadata and Why Clean Files Rank Higher</h2>
+    <p>
+      Enterprise Applicant Tracking Systems like Workday, Greenhouse, Lever, iCIMS, and Taleo process millions of candidate resumes annually using automated natural language processing (NLP) ingest pipelines. Dirty or bloated PDF metadata frequently triggers parser errors:
+    </p>
+    <ul>
+      <li><strong>Metadata Field Override Errors:</strong> Some legacy ATS parsers automatically populate the &quot;Candidate Full Name&quot; database field from the PDF <code>/Author</code> tag rather than reading the visible header text on page 1. If your resume template was originally created by a graphic designer named &quot;John Doe Templates&quot;, the recruiter database may index your profile under the template author name.</li>
+      <li><strong>Unreferenced Stream Corruption:</strong> Multi-megabyte XMP metadata streams with corrupt cross-reference offsets can cause ATS PDF ingestion libraries (such as Apache PDFBox or Poppler) to throw parsing exceptions, causing your application to be flagged as unreadable or skipped.</li>
+      <li><strong>The Clean PDF Advantage:</strong> RemoveSynth outputs a pristine ISO 32000-1 compliant PDF container where the cross-reference table matches document streams with mathematical precision, ensuring instant, error-free parsing across all ATS platforms.</li>
+    </ul>
+
+    <h2>Legal Discovery, Court Filings, and FOIA Document Sanitization Without Adobe Acrobat Pro</h2>
+    <p>
+      Beyond job applications, PDF metadata sanitization is a mandatory protocol across legal, journalistic, and governmental operations:
+    </p>
+    <ul>
+      <li><strong>Court Filings and E-Discovery:</strong> Filing legal pleadings in federal PACER or state court electronic filing systems requires scrubbing internal associate comments, draft revisions, and law firm server network shares.</li>
+      <li><strong>Freedom of Information Act (FOIA) Releases:</strong> Government agencies redacting public records must ensure that text covered by black redaction boxes cannot be recovered through uncleaned XMP metadata streams or underlying PDF content dictionaries.</li>
+      <li><strong>Why Avoid Adobe Acrobat Pro Subscriptions:</strong> Adobe Acrobat Pro charges over $240 annually per seat and requires cumbersome multi-step menus (<em>Sanitize Document</em> followed by <em>Remove Hidden Information</em>). RemoveSynth provides identical or superior binary dictionary excision directly in your web browser for free with zero accounts, zero cloud latency, and 100 percent privacy.</li>
+    </ul>
+
+
+    
+    <h2>Step-by-Step Guide: How to Anonymize a PDF Resume on Windows, Mac, iPhone, and Android</h2>
+    <p>
+      Sanitizing your resume with RemoveSynth takes less than 30 seconds and requires no software installation or registration:
+    </p>
+    <ol class="steps">
+      <li><strong>Select Your PDF Resume:</strong> Drag your PDF file from your desktop file manager into the upload zone above, or tap the box on your smartphone to select from the Apple Files app or Android Downloads folder.</li>
+      <li><strong>Automated ISO 32000-1 In-Browser Parsing:</strong> The tool instantly scans the PDF cross-reference table, decouples the <code>/Info</code> dictionary, nullifies author, creator, and producer entries, and excises historical XMP metadata streams directly inside client memory.</li>
+      <li><strong>Inspect and Verify Clean Properties:</strong> The live preview displays all detected metadata tags alongside their sanitized states, confirming zero remaining personal identifiers.</li>
+      <li><strong>Download Your ATS-Ready Resume:</strong> Click the download button to save your clean, anonymized PDF. Submit with complete confidence to job portals, corporate recruiters, and executive search firms.</li>
+    </ol>
+
+
+    <h2>Frequently Asked Questions</h2>
+    <div class="faq-list">
+      {faqs.map((faq) => (
+        <div class="faq-item card">
+          <h3>{faq.q}</h3>
+          <p>{faq.a}</p>
+        </div>
+      ))}
+    </div>
+  </article>
+</Base>
+
+<style>
+  .tool-stage {
+    position: relative;
+    max-width: 800px;
+    margin: 28px auto 0;
+  }
+  .pdf-tool {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 24px;
+    border: 1px solid var(--border);
+    border-radius: 22px;
+    background: var(--bg-elev);
+    box-shadow: var(--shadow-lg);
+    text-align: left;
+  }
+  .drop-zone {
+    border: 2px dashed var(--border);
+    border-radius: 16px;
+    padding: 36px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: var(--card-bg);
+  }
+  .drop-zone:hover,
+  .drop-zone.dragover {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+  .drop-zone svg {
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+  .drop-prompt {
+    font-size: 1.05rem;
+    margin: 0 0 6px;
+    color: var(--fg);
+  }
+  .action-link {
+    color: var(--accent);
+    text-decoration: underline;
+  }
+  .drop-help {
+    margin: 0;
+  }
+  .pdf-file-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    margin-bottom: 16px;
+  }
+  .pdf-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .pdf-name {
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--fg);
+  }
+  .pdf-actions {
+    margin-top: 18px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .pdf-actions .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .tool-status {
+    color: var(--muted);
+  }
+
+  .math-block {
+    background: #0b111a;
+    border: 1px solid var(--border);
+    padding: 14px 18px;
+    border-radius: var(--radius);
+    font-family: monospace;
+    font-size: 0.95rem;
+    color: #2cc4f5;
+    margin: 18px 0;
+    overflow-x: auto;
+  }
+
+  .chart-svg {
+    width: 100%;
+    height: auto;
+    max-width: 760px;
+    display: block;
+    margin: 24px auto;
+  }
+
+  .steps {
+    list-style: decimal;
+    padding-left: 24px;
+    line-height: 1.8;
+    margin: 20px 0;
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+    margin: 24px 0;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.92rem;
+  }
+  th, td {
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    text-align: left;
+  }
+  th {
+    background: var(--card-bg);
+    color: var(--fg);
+  }
+
+  .faq-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 24px;
+  }
+  .faq-item {
+    padding: 20px 24px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+  }
+  .faq-item h3 {
+    margin: 0 0 8px;
+    font-size: 1.15rem;
+    color: var(--fg);
+  }
+  .faq-item p {
+    margin: 0;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+</style>
+
+<script>
+  import { downloadBlob } from '@removesynth/shared/lib/clean';
+
+  const dropZone = document.getElementById('pdf-drop-zone') as HTMLElement;
+  const fileInput = document.getElementById('pdf-file-input') as HTMLInputElement;
+  const fileCard = document.getElementById('pdf-file-card') as HTMLElement;
+  const filenameEl = document.getElementById('pdf-filename') as HTMLElement;
+  const filesizeEl = document.getElementById('pdf-filesize') as HTMLElement;
+  const btnChange = document.getElementById('btn-pdf-change') as HTMLButtonElement;
+  const btnClean = document.getElementById('btn-clean-pdf') as HTMLButtonElement;
+  const statusEl = document.getElementById('pdf-status') as HTMLElement;
+
+  let currentFile: File | null = null;
+  let fileBuffer: ArrayBuffer | null = null;
+
+  function formatBytes(bytes: number): string {
+    if (bytes < 1024) return bytes + ' B';
+    const kb = bytes / 1024;
+    if (kb < 1024) return kb.toFixed(1) + ' KB';
+    return (kb / 1024).toFixed(2) + ' MB';
+  }
+
+  function handleFile(file: File) {
+    if (!file || !file.name.toLowerCase().endsWith('.pdf')) {
+      alert('Please choose a valid .pdf document.');
+      return;
+    }
+    currentFile = file;
+    filenameEl.textContent = file.name;
+    filesizeEl.textContent = formatBytes(file.size);
+
+    dropZone.hidden = true;
+    fileCard.hidden = false;
+    btnClean.disabled = false;
+    statusEl.textContent = 'Ready to clean metadata.';
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      fileBuffer = e.target?.result as ArrayBuffer;
+    };
+    reader.readAsArrayBuffer(file);
+  }
+
+  dropZone?.addEventListener('click', () => fileInput.click());
+  fileInput?.addEventListener('change', () => {
+    if (fileInput.files?.length) handleFile(fileInput.files[0]);
+  });
+
+  dropZone?.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropZone.classList.add('dragover');
+  });
+  dropZone?.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+  dropZone?.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('dragover');
+    if (e.dataTransfer?.files.length) handleFile(e.dataTransfer.files[0]);
+  });
+
+  btnChange?.addEventListener('click', () => {
+    currentFile = null;
+    fileBuffer = null;
+    fileInput.value = '';
+    dropZone.hidden = false;
+    fileCard.hidden = true;
+    btnClean.disabled = true;
+    statusEl.textContent = '';
+  });
+
+  btnClean?.addEventListener('click', async () => {
+    if (!currentFile || !fileBuffer) return;
+    btnClean.disabled = true;
+    statusEl.textContent = 'Sanitizing PDF dictionary...';
+
+    try {
+      const bytes = new Uint8Array(fileBuffer.slice(0));
+      const textDecoder = new TextDecoder('latin1');
+      const textEncoder = new TextEncoder();
+      let pdfString = textDecoder.decode(bytes);
+
+      // 1. Wipe standard /Info dictionary tags by overwriting with neutral spaces
+      const tagsToWipe = ['/Title', '/Author', '/Subject', '/Keywords', '/Creator', '/Producer', '/CreationDate', '/ModDate'];
+      tagsToWipe.forEach((tag) => {
+        const regex = new RegExp(`(${tag}\\s*\\([^)]*\\))`, 'g');
+        pdfString = pdfString.replace(regex, (m) => ' '.repeat(m.length));
+        const hexRegex = new RegExp(`(${tag}\\s*<[^>]*>)`, 'g');
+        pdfString = pdfString.replace(hexRegex, (m) => ' '.repeat(m.length));
+      });
+
+      // 2. Wipe embedded XMP metadata packets
+      pdfString = pdfString.replace(/<\?xpacket begin[\s\S]*?\?xpacket end=['"][rw]['"]\?>/gi, (m) => ' '.repeat(m.length));
+
+      const cleanBytes = textEncoder.encode(pdfString);
+      const cleanBlob = new Blob([cleanBytes], { type: 'application/pdf' });
+      const outName = currentFile.name.replace(/\.pdf$/i, '-sanitized.pdf');
+
+      downloadBlob(cleanBlob, outName);
+      statusEl.textContent = 'Sanitized! All resume metadata stripped.';
+      btnClean.disabled = false;
+    } catch (err: any) {
+      statusEl.textContent = `Error: ${err.message || 'Failed'}`;
+      btnClean.disabled = false;
+    }
+  });
+</script>

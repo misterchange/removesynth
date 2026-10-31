@@ -1,0 +1,127 @@
+---
+import Base from '../layouts/Base.astro';
+import Faq from '@removesynth/shared/components/Faq.astro';
+import Checker from '@removesynth/shared/components/Checker.astro';
+import { faqSchema, type FaqItem } from '@removesynth/shared/lib/faq';
+import { PLATFORMS, GENERATORS } from '@removesynth/shared/data/explainers';
+import { SITES } from '@removesynth/shared/sites';
+import { SITE } from '../site';
+
+const title = 'Check AI or Not: Free AI Image Checker for C2PA & AI Metadata';
+const faqs: FaqItem[] = [
+  {
+    q: 'Can CheckAIorNot tell if an image is AI?',
+    a: 'It tells you whether the file says it’s AI. Many AI tools write Content Credentials (C2PA) or IPTC tags into their images, and the checker reads them. It does not analyse the pixels, so it can’t catch AI images that carry no labels.',
+  },
+  {
+    q: 'What does the checker look for?',
+    a: 'Content Credentials (C2PA) and the tool that made them, the IPTC digital source type, AI credits in XMP and EXIF, Stable Diffusion and ComfyUI parameters in PNG files, and private data such as GPS location, camera serial numbers and names.',
+  },
+  {
+    q: 'Can it detect SynthID?',
+    a: 'No. SynthID is hidden in the pixels, not in metadata. Use Google’s SynthID Detector; our SynthID detector guide explains how.',
+  },
+  {
+    q: 'Is my image uploaded?',
+    a: 'No. The checker reads the file inside your browser. Nothing is sent to a server.',
+  },
+  {
+    q: 'Does “no AI metadata found” mean the image is real?',
+    a: 'No. Metadata is easy to lose when a file is re-saved or screenshotted, and some AI tools add none. A clean result only means the file doesn’t declare itself as AI.',
+  },
+  {
+    q: 'Do you verify the C2PA signature?',
+    a: 'Not yet. The checker reads what the manifest says but doesn’t verify its cryptographic signature. Signature checks are coming soon.',
+  },
+];
+
+const schema = [
+  { '@context': 'https://schema.org', '@type': 'WebSite', name: SITE.name, url: SITE.url },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: 'CheckAIorNot AI metadata checker',
+    url: `${SITE.url}/`,
+    applicationCategory: 'MultimediaApplication',
+    operatingSystem: 'Any (web browser)',
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    description: SITE.description,
+  },
+  faqSchema(faqs),
+];
+---
+
+<Base title={title} description={SITE.description} schema={schema}>
+  <section class="hero">
+    <div class="container">
+      <span class="eyebrow">Free · No upload · Instant</span>
+      <h1>Check <span class="accent">AI or not</span></h1>
+      <p class="lead">
+        See whether an image is labelled as AI-made, which tool made it, and what private details it
+        carries, straight from the file’s metadata.
+      </p>
+      <Checker cleanerUrl={`${SITES.removesynth}/photo-metadata-remover/`} synthidUrl="/synthid-detector/" />
+      <ul class="checks">
+        <li>C2PA Content Credentials</li>
+        <li>IPTC AI source type</li>
+        <li>GPS &amp; device data</li>
+      </ul>
+    </div>
+  </section>
+
+  <article class="prose">
+    <h2>What the checker reads</h2>
+    <table>
+      <thead><tr><th>Metadata</th><th>What it tells you</th></tr></thead>
+      <tbody>
+        <tr><td>Content Credentials (C2PA)</td><td>A signed record of how the file was made, often naming the AI tool. Used by Adobe, OpenAI, Microsoft and others.</td></tr>
+        <tr><td>IPTC digital source type</td><td>A standard tag that says “created with generative AI”, “edited with generative AI” or “captured with a camera”.</td></tr>
+        <tr><td>XMP and EXIF</td><td>Credits, software names and descriptions, plus camera, date and location fields.</td></tr>
+        <tr><td>PNG text</td><td>Prompts and settings saved by Stable Diffusion, ComfyUI and other local generators.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>What it can and can’t tell you</h2>
+    <ul>
+      <li><strong>Can:</strong> show you every AI label and private detail written into the file.</li>
+      <li><strong>Can’t:</strong> judge the pixels. An AI image with no labels, or a screenshot of one, will show “No AI metadata found”.</li>
+      <li><strong>Can’t:</strong> see invisible watermarks like SynthID. Read <a href="/synthid-detector/">how to check for SynthID</a>.</li>
+    </ul>
+
+    <h2>How platforms use this metadata</h2>
+    <ul class="link-grid">
+      {PLATFORMS.map((p) => <li><a href={`/platforms/${p.slug}/`}>{p.name}</a></li>)}
+    </ul>
+
+    <h2>What each AI generator writes</h2>
+    <ul class="link-grid">
+      {GENERATORS.map((g) => <li><a href={`${SITES.removesynth}/generators/${g.slug}/`}>{g.name}</a></li>)}
+    </ul>
+
+    <h2>Found private data?</h2>
+    <p>
+      If the checker shows your GPS location, camera serial number or name, the
+      <a href={`${SITES.removesynth}/photo-metadata-remover/`}>photo metadata remover</a> on RemoveSynth
+      strips them and leaves the AI labels in place.
+    </p>
+
+    <Faq items={faqs} heading="Questions" />
+  </article>
+</Base>
+
+<style>
+  .link-grid {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(180px, 100%), 1fr));
+    gap: 8px;
+  }
+  .link-grid a {
+    display: block;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--bg-elev);
+  }
+</style>

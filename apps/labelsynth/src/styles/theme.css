@@ -1,0 +1,13 @@
+/* LabelSynth: same design system as RemoveSynth, with a violet accent. */
+:root {
+  --accent: #a78bfa;
+  --accent-strong: #7c3aed;
+  --accent-light: #8b5cf6;
+  --accent-soft: rgba(167, 139, 250, 0.13);
+  --accent-faint: rgba(167, 139, 250, 0.05);
+  --accent-glow: rgba(124, 58, 237, 0.4);
+  --top-glow: rgba(124, 58, 237, 0.22);
+  --top-tint: #100b1c;
+  --btn-shadow: 0 6px 18px rgba(124, 58, 237, 0.32);
+  --shadow-lg: 0 30px 80px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(167, 139, 250, 0.05);
+}

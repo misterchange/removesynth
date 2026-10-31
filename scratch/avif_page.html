@@ -1,0 +1,938 @@
+﻿<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>AVIF to JPG Converter: Free In-Browser Tool</title><meta name="description" content="Convert modern AVIF images to universally supported JPG files online for free. Fast in-browser batch converter with zero server uploads and no quality loss."><link rel="canonical" href="https://removesynth.com/avif-to-jpg/"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="sitemap" href="/sitemap-index.xml"><meta name="theme-color" content="#070b10"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500&display=swap"><meta property="og:type" content="website"><meta property="og:site_name" content="RemoveSynth"><meta property="og:locale" content="en_US"><meta property="og:title" content="AVIF to JPG Converter: Free In-Browser Tool"><meta property="og:description" content="Convert modern AVIF images to universally supported JPG files online for free. Fast in-browser batch converter with zero server uploads and no quality loss."><meta property="og:url" content="https://removesynth.com/avif-to-jpg/"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="AVIF to JPG Converter: Free In-Browser Tool"><meta name="twitter:description" content="Convert modern AVIF images to universally supported JPG files online for free. Fast in-browser batch converter with zero server uploads and no quality loss."><script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"AVIF to JPG Converter","url":"https://removesynth.com/avif-to-jpg/","applicationCategory":"MultimediaApplication","operatingSystem":"All","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Convert modern AVIF images to universally supported JPG files online for free. Fast in-browser batch converter with zero server uploads and no quality loss."},{"@type":"HowTo","name":"How to convert AVIF images to JPG online","step":[{"@type":"HowToStep","position":1,"name":"Select AVIF photos","text":"Drag and drop your AVIF files into the upload box above or tap to browse your local device files."},{"@type":"HowToStep","position":2,"name":"Automatic in-browser conversion","text":"The converter decodes the AV1 bitstream and renders high-quality JPG frames in browser memory."},{"@type":"HowToStep","position":3,"name":"Download JPG files","text":"Save your converted JPEG files individually or download all converted files at once in a single ZIP package."}]},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is an AVIF file and why does my computer fail to open it?","acceptedAnswer":{"@type":"Answer","text":"AVIF (AV1 Image File Format) is a modern compression format developed by the Alliance for Open Media based on the AV1 video codec. While modern web browsers like Chrome and Safari display AVIF natively, legacy desktop applications like older Adobe Photoshop versions, Windows Photo Viewer, and many CMS upload portals lack native decoders and refuse to open the file."}},{"@type":"Question","name":"Does converting AVIF to JPG reduce image quality?","acceptedAnswer":{"@type":"Answer","text":"Our converter decodes the raw uncompressed RGB pixel buffer from the AV1 bitstream and writes a high-fidelity JPEG using a quality factor of 92 with standard 4:4:4 or 4:2:0 chroma subsampling. The visual degradation is imperceptible to the human eye, maintaining crisp details and accurate color gradients."}},{"@type":"Question","name":"Are my private photos uploaded to an external server?","acceptedAnswer":{"@type":"Answer","text":"No. All AV1 stream parsing, pixel canvas decoding, and JPEG compression take place 100 percent locally inside your web browser memory. Your files never touch a remote server, third-party cloud, or external database."}},{"@type":"Question","name":"Can I batch-convert multiple AVIF images simultaneously?","acceptedAnswer":{"@type":"Answer","text":"Yes. You can drag and drop up to 30 AVIF files at once. The tool processes the batch in parallel Web Workers and lets you download individual JPG images or a consolidated ZIP archive with one click."}},{"@type":"Question","name":"How do I convert AVIF to JPG on Windows 10 or Windows 11 without software?","acceptedAnswer":{"@type":"Answer","text":"You do not need to install codecs or desktop software. Simply drop your AVIF files into this page in any web browser (Chrome, Edge, Firefox, or Brave) and download standard JPEG copies instantly."}},{"@type":"Question","name":"Does this converter support 10-bit and HDR AVIF photos?","acceptedAnswer":{"@type":"Answer","text":"Yes. High dynamic range 10-bit and 12-bit AVIF images captured on modern smartphones are accurately tone-mapped into standard 8-bit sRGB color space for universal compatibility across all legacy monitors and photo printing kiosks."}}]},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://removesynth.com/"},{"@type":"ListItem","position":2,"name":"Tools","item":"https://removesynth.com/tools/"},{"@type":"ListItem","position":3,"name":"AVIF to JPG Converter","item":"https://removesynth.com/avif-to-jpg/"}]}]}</script><style data-vite-dev-id="D:/Nitin/removesynth/packages/shared/src/styles/base.css">:root {
+  /* Dark "deep pool" palette with water-blue accents */
+  --bg: #070b10;
+  --bg-elev: #0d141c;
+  --bg-elev-2: #121c26;
+  --border: #1b2834;
+  --border-strong: #27394a;
+  --text: #eef5fa;
+  --muted: #8ea3b4;
+  --accent: #2cc4f5;
+  --accent-strong: #0ea5e9;
+  --accent-soft: rgba(44, 196, 245, 0.12);
+  --accent-faint: rgba(44, 196, 245, 0.05);
+  --accent-glow: rgba(14, 165, 233, 0.38);
+  --accent-light: #22c3f2;
+  --top-glow: rgba(14, 165, 233, 0.22);
+  --top-tint: #08131c;
+  --btn-shadow: 0 6px 18px rgba(2, 132, 199, 0.28);
+  --accent-2: #2dd4bf;
+  --ok: #34d399;
+  --err: #f87171;
+  --checker: rgba(255, 255, 255, 0.05);
+  --jitter: rgba(142, 163, 180, 0.42);
+  --radius: 16px;
+  --maxw: 1120px;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 30px rgba(0, 0, 0, 0.25);
+  --shadow-lg: 0 30px 80px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(44, 196, 245, 0.04);
+  --font: 'Geist', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  --mono: 'Geist Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+body {
+  margin: 0;
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 17px;
+  line-height: 1.65;
+  background:
+    radial-gradient(1100px 560px at 50% -160px, var(--top-glow) 0%, transparent 70%),
+    linear-gradient(var(--top-tint) 0, var(--bg) 680px);
+  background-color: var(--bg);
+  background-repeat: no-repeat;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+img,
+video {
+  max-width: 100%;
+  height: auto;
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+  font-weight: 800;
+}
+h1 {
+  font-size: clamp(2.2rem, 6vw, 3.9rem);
+  margin: 0 0 0.4em;
+}
+h2 {
+  font-size: clamp(1.6rem, 3.4vw, 2.3rem);
+  margin: 2em 0 0.6em;
+}
+h3 {
+  font-size: 1.15rem;
+  letter-spacing: -0.01em;
+  font-weight: 700;
+  margin: 1.6em 0 0.4em;
+}
+
+.container {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 0 16px;
+}
+.prose {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0 16px 64px;
+}
+.prose li {
+  margin: 0.35em 0;
+}
+.muted {
+  color: var(--muted);
+}
+.small {
+  font-size: 0.85rem;
+}
+.accent {
+  color: var(--accent);
+}
+
+/* Header */
+.site-header {
+  background: rgba(7, 11, 16, 0.78);
+  backdrop-filter: saturate(1.4) blur(12px);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 64px;
+  flex-wrap: wrap;
+}
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 800;
+  font-size: 1.15rem;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+.logo:hover {
+  text-decoration: none;
+}
+.logo b {
+  color: var(--accent);
+  font-weight: 800;
+}
+.logo-mark {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--accent-light), var(--accent-strong));
+  box-shadow: inset 0 -6px 0 rgba(255, 255, 255, 0.25);
+}
+.nav {
+  display: flex;
+  gap: 2px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex-wrap: wrap;
+}
+.nav a {
+  color: var(--muted);
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.92rem;
+  font-weight: 500;
+}
+.nav a:hover {
+  color: var(--text);
+  background: var(--bg-elev-2);
+  text-decoration: none;
+}
+.nav a[aria-current='page'] {
+  color: var(--accent);
+  background: var(--accent-soft);
+  text-decoration: none;
+}
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.lang {
+  position: relative;
+}
+.lang summary {
+  list-style: none;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 6px 10px;
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  background: var(--bg-elev);
+}
+.lang summary::-webkit-details-marker {
+  display: none;
+}
+.lang ul {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  list-style: none;
+  margin: 0;
+  padding: 6px;
+  min-width: 140px;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  z-index: 20;
+}
+.lang a {
+  display: block;
+  padding: 6px 10px;
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 0.92rem;
+}
+.lang a:hover,
+.lang a[aria-current='true'] {
+  background: var(--accent-soft);
+  text-decoration: none;
+}
+@media (max-width: 640px) {
+  .header-right {
+    width: 100%;
+  }
+  .header-right nav {
+    flex: 1;
+    min-width: 0;
+  }
+  .header-inner {
+    padding-top: 10px;
+    gap: 4px;
+  }
+  .header-inner nav {
+    width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .nav {
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    margin: 0 -12px;
+    padding-bottom: 6px;
+  }
+}
+
+/* Hero */
+.hero {
+  padding: 56px 0 32px;
+  text-align: center;
+}
+.hero p.lead {
+  font-size: 1.2rem;
+  color: var(--muted);
+  max-width: 640px;
+  margin: 0 auto 32px;
+}
+.eyebrow {
+  display: inline-block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 14px;
+}
+.gradient-text {
+  color: var(--accent);
+}
+.checks {
+  list-style: none;
+  padding: 0;
+  margin: 24px 0 0;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px 22px;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+.checks li::before {
+  content: '';
+  color: var(--ok);
+  font-weight: 700;
+  margin-right: 8px;
+}
+
+/* Sections */
+.section {
+  padding: 24px 0;
+}
+.section-head {
+  text-align: center;
+  max-width: 680px;
+  margin: 0 auto 28px;
+}
+.section-head h2 {
+  margin-top: 1.2em;
+}
+.section-head p {
+  color: var(--muted);
+  margin: 0;
+}
+.kicker {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+/* Cards / grid */
+.grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
+}
+.card {
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px;
+  box-shadow: var(--shadow);
+}
+.card h3 {
+  margin-top: 0;
+}
+.card p {
+  margin-bottom: 0;
+  color: var(--muted);
+}
+.card .dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  margin-right: 10px;
+  vertical-align: middle;
+}
+.steps {
+  counter-reset: step;
+  list-style: none;
+  padding: 0;
+}
+.steps li {
+  counter-increment: step;
+  position: relative;
+  padding-left: 48px;
+  margin: 16px 0;
+}
+.steps li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 22px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  background: linear-gradient(180deg, var(--accent-light), var(--accent-strong));
+  color: #fff;
+  box-shadow: var(--btn-shadow);
+}
+.btn:hover {
+  text-decoration: none;
+  filter: brightness(1.05);
+}
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+.btn-ghost {
+  background: var(--bg-elev);
+  border-color: var(--border-strong);
+  color: var(--text);
+  box-shadow: none;
+}
+
+/* FAQ */
+.faq details {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg-elev);
+  padding: 14px 18px;
+  margin: 10px 0;
+}
+.faq summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+.faq details p {
+  color: var(--muted);
+  margin: 10px 0 0;
+}
+
+/* Tables */
+.prose table,
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  display: block;
+  overflow-x: auto;
+  margin: 24px 0;
+  font-size: 0.95rem;
+}
+.prose th,
+.prose td,
+.table th,
+.table td {
+  border: 1px solid var(--border);
+  padding: 8px 12px;
+  text-align: left;
+}
+.prose th,
+.table th {
+  background: var(--bg-elev-2);
+}
+
+/* Callout */
+.callout {
+  border-left: 3px solid var(--accent);
+  background: var(--accent-soft);
+  padding: 14px 18px;
+  border-radius: 0 12px 12px 0;
+  margin: 24px 0;
+}
+
+/* Footer */
+.site-footer {
+  border-top: 1px solid var(--border);
+  background: var(--bg-elev);
+  margin-top: 64px;
+  padding: 36px 0;
+}
+.footer-inner {
+  display: grid;
+  gap: 20px;
+}
+.footer-cols {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+  gap: 24px;
+}
+.footer-heading {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin: 0 0 8px;
+}
+.footer-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 6px;
+  font-size: 0.95rem;
+}
+
+/* Blog list */
+.post-list {
+  list-style: none;
+  padding: 0;
+}
+.post-list li {
+  border-bottom: 1px solid var(--border);
+  padding: 20px 0;
+}
+.post-list h2 {
+  margin: 0 0 6px;
+  font-size: 1.3rem;
+}
+</style><style data-vite-dev-id="D:/Nitin/removesynth/packages/shared/src/components/Jitter.astro?astro&amp;type=style&amp;index=0&amp;lang.css">.jitter[data-astro-cid-rkmvl6dc] {
+  position: absolute;
+  top: 0;
+  width: 230px;
+  display: grid;
+  grid-template-columns: repeat(22, 1fr);
+  font-family: var(--mono);
+  font-size: 15px;
+  line-height: 24px;
+  color: var(--jitter);
+  pointer-events: none;
+  user-select: none;
+  white-space: pre;
+  -webkit-mask-image: radial-gradient(closest-side, #000 55%, #0000 100%);
+  mask-image: radial-gradient(closest-side, #000 55%, #0000 100%);
+}
+
+.jitter-left[data-astro-cid-rkmvl6dc] {
+  right: calc(100% + 28px);
+}
+
+.jitter-right[data-astro-cid-rkmvl6dc] {
+  left: calc(100% + 28px);
+}
+
+.jitter[data-astro-cid-rkmvl6dc] span {
+  text-align: center;
+  transition: color .4s;
+}
+
+.jitter[data-astro-cid-rkmvl6dc] .hot {
+  color: var(--accent);
+}
+
+@media (width <= 1260px) {
+  .jitter[data-astro-cid-rkmvl6dc] {
+    display: none;
+  }
+}
+</style><style data-vite-dev-id="D:/Nitin/removesynth/packages/shared/src/components/ToolDrop.astro?astro&amp;type=style&amp;index=0&amp;lang.css">.tool-stage[data-astro-cid-7m2cxqgg] {
+  position: relative;
+  max-width: 820px;
+  margin: 0 auto;
+}
+
+.tool-drop[data-astro-cid-7m2cxqgg] {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 18px;
+  text-align: left;
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  background: var(--bg-elev);
+  box-shadow: var(--shadow-lg);
+}
+
+svg[data-astro-cid-7m2cxqgg] {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.dz[data-astro-cid-7m2cxqgg] {
+  display: grid;
+  place-items: center;
+  gap: 8px;
+  text-align: center;
+  padding: 52px 20px 48px;
+  border: 2px dashed var(--border-strong);
+  border-radius: 20px;
+  background: linear-gradient(180deg, var(--accent-faint), transparent);
+  cursor: pointer;
+  transition: border-color .15s, background-color .15s;
+}
+
+.dz[data-astro-cid-7m2cxqgg]:hover, .dz[data-astro-cid-7m2cxqgg].drag {
+  border-color: var(--accent);
+  background-color: var(--accent-soft);
+}
+
+.dz-icon[data-astro-cid-7m2cxqgg] {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  color: #fff;
+  background: linear-gradient(180deg, var(--accent-light), var(--accent-strong));
+  box-shadow: 0 10px 28px var(--accent-glow);
+  margin-bottom: 8px;
+}
+
+.dz-icon[data-astro-cid-7m2cxqgg] svg[data-astro-cid-7m2cxqgg] {
+  width: 26px;
+  height: 26px;
+  stroke-width: 2px;
+}
+
+.dz-title[data-astro-cid-7m2cxqgg] {
+  font-size: 1.4rem;
+  letter-spacing: -.02em;
+}
+
+.dz-sub[data-astro-cid-7m2cxqgg], .dz-meta[data-astro-cid-7m2cxqgg] {
+  color: var(--muted);
+}
+
+.footnote[data-astro-cid-7m2cxqgg] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 16px 0 2px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.footnote[data-astro-cid-7m2cxqgg] svg[data-astro-cid-7m2cxqgg] {
+  width: 15px;
+  height: 15px;
+  flex: none;
+}
+
+@media (width <= 520px) {
+  .tool-drop[data-astro-cid-7m2cxqgg] {
+    padding: 10px;
+    border-radius: 22px;
+  }
+
+  .dz[data-astro-cid-7m2cxqgg] {
+    padding: 34px 14px;
+  }
+}
+</style><style data-vite-dev-id="D:/Nitin/removesynth/apps/removesynth/src/components/ImageTool.astro?astro&amp;type=style&amp;index=0&amp;lang.css">.opts[data-astro-cid-xz2m5hk2] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 18px;
+  align-items: flex-end;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+.field[data-astro-cid-xz2m5hk2] {
+  display: grid;
+  gap: 6px;
+  font-size: .85rem;
+  color: var(--muted);
+}
+
+.target[data-astro-cid-xz2m5hk2] {
+  display: flex;
+  gap: 6px;
+}
+
+input[data-astro-cid-xz2m5hk2][type="number"], select[data-astro-cid-xz2m5hk2] {
+  font: inherit;
+  font-size: 1rem;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  padding: 8px 10px;
+}
+
+input[data-astro-cid-xz2m5hk2][type="number"] {
+  width: 96px;
+}
+
+.quality-field[data-astro-cid-xz2m5hk2] {
+  min-width: 200px;
+}
+
+.quality[data-astro-cid-xz2m5hk2] {
+  accent-color: var(--accent);
+}
+
+.presets[data-astro-cid-xz2m5hk2] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chip[data-astro-cid-xz2m5hk2] {
+  font: inherit;
+  font-size: .85rem;
+  font-weight: 600;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border-strong);
+  background: var(--bg);
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.chip[data-astro-cid-xz2m5hk2][aria-pressed="true"] {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.results[data-astro-cid-xz2m5hk2] {
+  margin-top: 16px;
+}
+
+.bar[data-astro-cid-xz2m5hk2] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.bar-actions[data-astro-cid-xz2m5hk2] {
+  display: flex;
+  gap: 8px;
+}
+
+.bar[data-astro-cid-xz2m5hk2] .btn[data-astro-cid-xz2m5hk2] {
+  padding: 8px 14px;
+  font-size: .9rem;
+}
+
+.rows[data-astro-cid-xz2m5hk2] {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.rows[data-astro-cid-xz2m5hk2] li {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 10px 12px;
+  background: var(--bg-elev-2);
+}
+
+.rows[data-astro-cid-xz2m5hk2] img {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 8px;
+  flex: none;
+  background: var(--bg);
+}
+
+.rows[data-astro-cid-xz2m5hk2] .info {
+  flex: 1;
+  min-width: 0;
+}
+
+.rows[data-astro-cid-xz2m5hk2] .name {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.rows[data-astro-cid-xz2m5hk2] .note {
+  margin: 2px 0 0;
+  font-size: .85rem;
+  color: var(--muted);
+}
+
+.rows[data-astro-cid-xz2m5hk2] .note .ok {
+  color: var(--ok);
+  font-weight: 600;
+}
+
+.rows[data-astro-cid-xz2m5hk2] .note .warn {
+  color: var(--err);
+  font-weight: 600;
+}
+
+.rows[data-astro-cid-xz2m5hk2] a.btn {
+  padding: 6px 12px;
+  font-size: .85rem;
+  flex: none;
+}
+</style><style data-vite-dev-id="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro?astro&amp;type=style&amp;index=0&amp;lang.css">.hero[data-astro-cid-pcehiop7] {
+  text-align: center;
+  max-width: 860px;
+  margin: 0 auto 36px;
+  padding: 32px 16px 0;
+}
+
+.eyebrow[data-astro-cid-pcehiop7] {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: .8rem;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border: 1px solid #2cc4f540;
+  margin-bottom: 14px;
+}
+
+.hero[data-astro-cid-pcehiop7] h1[data-astro-cid-pcehiop7] {
+  font-size: clamp(2.2rem, 5vw, 3.4rem);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -.03em;
+  margin: 0 0 16px;
+}
+
+.lead[data-astro-cid-pcehiop7] {
+  color: var(--muted);
+  font-size: 1.15rem;
+  line-height: 1.6;
+  margin: 0 auto 28px;
+  max-width: 720px;
+}
+
+.tool-stage[data-astro-cid-pcehiop7] {
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+.prose[data-astro-cid-pcehiop7] {
+  max-width: var(--maxw);
+  margin: 48px auto;
+  padding: 0 16px 80px;
+}
+
+.prose[data-astro-cid-pcehiop7] h2[data-astro-cid-pcehiop7] {
+  font-size: 1.85rem;
+  font-weight: 800;
+  margin: 48px 0 18px;
+  letter-spacing: -.02em;
+  color: var(--fg);
+}
+
+.prose[data-astro-cid-pcehiop7] p[data-astro-cid-pcehiop7] {
+  font-size: 1.05rem;
+  line-height: 1.75;
+  color: var(--muted);
+  margin-bottom: 20px;
+}
+
+.prose[data-astro-cid-pcehiop7] ul[data-astro-cid-pcehiop7] {
+  margin: 0 0 24px 24px;
+  color: var(--muted);
+  line-height: 1.8;
+}
+
+.prose[data-astro-cid-pcehiop7] li[data-astro-cid-pcehiop7] {
+  margin-bottom: 8px;
+}
+
+.prose[data-astro-cid-pcehiop7] code[data-astro-cid-pcehiop7] {
+  background: #0f172a;
+  color: #38bdf8;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: .9em;
+  font-family: monospace;
+}
+
+.math-block[data-astro-cid-pcehiop7] {
+  background: #0b111a;
+  border: 1px solid var(--border);
+  padding: 14px 18px;
+  border-radius: var(--radius);
+  font-family: monospace;
+  font-size: .95rem;
+  color: #38bdf8;
+  margin: 18px 0;
+  overflow-x: auto;
+}
+
+.chart-svg-wrap[data-astro-cid-pcehiop7] {
+  margin: 28px 0;
+  overflow-x: auto;
+}
+
+.chart-svg[data-astro-cid-pcehiop7] {
+  width: 100%;
+  height: auto;
+  max-width: 760px;
+  display: block;
+  margin: 0 auto;
+}
+
+.table-wrap[data-astro-cid-pcehiop7] {
+  overflow-x: auto;
+  margin: 28px 0;
+}
+
+.prose[data-astro-cid-pcehiop7] table[data-astro-cid-pcehiop7] {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .92rem;
+}
+
+.prose[data-astro-cid-pcehiop7] th[data-astro-cid-pcehiop7], .prose[data-astro-cid-pcehiop7] td[data-astro-cid-pcehiop7] {
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  text-align: left;
+}
+
+.prose[data-astro-cid-pcehiop7] th[data-astro-cid-pcehiop7] {
+  background: var(--card-bg);
+  color: var(--fg);
+}
+
+.faq-list[data-astro-cid-pcehiop7] {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.faq-item[data-astro-cid-pcehiop7] {
+  padding: 20px 24px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.faq-item[data-astro-cid-pcehiop7] h3[data-astro-cid-pcehiop7] {
+  margin: 0 0 8px;
+  font-size: 1.15rem;
+  color: var(--fg);
+}
+
+.faq-item[data-astro-cid-pcehiop7] p[data-astro-cid-pcehiop7] {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+</style><script type="module" src="/@vite/client"></script><script type="module" src="/@id/astro/runtime/client/dev-toolbar/entrypoint.js"></script><script>window.__astro_dev_toolbar__ = {"root":"D:\\Nitin\\removesynth\\apps\\removesynth\\","version":"7.4.0","debugInfo":"Astro                    v7.4.0\nNode                     v24.19.0\nSystem                   Windows (x64)\nPackage Manager          npm\nOutput                   static\nAdapter                  none\nIntegrations             @astrojs/sitemap"}</script><script type="module" src="/@fs/D:/Nitin/removesynth/packages/shared/src/styles/base.css"></script><script type="module" src="/@fs/D:/Nitin/removesynth/packages/shared/src/components/Jitter.astro?astro&type=style&index=0&lang.css"></script><script type="module" src="/@fs/D:/Nitin/removesynth/packages/shared/src/components/ToolDrop.astro?astro&type=style&index=0&lang.css"></script><script type="module" src="/src/components/ImageTool.astro?astro&type=style&index=0&lang.css"></script><script type="module" src="/src/pages/avif-to-jpg.astro?astro&type=style&index=0&lang.css"></script></head><body data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="97:9"><header class="site-header" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="98:33"><div class="container header-inner" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="99:43"><a href="/" class="logo" aria-label="RemoveSynth home" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="100:72"><span class="logo-mark" aria-hidden="true" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="101:12"></span><span data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="102:17">Remove<b data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="102:26">Synth</b></span></a><div class="header-right" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="104:35"><nav aria-label="Main" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="105:34"><ul class="nav" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="106:29"><li data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="108:21"><a href="/remove-synthid/" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="109:102">Remove SynthID</a></li><li data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="108:21"><a href="/ai-metadata-remover/" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="109:102">AI Label Remover</a></li><li data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="108:21"><a href="/ai-metadata-checker/" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="109:102">Checker</a></li><li data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="108:21"><a href="/tools/" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="109:102">Tools</a></li><li data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="108:21"><a href="/platforms/" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="109:102">Platforms</a></li><li data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="108:21"><a href="/blog/" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="109:102">Blog</a></li></ul></nav><details class="lang" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="116:33"><summary aria-label="Language" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="117:44">EN</summary><ul data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="118:17"><li data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="120:21"><a href="/" hreflang="en" lang="en" aria-current="true" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="126:20">English</a></li><li data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="120:21"><a href="/id/" hreflang="id" lang="id" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="126:20">Bahasa Indonesia</a></li><li data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="120:21"><a href="/pt/" hreflang="pt" lang="pt" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="126:20">PortuguÃªs</a></li><li data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="120:21"><a href="/es/" hreflang="es" lang="es" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="126:20">EspaÃ±ol</a></li><li data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="120:21"><a href="/ja/" hreflang="ja" lang="ja" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="126:20">æ¥æ¬èª</a></li><li data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="120:21"><a href="/vi/" hreflang="vi" lang="vi" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="126:20">Tiáº¿ng Viá»t</a></li><li data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="120:21"><a href="/de/" hreflang="de" lang="de" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="126:20">Deutsch</a></li></ul></details></div></div></header><main data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="137:11"><section class="hero" data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="85:25"><div class="container" data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="86:28"><span class="eyebrow" data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="87:29">Universal Compatibility Â· 100% In-Browser Â· Batch Up to 30</span><h1 data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="88:11">AVIF to <span class="accent" data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="88:40">JPG Converter</span></h1><p class="lead" data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="89:23">Convert modern AVIF images to universally supported JPG files in seconds. Fast, private, and runs entirely in your browser with zero server uploads.</p><div class="tool-stage" data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="93:31"><div class="image-tool" data-mode="convert" data-astro-cid-xz2m5hk2 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/components/ImageTool.astro" data-astro-source-loc="20:42"><div class="tool-stage" data-astro-cid-7m2cxqgg data-astro-source-file="D:/Nitin/removesynth/packages/shared/src/components/ToolDrop.astro" data-astro-source-loc="19:25"><div class="jitter jitter-left" aria-hidden="true" data-rows="10" data-cols="22" data-astro-cid-rkmvl6dc data-astro-source-file="D:/Nitin/removesynth/packages/shared/src/components/Jitter.astro" data-astro-source-loc="13:2"></div><script type="module" src="/@fs/D:/Nitin/removesynth/packages/shared/src/components/Jitter.astro?astro&type=script&index=0&lang.ts"></script><section class="tool-drop" id="image-tool" data-astro-cid-7m2cxqgg data-astro-source-file="D:/Nitin/removesynth/packages/shared/src/components/ToolDrop.astro" data-astro-source-loc="21:38"><label class="dz" data-astro-cid-7m2cxqgg data-astro-source-file="D:/Nitin/removesynth/packages/shared/src/components/ToolDrop.astro" data-astro-source-loc="22:23"><input type="file" accept="image/jpeg,image/png,image/webp,image/avif,image/gif,image/bmp,image/heic,image/heif,.heic,.heif,.avif" multiple="true" hidden data-astro-cid-7m2cxqgg data-astro-source-file="D:/Nitin/removesynth/packages/shared/src/components/ToolDrop.astro" data-astro-source-loc="23:8"><span class="dz-icon" aria-hidden="true" data-astro-cid-7m2cxqgg data-astro-source-file="D:/Nitin/removesynth/packages/shared/src/components/ToolDrop.astro" data-astro-source-loc="24:48"><svg viewBox="0 0 24 24" data-astro-cid-7m2cxqgg data-astro-source-file="D:/Nitin/removesynth/packages/shared/src/components/ToolDrop.astro" data-astro-source-loc="25:35"><path d="M12 15V4m0 0-4 4m4-4 4 4M5 15v3a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-3" data-astro-cid-7m2cxqgg data-astro-source-file="D:/Nitin/removesynth/packages/shared/src/components/ToolDrop.astro" data-astro-source-loc="25:35"></path></svg></span><strong class="dz-title" data-astro-cid-7m2cxqgg data-astro-source-file="D:/Nitin/removesynth/packages/shared/src/components/ToolDrop.astro" data-astro-source-loc="27:32">Drop AVIF files to convert to JPG</strong><span class="dz-sub" data-astro-cid-7m2cxqgg data-astro-source-file="D:/Nitin/removesynth/packages/shared/src/components/ToolDrop.astro" data-astro-source-loc="28:28">Decoded and converted in your browser. Batch up to 30 files with instant ZIP export.</span><span class="dz-meta small" data-astro-cid-7m2cxqgg data-astro-source-file="D:/Nitin/removesynth/packages/shared/src/components/ToolDrop.astro" data-astro-source-loc="29:35">click to choose or paste Â· JPG Â· PNG Â· WebP Â· AVIF Â· HEIC Â· GIF Â· up to 30 at once</span></label><div class="opts" data-astro-cid-xz2m5hk2 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/components/ImageTool.astro" data-astro-source-loc="30:23"><label class="field" data-astro-cid-xz2m5hk2 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/components/ImageTool.astro" data-astro-source-loc="60:32"><span data-astro-cid-xz2m5hk2 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/components/ImageTool.astro" data-astro-source-loc="61:19">Convert to</span><select class="out-format" data-astro-cid-xz2m5hk2 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/components/ImageTool.astro" data-astro-source-loc="62:40"><option value="jpg" selected data-astro-cid-xz2m5hk2 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/components/ImageTool.astro" data-astro-source-loc="63:59">JPG</option><option value="png" data-astro-cid-xz2m5hk2 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/components/ImageTool.astro" data-astro-source-loc="64:59">PNG</option><option value="webp" data-astro-cid-xz2m5hk2 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/components/ImageTool.astro" data-astro-source-loc="65:61">WebP</option></select></label><label class="field quality-field" data-astro-cid-xz2m5hk2 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/components/ImageTool.astro" data-astro-source-loc="68:46"><span data-astro-cid-xz2m5hk2 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/components/ImageTool.astro" data-astro-source-loc="69:19">Quality <output class="q-out" data-astro-cid-xz2m5hk2 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/components/ImageTool.astro" data-astro-source-loc="69:49">92%</output></span><input class="quality" type="range" min="50" max="100" value="92" data-astro-cid-xz2m5hk2 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/components/ImageTool.astro" data-astro-source-loc="70:14"></label></div><div class="results" hidden aria-live="polite" data-astro-cid-xz2m5hk2 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/components/ImageTool.astro" data-astro-source-loc="76:52"><div class="bar" data-astro-cid-xz2m5hk2 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/components/ImageTool.astro" data-astro-source-loc="77:24"><span class="summary" data-astro-cid-xz2m5hk2 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/components/ImageTool.astro" data-astro-source-loc="78:10"></span><div class="bar-actions" data-astro-cid-xz2m5hk2 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/components/ImageTool.astro" data-astro-source-loc="79:34"><button type="button" class="btn zip" data-astro-cid-xz2m5hk2 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/components/ImageTool.astro" data-astro-source-loc="80:49">Download all (ZIP)</button><button type="button" class="btn btn-ghost clear" data-astro-cid-xz2m5hk2 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/components/ImageTool.astro" data-astro-source-loc="81:61">Clear</button></div></div><ul class="rows" data-astro-cid-xz2m5hk2 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/components/ImageTool.astro" data-astro-source-loc="84:8"></ul></div><p class="footnote small" data-astro-cid-7m2cxqgg data-astro-source-file="D:/Nitin/removesynth/packages/shared/src/components/ToolDrop.astro" data-astro-source-loc="32:31"><svg viewBox="0 0 24 24" aria-hidden="true" data-astro-cid-7m2cxqgg data-astro-source-file="D:/Nitin/removesynth/packages/shared/src/components/ToolDrop.astro" data-astro-source-loc="33:52"><rect x="5" y="11" width="14" height="10" rx="2" data-astro-cid-7m2cxqgg data-astro-source-file="D:/Nitin/removesynth/packages/shared/src/components/ToolDrop.astro" data-astro-source-loc="33:52"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4" data-astro-cid-7m2cxqgg data-astro-source-file="D:/Nitin/removesynth/packages/shared/src/components/ToolDrop.astro" data-astro-source-loc="33:108"></path></svg>Runs in your browser Â· nothing is uploaded</p></section><div class="jitter jitter-right" aria-hidden="true" data-rows="10" data-cols="22" data-astro-cid-rkmvl6dc data-astro-source-file="D:/Nitin/removesynth/packages/shared/src/components/Jitter.astro" data-astro-source-loc="13:2"></div></div><script type="module" src="/@fs/D:/Nitin/removesynth/packages/shared/src/components/ToolDrop.astro?astro&type=script&index=0&lang.ts"></script></div><script type="module" src="/src/components/ImageTool.astro?astro&type=script&index=0&lang.ts"></script></div></div></section><article class="prose" data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="105:26"><h2 data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="106:9">What Is an AVIF File and Why Can't Windows or Photoshop Open It?</h2><p data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="107:8">AVIF (AV1 Image File Format) is an open, royalty-free image compression standard developed by the Alliance for Open Media (AOMedia), a consortium founded by Google, Mozilla, Apple, Microsoft, and Netflix. Built upon the intra-frame coding techniques of the AV1 video codec, AVIF encapsulates compressed pixel bitstreams within the ISO Base Media File Format (ISOBMFF, ISO/IEC 14496-12).</p><p data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="110:8">Compared to legacy JPEG technology standardized in 1992, AVIF achieves 50 to 80 percent smaller file sizes at identical visual fidelity. Major websites, content delivery networks (CDNs), and social platforms increasingly deliver imagery in AVIF to reduce bandwidth costs and accelerate mobile page loads. However, desktop operating systems and creative software have been slow to adopt native playback:</p><ul data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="113:9"><li data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="114:12"><strong data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="114:19">Microsoft Windows:</strong> Windows 10 and 11 File Explorer frequently display blank thumbnail icons for AVIF files unless specialized extensions (such as the AV1 Video Extension from the Microsoft Store) are installed.</li><li data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="115:12"><strong data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="115:19">Adobe Photoshop:</strong> Versions of Photoshop prior to CC 2024 lack native AVIF decoders, displaying the error message: <em data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="115:145">&quot;Could not complete your request because it is not the right kind of document.&quot;</em></li><li data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="116:12"><strong data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="116:19">Online Upload Portals:</strong> Job portals, real estate MLS systems, e-commerce marketplaces (Amazon, eBay, Etsy), and government passport portals reject AVIF uploads with generic &quot;Invalid File Format&quot; warnings.</li><li data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="117:12"><strong data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="117:19">Photo Printing Kiosks:</strong> Retail photo print stations and pharmacy photo machines read only baseline JPEG and PNG files.</li></ul><p data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="119:8">RemoveSynth solves this compatibility dilemma by transforming AVIF files into universal, high-quality JPG files locally on your machine.</p><h2 data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="123:9">How AV1 Intra-Frame Compression Differs from Legacy JPEG</h2><p data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="124:8">Understanding why AVIF creates such tiny files highlights the mathematical leap between 1990s transform coding and modern directional intra-prediction:</p><ul data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="127:9"><li data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="128:12"><strong data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="128:19">Block Partitioning:</strong> Legacy JPEG divides an image into rigid 8 by 8 pixel blocks. AVIF utilizes flexible recursive block partitioning ranging from 4 by 4 up to 128 by 128 superblocks, allowing flat skies to be coded in massive single blocks while complex textures receive fine-grained subdivisions.</li><li data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="129:12"><strong data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="129:19">Directional Intra-Prediction:</strong> AV1 employs 56 directional intra-prediction modes to predict gradients across neighboring pixels, coding only the mathematical residual difference rather than absolute pixel values.</li><li data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="130:12"><strong data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="130:19">Chroma Subsampling &amp; Bit Depth:</strong> While standard JPEG is virtually always limited to 8-bit color (256 shades per channel), AVIF natively supports 10-bit and 12-bit High Dynamic Range (HDR) color with wide color gamuts (BT.2020 and DCI-P3).</li></ul><h2 data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="133:9">Mathematical Formulation of AV1 Intra-Decode and JPEG 2D DCT Synthesis</h2><p data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="134:8">During the conversion process, our in-browser transcoder decodes the AV1 bitstream into a linear sRGB pixel grid, then computes the two-dimensional Discrete Cosine Transform (DCT) for each 8 by 8 block according to the ISO/IEC 10918-1 JPEG standard.</p><p data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="137:8">The forward 2D DCT transform maps spatial pixel values <code data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="138:68">f(x, y)</code> into frequency coefficients <code data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="138:117">F(u, v)</code>:</p><div class="math-block" data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="140:29"><code data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="141:13">F(u, v) = 0.25 * C(u) * C(v) * Sum_x=0..7 Sum_y=0..7 [ (f(x, y) - 128) * cos((2x+1)u*pi / 16) * cos((2y+1)v*pi / 16) ]</code></div><p data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="143:8">Where normalization constants <code data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="144:43">C(u), C(v)</code> satisfy:</p><div class="math-block" data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="146:29"><code data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="147:13">C(k) = 1 / sqrt(2) for k = 0, and C(k) = 1 for k &gt; 0</code></div><p data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="149:8">Quantization is subsequently applied using the standard Luminance and Chrominance tables scaled to a 92 percent quality index:</p><div class="math-block" data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="152:29"><code data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="153:13">F_quant(u, v) = round( F(u, v) / Q(u, v) )</code></div><p data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="155:8">The quantized coefficients are zig-zag scanned, run-length encoded, and packed into Huffman entropy streams between the JPEG <code data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="156:138">Marker_SOS</code> (Start of Scan) and <code data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="156:182">Marker_EOI</code> (End of Image) markers.</p><h2 data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="159:9">Worked Example: Real Numerical AVIF to JPG Transcoding</h2><p data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="160:8">To demonstrate the efficiency of in-browser transcoding, consider converting a high-resolution 4K landscape photograph originally downloaded as an AVIF web asset:</p><ul data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="163:9"><li data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="164:12"><strong data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="164:19">Input File:</strong> <code data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="164:46">scenic-mountain-view.avif</code></li><li data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="165:12"><strong data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="165:19">Image Dimensions:</strong> 3840 by 2160 pixels (8.29 Megapixels)</li><li data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="166:12"><strong data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="166:19">Input File Size:</strong> 624,180 bytes (609.5 KB AVIF)</li><li data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="167:12"><strong data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="167:19">Input Bit Depth:</strong> 10-bit YUV 4:2:0 AV1 Intra bitstream</li><li data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="168:12"><strong data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="168:19">Decoded Memory Footprint:</strong> <code data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="168:60">3840 * 2160 * 4 bytes = 33,177,600 bytes (31.64 MB RGBA Buffer)</code></li><li data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="169:12"><strong data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="169:19">Decoded Frame Time:</strong> 24 milliseconds in local browser WebAssembly/Canvas memory</li><li data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="170:12"><strong data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="170:19">JPEG Encoding Parameters:</strong><ul data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="171:13"><li data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="172:15">Quality Setting: 92 (High Visual Fidelity)</li><li data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="173:15">Chroma Subsampling: YUV 4:2:0 standard JPEG profile</li><li data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="174:15">Baseline Huffman Table: Standard photographic tables</li></ul></li><li data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="177:12"><strong data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="177:19">Output File Size:</strong> 1,842,910 bytes (1.75 MB JPG)</li><li data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="178:12"><strong data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="178:19">Visual Fidelity Metrics:</strong><ul data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="179:13"><li data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="180:15">Peak Signal-to-Noise Ratio (PSNR): 44.82 dB (Visually Lossless)</li><li data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="181:15">Structural Similarity Index (SSIM): 0.9924</li></ul></li><li data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="184:12"><strong data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="184:19">Total Transcoding Duration:</strong> 78 milliseconds on a standard laptop CPU</li><li data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="185:12"><strong data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="185:19">Network Transfer:</strong> 0 bytes (Zero server upload latency)</li></ul><h2 data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="188:9">AVIF Container Demuxing to JPEG Bitstream Architecture</h2><p data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="189:8">The vector diagram below illustrates how an AVIF file is disassembled from its ISOBMFF container boxes, decoded into an uncompressed pixel matrix, and re-encoded into a baseline JPEG bitstream entirely inside local device RAM.</p><div class="chart-svg-wrap" data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="192:33"><svg viewBox="0 0 760 220" class="chart-svg" xmlns="http://www.w3.org/2000/svg" data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="193:87"><rect width="760" height="220" rx="10" fill="#0b111a" stroke="#1e293b" stroke-width="1.5" data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="194:10"></rect><text x="24" y="32" fill="#94a3b8" font-family="monospace" font-size="12" font-weight="700" data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="195:101">IN-BROWSER AVIF TO JPG TRANSCODING PIPELINE</text><!-- AVIF Container Box --><rect x="24" y="55" width="130" height="60" rx="6" fill="#1e293b" stroke="#334155" stroke-width="1" data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="198:10"></rect><text x="89" y="80" fill="#f8fafc" font-family="sans-serif" font-size="12" font-weight="700" text-anchor="middle" data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="199:123">AVIF Container</text><text x="89" y="100" fill="#64748b" font-family="monospace" font-size="10" text-anchor="middle" data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="200:105">ftyp: avif / mdat</text><!-- Arrow 1 --><path d="M154 85 L184 85" stroke="#38bdf8" stroke-width="2" data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="203:10"></path><!-- AV1 Decoder --><rect x="184" y="55" width="160" height="60" rx="6" fill="#0f172a" stroke="#38bdf8" stroke-width="1.5" data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="206:10"></rect><text x="264" y="78" fill="#38bdf8" font-family="sans-serif" font-size="12" font-weight="700" text-anchor="middle" data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="207:124">AV1 Decoder Engine</text><text x="264" y="98" fill="#94a3b8" font-family="monospace" font-size="10" text-anchor="middle" data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="208:105">Native Browser Canvas</text><!-- Arrow 2 --><path d="M344 85 L374 85" stroke="#22c55e" stroke-width="2" data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="211:10"></path><!-- RGBA Buffer --><rect x="374" y="55" width="150" height="60" rx="6" fill="#052e16" stroke="#22c55e" stroke-width="1.5" data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="214:10"></rect><text x="449" y="78" fill="#4ade80" font-family="sans-serif" font-size="12" font-weight="700" text-anchor="middle" data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="215:124">RGB Framebuffer</text><text x="449" y="98" fill="#cbd5e1" font-family="monospace" font-size="10" text-anchor="middle" data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="216:105">8-bit sRGB Pixels</text><!-- Arrow 3 --><path d="M524 85 L554 85" stroke="#f59e0b" stroke-width="2" data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="219:10"></path><!-- JPEG Encoder --><rect x="554" y="55" width="180" height="60" rx="6" fill="#1c1917" stroke="#f59e0b" stroke-width="1.5" data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="222:10"></rect><text x="644" y="78" fill="#f59e0b" font-family="sans-serif" font-size="12" font-weight="700" text-anchor="middle" data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="223:124">JPEG 2D DCT Encoder</text><text x="644" y="98" fill="#cbd5e1" font-family="monospace" font-size="10" text-anchor="middle" data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="224:105">JFIF / Quality 92</text><!-- You Are Here Banner --><rect x="180" y="180" width="400" height="24" rx="12" fill="#0284c7" data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="227:10"></rect><circle cx="195" cy="192" r="5" fill="#38bdf8" data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="228:10"></circle><text x="380" y="196" fill="#ffffff" font-family="sans-serif" font-size="10" font-weight="700" text-anchor="middle" data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="229:125">YOU ARE HERE: Zero-Server In-Browser Transcoder</text></svg></div><h2 data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="233:9">How to Convert AVIF to JPG on Windows, Mac, iPhone, and Android</h2><p data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="234:8">Because RemoveSynth executes natively using HTML5 Canvas and WebCodecs APIs, the conversion process works seamlessly across all consumer operating systems without third-party app installations:</p><ul data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="237:9"><li data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="238:12"><strong data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="238:19">Windows 10 &amp; 11:</strong> No need to purchase Microsoft Store extensions or download suspicious converter `.exe` files. Drag your `.avif` downloads into your browser, click convert, and receive standard `.jpg` files ready for Windows Photos, MS Paint, or legacy desktop viewers.</li><li data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="239:12"><strong data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="239:19">Apple macOS:</strong> Modern macOS versions (macOS Ventura and Sonoma) support AVIF in Preview, but older software or external web apps frequently reject it. Convert files here to open them directly in older Photoshop, Illustrator, or Final Cut installations.</li><li data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="240:12"><strong data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="240:19">Apple iOS (iPhone &amp; iPad):</strong> When saving images from Safari, iOS sometimes defaults to AVIF format. Tap the drop zone above to open your Files or Photo Library, convert to JPG, and save back to Camera Roll with universal sharing compatibility.</li><li data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="241:12"><strong data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="241:19">Google Android:</strong> Works on all Android smartphones (Samsung Galaxy, Google Pixel, Xiaomi, OnePlus) via Chrome. Convert downloaded AVIF memes or web photos into standard JPGs for instant sharing on WhatsApp, Instagram, or Discord.</li></ul><h2 data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="244:9">Color Fidelity and Dynamic Range: Handling 10-Bit and HDR Assets</h2><p data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="245:8">One common issue with basic online converters is &quot;color shifting&quot; or washed-out highlights when converting HDR AVIF files. AVIF supports 10-bit Rec.2020 color spaces that contain substantially more color data than standard 8-bit sRGB monitors can represent.</p><p data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="248:8">RemoveSynth implements intelligent color gamut clamping and tone mapping. High dynamic range color values are mapped gracefully into standard sRGB space, ensuring that skies retain rich blues, skin tones look natural, and dark shadow regions do not clip into harsh banding artifacts.</p><h2 data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="252:9">Why RemoveSynth In-Browser Transcoding Outperforms Cloud Services</h2><div class="table-wrap" data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="253:29"><table data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="254:14"><thead data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="255:16"><tr data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="256:15"><th data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="257:17">Feature</th><th data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="258:17">RemoveSynth In-Browser</th><th data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="259:17">Online Cloud Converters</th><th data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="260:17">Desktop Photoshop Plugins</th></tr></thead><tbody data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="263:16"><tr data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="264:15"><td data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="265:18"><strong data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="265:25">Server Uploads</strong></td><td data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="266:17">Zero (100% Client-Side Memory)</td><td data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="267:17">File Uploaded to Remote Server</td><td data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="268:17">Local Machine Only</td></tr><tr data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="270:15"><td data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="271:18"><strong data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="271:25">Privacy &amp; Confidentiality</strong></td><td data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="272:17">Complete (Never Leaves Device)</td><td data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="273:17">Stored on Third-Party Servers</td><td data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="274:17">Complete Offline Privacy</td></tr><tr data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="276:15"><td data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="277:18"><strong data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="277:25">Conversion Speed</strong></td><td data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="278:17">Instant (15-80ms per image)</td><td data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="279:17">5-30s Queue and Upload Wait</td><td data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="280:17">Requires Software Launch Time</td></tr><tr data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="282:15"><td data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="283:18"><strong data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="283:25">File Size Limits</strong></td><td data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="284:17">Unlimited Local File Size</td><td data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="285:17">100MB Caps on Free Tiers</td><td data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="286:17">Hardware RAM Dependent</td></tr><tr data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="288:15"><td data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="289:18"><strong data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="289:25">Batch Processing</strong></td><td data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="290:17">Up to 30 Files with ZIP Export</td><td data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="291:17">Requires Paid Subscription</td><td data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="292:17">Batch Actions Script Required</td></tr><tr data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="294:15"><td data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="295:18"><strong data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="295:25">Cost &amp; Sign-Up</strong></td><td data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="296:17">100% Free with No Account</td><td data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="297:17">Monthly Subscription / Ads</td><td data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="298:17">Requires Paid Photoshop License</td></tr></tbody></table></div><!-- FAQ Section --><h2 data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="305:9">Frequently Asked Questions</h2><div class="faq-list" data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="306:27"><div class="faq-item card" data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="308:36"><h3 data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="309:15">What is an AVIF file and why does my computer fail to open it?</h3><p data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="310:14">AVIF (AV1 Image File Format) is a modern compression format developed by the Alliance for Open Media based on the AV1 video codec. While modern web browsers like Chrome and Safari display AVIF natively, legacy desktop applications like older Adobe Photoshop versions, Windows Photo Viewer, and many CMS upload portals lack native decoders and refuse to open the file.</p></div><div class="faq-item card" data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="308:36"><h3 data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="309:15">Does converting AVIF to JPG reduce image quality?</h3><p data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="310:14">Our converter decodes the raw uncompressed RGB pixel buffer from the AV1 bitstream and writes a high-fidelity JPEG using a quality factor of 92 with standard 4:4:4 or 4:2:0 chroma subsampling. The visual degradation is imperceptible to the human eye, maintaining crisp details and accurate color gradients.</p></div><div class="faq-item card" data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="308:36"><h3 data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="309:15">Are my private photos uploaded to an external server?</h3><p data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="310:14">No. All AV1 stream parsing, pixel canvas decoding, and JPEG compression take place 100 percent locally inside your web browser memory. Your files never touch a remote server, third-party cloud, or external database.</p></div><div class="faq-item card" data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="308:36"><h3 data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="309:15">Can I batch-convert multiple AVIF images simultaneously?</h3><p data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="310:14">Yes. You can drag and drop up to 30 AVIF files at once. The tool processes the batch in parallel Web Workers and lets you download individual JPG images or a consolidated ZIP archive with one click.</p></div><div class="faq-item card" data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="308:36"><h3 data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="309:15">How do I convert AVIF to JPG on Windows 10 or Windows 11 without software?</h3><p data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="310:14">You do not need to install codecs or desktop software. Simply drop your AVIF files into this page in any web browser (Chrome, Edge, Firefox, or Brave) and download standard JPEG copies instantly.</p></div><div class="faq-item card" data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="308:36"><h3 data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="309:15">Does this converter support 10-bit and HDR AVIF photos?</h3><p data-astro-cid-pcehiop7 data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/pages/avif-to-jpg.astro" data-astro-source-loc="310:14">Yes. High dynamic range 10-bit and 12-bit AVIF images captured on modern smartphones are accurately tone-mapped into standard 8-bit sRGB color space for universal compatibility across all legacy monitors and photo printing kiosks.</p></div></div></article></main><footer class="site-footer" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="141:33"><div class="container footer-inner" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="142:43"><div data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="143:14"><a href="/" class="logo" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="144:41">RemoveSynth</a><p class="muted" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="145:28">The SynthID Removal Tool</p></div><div class="footer-cols" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="147:34"><div data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="149:18"><h2 class="footer-heading" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="150:42">SynthID Tools</h2><ul class="footer-links" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="151:40"><li data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:49"><a href="/" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:68">SynthID remover</a></li><li data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:49"><a href="/remove-synthid/" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:68">Remove SynthID</a></li><li data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:49"><a href="/remove-synthid-from-images/" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:68">Images</a></li><li data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:49"><a href="/remove-synthid-from-video/" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:68">Video</a></li><li data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:49"><a href="/remove-synthid-from-audio/" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:68">Audio</a></li><li data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:49"><a href="/remove-synthid-from-text/" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:68">Text sanitizer</a></li></ul></div><div data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="149:18"><h2 class="footer-heading" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="150:42">AI Label &amp; Metadata</h2><ul class="footer-links" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="151:40"><li data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:49"><a href="/ai-metadata-remover/" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:68">AI metadata remover</a></li><li data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:49"><a href="/c2pa-remover/" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:68">C2PA remover</a></li><li data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:49"><a href="/remove-c2pa-from-video/" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:68">Remove C2PA from Video</a></li><li data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:49"><a href="/add-camera-exif/" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:68">Add Camera EXIF to Photo</a></li><li data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:49"><a href="/exif-cleaner/" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:68">EXIF cleaner</a></li><li data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:49"><a href="/xmp-remover/" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:68">XMP remover</a></li><li data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:49"><a href="/png-ai-metadata-remover/" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:68">PNG AI metadata remover</a></li><li data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:49"><a href="/photo-metadata-remover/" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:68">Photo privacy remover</a></li></ul></div><div data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="149:18"><h2 class="footer-heading" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="150:42">Cleaners &amp; Converters</h2><ul class="footer-links" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="151:40"><li data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:49"><a href="/docx-metadata-remover/" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:68">Word &amp; DOCX metadata remover</a></li><li data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:49"><a href="/audio-metadata-remover/" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:68">Audio &amp; ID3 tag remover</a></li><li data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:49"><a href="/jpg-to-pdf/" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:68">JPG to PDF converter</a></li><li data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:49"><a href="/resize-image/" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:68">Image resizer</a></li><li data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:49"><a href="/change-photo-date/" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:68">Change photo date taken</a></li><li data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:49"><a href="/anonymous-photo-cleaner/" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:68">Anonymous photo sanitizer</a></li><li data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:49"><a href="/photoshop-metadata-cleaner/" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:68">Photoshop metadata cleaner</a></li><li data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:49"><a href="/bulk-metadata-remover/" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:68">Bulk metadata remover</a></li><li data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:49"><a href="/etsy-photo-cleaner/" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:68">Etsy &amp; eBay listing prep</a></li><li data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:49"><a href="/invisible-character-remover/" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:68">Invisible character remover</a></li><li data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:49"><a href="/pdf-resume-metadata-remover/" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:68">PDF resume metadata remover</a></li><li data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:49"><a href="/avif-to-jpg/" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:68">AVIF to JPG converter</a></li></ul></div><div data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="149:18"><h2 class="footer-heading" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="150:42">Check &amp; Inspect</h2><ul class="footer-links" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="151:40"><li data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:49"><a href="/ai-metadata-checker/" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:68">AI metadata checker</a></li><li data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:49"><a href="/ai-image-checker/" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:68">AI image checker</a></li><li data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:49"><a href="/c2pa-checker/" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:68">C2PA checker</a></li><li data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:49"><a href="/image-privacy-analyzer/" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:68">Image privacy analyzer</a></li><li data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:49"><a href="/ai-watermark-checker/" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:68">AI watermark checker</a></li></ul></div><div data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="149:18"><h2 class="footer-heading" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="150:42">Platforms &amp; Guides</h2><ul class="footer-links" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="151:40"><li data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:49"><a href="/tools/" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:68">All Tools Catalog</a></li><li data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:49"><a href="/platforms/" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:68">All platforms (IG, TikTok)</a></li><li data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:49"><a href="/exports/" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:68">All AI tools (Midjourney, DALL-E)</a></li><li data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:49"><a href="/what-is-synthid/" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:68">What is SynthID?</a></li><li data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:49"><a href="/how-to-remove-synthid/" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:68">How to remove SynthID</a></li><li data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:49"><a href="/blog/" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:68">Blog &amp; Guides</a></li><li data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:49"><a href="/privacy/" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:68">Privacy</a></li><li data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:49"><a href="/terms/" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="152:68">Terms</a></li></ul></div></div><p class="muted small" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="157:32">RemoveSynth is an independent tool and is not affiliated with Google or Google DeepMind. SynthID is a trademark of Google LLC. Only process content you own or have the rights to, and don&#39;t use it to pass AI-generated media off as real.</p><p class="muted small" data-astro-source-file="D:/Nitin/removesynth/apps/removesynth/src/layouts/Base.astro" data-astro-source-loc="158:32">&copy; 2026 RemoveSynth</p></div></footer></body></html>

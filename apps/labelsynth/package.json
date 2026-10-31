@@ -1,0 +1,19 @@
+{
+  "name": "labelsynth",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "deploy": "npm run build && wrangler pages deploy dist"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.7.4",
+    "@removesynth/shared": "*",
+    "astro": "^7.4.0",
+    "fflate": "^0.8.3",
+    "heic2any": "^0.0.4"
+  }
+}

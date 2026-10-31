@@ -1,0 +1,68 @@
+---
+import Base from '../../layouts/Base.astro';
+import { POSTS, postDate } from '../../data/blog';
+import { SITE } from '../../site';
+import { breadcrumbSchema } from '@removesynth/shared/lib/faq';
+
+const all = POSTS;
+const schema = [breadcrumbSchema([{ name: 'Home', url: `${SITE.url}/` }, { name: 'Blog', url: `${SITE.url}/blog/` }])];
+---
+
+<Base
+  title="Blog — AI labels, C2PA & metadata"
+  description="Guides on removing AI labels, C2PA Content Credentials, XMP/EXIF metadata and platform upload prep."
+  schema={schema}
+>
+  <section class="hero">
+    <div class="container">
+      <span class="eyebrow">{all.length} guides</span>
+      <h1>LabelSynth <span class="accent">blog</span></h1>
+      <p class="lead">How AI labels, C2PA Content Credentials and metadata work — and how to clean files before you upload.</p>
+    </div>
+  </section>
+
+  <article class="prose">
+    <ul class="post-grid">
+      {all.map((p) => (
+        <li>
+          <a href={`/blog/${p.slug}/`}>
+            <strong>{p.title}</strong>
+            <span class="date muted small">{postDate(p)}</span>
+          </a>
+          <p class="muted">{p.description}</p>
+        </li>
+      ))}
+    </ul>
+  </article>
+</Base>
+
+<style>
+  .post-grid {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr));
+    gap: 14px;
+  }
+  .post-grid li {
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: var(--bg-elev);
+    padding: 16px;
+    margin: 0;
+  }
+  .post-grid a {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    text-decoration: none;
+  }
+  .post-grid strong {
+    font-size: 1.05rem;
+    line-height: 1.35;
+  }
+  .post-grid p {
+    margin: 8px 0 0;
+    font-size: 0.9rem;
+  }
+</style>

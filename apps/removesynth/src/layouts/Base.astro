@@ -1,0 +1,426 @@
+---
+import '@removesynth/shared/styles/base.css';
+import { SITE } from '../site';
+import { LOCALES, STRINGS, alternatesFor, localeFromPath, type Locale } from '../i18n';
+import { TOOL_CATEGORIES } from '../data/tools-nav';
+
+interface Props {
+  title: string;
+  description: string;
+  schema?: Record<string, unknown> | Record<string, unknown>[];
+  ogType?: 'website' | 'article';
+}
+
+const { title, description, schema, ogType = 'website' } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+// Unify all schemas into a single JSON-LD @graph block per page
+let unifiedJsonLd: Record<string, unknown> | null = null;
+if (schema) {
+  const schemaList = Array.isArray(schema) ? schema : [schema];
+  const graphNodes: Record<string, unknown>[] = [];
+  for (const s of schemaList) {
+    if (!s || typeof s !== 'object') continue;
+    if (Array.isArray((s as any)['@graph'])) {
+      graphNodes.push(...(s as any)['@graph']);
+    } else {
+      const node = { ...(s as Record<string, unknown>) };
+      delete node['@context'];
+      graphNodes.push(node);
+    }
+  }
+  unifiedJsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': graphNodes,
+  };
+} else {
+  unifiedJsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'WebSite',
+        '@id': `${SITE.url}/#website`,
+        'url': SITE.url,
+        'name': SITE.name,
+        'description': SITE.description,
+      },
+      {
+        '@type': 'WebPage',
+        '@id': `${canonical}#webpage`,
+        'url': canonical,
+        'name': title,
+        'description': description,
+      },
+    ],
+  };
+}
+const path = Astro.url.pathname;
+const locale = localeFromPath(path);
+const t = STRINGS[locale] || STRINGS.en;
+const alternates = alternatesFor(path);
+const abs = (p: string) => new URL(p, Astro.site).href;
+
+const ogLocale: Partial<Record<Locale, string>> = {
+  en: 'en_US',
+  es: 'es_ES',
+  de: 'de_DE',
+  fr: 'fr_FR',
+  'pt-br': 'pt_BR',
+  ja: 'ja_JP',
+  tr: 'tr_TR',
+  tl: 'fil_PH',
+  zh: 'zh_CN',
+  'zh-tw': 'zh_TW',
+  ko: 'ko_KR',
+  th: 'th_TH',
+  vi: 'vi_VN',
+  id: 'id_ID',
+  pt: 'pt_PT',
+  it: 'it_IT',
+  nl: 'nl_NL',
+  pl: 'pl_PL',
+  cs: 'cs_CZ',
+  hu: 'hu_HU',
+  ro: 'ro_RO',
+  uk: 'uk_UA',
+  el: 'el_GR',
+  sv: 'sv_SE',
+  no: 'nb_NO',
+  da: 'da_DK',
+  fi: 'fi_FI',
+  hi: 'hi_IN',
+  bn: 'bn_BD',
+  ar: 'ar_AR',
+  he: 'he_IL',
+  sw: 'sw_KE',
+};
+
+// Group locales by region for the language switcher
+const REGIONS = ['Tier 1', 'East Asia', 'Europe', 'South Asia', 'Middle East & Africa'];
+const LOCALES_BY_REGION = REGIONS.map((region) => ({
+  region,
+  locales: (Object.entries(LOCALES) as [Locale, (typeof LOCALES)[Locale]][]).filter(
+    ([, meta]) => meta.region === region
+  ),
+}));
+---
+
+<!doctype html>
+<html lang={LOCALES[locale]?.hreflang || locale} dir={LOCALES[locale]?.dir || 'ltr'}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {alternates && (Object.entries(alternates) as [Locale, string][]).map(([l, href]) => (
+      <link rel="alternate" hreflang={LOCALES[l]?.hreflang || l} href={abs(href)} />
+    ))}
+    {alternates && <link rel="alternate" hreflang="x-default" href={abs(alternates.en || '/')} />}
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <meta name="theme-color" content="#070b10" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500&display=swap"
+    />
+
+    <meta property="og:type" content={ogType} />
+    <meta property="og:site_name" content={SITE.name} />
+    <meta property="og:locale" content={ogLocale[locale]} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+
+    {unifiedJsonLd && <script type="application/ld+json" set:html={JSON.stringify(unifiedJsonLd)} />}
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container header-inner">
+        <a href={t.home} class="logo" aria-label={`${SITE.name} home`}>
+          <span class="logo-mark" aria-hidden="true"></span>
+          <span>Remove<b>Synth</b></span>
+        </a>
+        <div class="header-right">
+          <nav aria-label="Main">
+            <ul class="nav">
+              {t.nav.map((item) => {
+                const isTools = item.href === '/tools/';
+                return (
+                  <li class={`nav-item ${isTools ? 'nav-has-dropdown' : ''}`}>
+                    {isTools ? (
+                      <button
+                        type="button"
+                        class="nav-trigger"
+                        aria-expanded="false"
+                        aria-haspopup="true"
+                        aria-label="Toggle tools menu"
+                      >
+                        <span>{item.label}</span>
+                        <svg class="nav-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                          <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                      </button>
+                    ) : (
+                      <a
+                        href={item.href}
+                        aria-current={path.startsWith(item.href) ? 'page' : undefined}
+                      >
+                        <span>{item.label}</span>
+                      </a>
+                    )}
+
+                    {isTools && (
+                      <div class="nav-dropdown" aria-label="Tools directory">
+                        <div class="dropdown-header">
+                          <div class="dropdown-header-info">
+                            <span class="dropdown-badge">65+ Tools & Utilities</span>
+                            <span class="dropdown-header-title">Browse by Category</span>
+                          </div>
+                          <a href="/tools/" class="dropdown-view-all">
+                            <span>View All Tools</span>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                          </a>
+                        </div>
+
+                        <div class="dropdown-body">
+                          <!-- Category sidebar tabs -->
+                          <div class="dropdown-cats-nav" role="tablist" aria-label="Tool categories">
+                            {TOOL_CATEGORIES.map((cat, idx) => (
+                              <button
+                                type="button"
+                                class={`dropdown-cat-btn ${idx === 0 ? 'is-active' : ''}`}
+                                data-cat-id={cat.id}
+                                role="tab"
+                                aria-selected={idx === 0 ? 'true' : 'false'}
+                                aria-controls={`pane-${cat.id}`}
+                              >
+                                <span class="cat-btn-icon" set:html={cat.icon} />
+                                <span class="cat-btn-title">{cat.title}</span>
+                                <span class="cat-btn-count">{cat.tools.length}</span>
+                              </button>
+                            ))}
+                          </div>
+
+                          <!-- Category Panes -->
+                          <div class="dropdown-panes-wrap">
+                            {TOOL_CATEGORIES.map((cat, idx) => (
+                              <div
+                                class={`dropdown-cat-pane ${idx === 0 ? 'is-active' : ''}`}
+                                id={`pane-${cat.id}`}
+                                role="tabpanel"
+                              >
+                                <div class="pane-header">
+                                  <h4 class="pane-title">{cat.title}</h4>
+                                  <p class="pane-tagline">{cat.tagline}</p>
+                                </div>
+                                <div class="pane-grid">
+                                  {cat.tools.map((tool) => (
+                                    <a href={tool.href} class="dropdown-tool-card">
+                                      <div class="tool-card-icon" set:html={tool.icon} />
+                                      <div class="tool-card-body">
+                                        <div class="tool-card-header">
+                                          <span class="tool-card-name">{tool.label}</span>
+                                          {tool.badge && <span class="tool-card-badge">{tool.badge}</span>}
+                                        </div>
+                                        <span class="tool-card-desc">{tool.desc}</span>
+                                      </div>
+                                    </a>
+                                  ))}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div class="dropdown-footer">
+                          <div class="dropdown-footer-perks">
+                            <span class="perk-item">
+                              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                              100% In-Browser
+                            </span>
+                            <span class="perk-bullet">&bull;</span>
+                            <span class="perk-item">
+                              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/></svg>
+                              Zero Server Uploads
+                            </span>
+                            <span class="perk-bullet">&bull;</span>
+                            <span class="perk-item">
+                              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                              Original Quality
+                            </span>
+                          </div>
+                          <a href="/tools/" class="dropdown-footer-link">
+                            Explore All Tools &rarr;
+                          </a>
+                        </div>
+                      </div>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          </nav>
+          <details class="lang" id="lang-switcher">
+            <summary aria-label="Language selector">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="lang-globe-icon" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+              <span>{LOCALES[locale]?.short || 'EN'}</span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="lang-caret"><path d="m6 9 6 6 6-6"/></svg>
+            </summary>
+            <div class="lang-dropdown">
+              <div class="lang-dropdown-header">
+                <span class="lang-dropdown-title">Choose Language ({Object.keys(LOCALES).length})</span>
+              </div>
+              <div class="lang-regions-list">
+                {LOCALES_BY_REGION.map((group) => (
+                  <div class="lang-region-group">
+                    <div class="lang-region-title">{group.region}</div>
+                    <div class="lang-grid">
+                      {group.locales.map(([l, meta]) => (
+                        <a
+                          href={alternates?.[l] ?? (l === 'en' ? '/' : `/${l}/`)}
+                          hreflang={meta.hreflang}
+                          lang={meta.hreflang}
+                          class={`lang-link ${l === locale ? 'is-active' : ''}`}
+                          aria-current={l === locale ? 'true' : undefined}
+                        >
+                          <span class="lang-badge">{meta.short}</span>
+                          <span class="lang-name">{meta.label}</span>
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </details>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <div>
+          <a href={t.home} class="logo">{SITE.name}</a>
+          <p class="muted">{t.tagline}</p>
+        </div>
+        <div class="footer-cols">
+          {t.footer.map((group) => (
+            <div>
+              <h2 class="footer-heading">{group.heading}</h2>
+              <ul class="footer-links">
+                {group.links.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
+              </ul>
+            </div>
+          ))}
+        </div>
+        <p class="muted small">{t.disclaimer}</p>
+        <p class="muted small">&copy; {new Date().getFullYear()} {SITE.name}</p>
+      </div>
+    </footer>
+
+    <script is:inline>
+      (function() {
+        function initNav() {
+          var navItem = document.querySelector('.nav-has-dropdown');
+          var trigger = document.querySelector('.nav-has-dropdown .nav-trigger');
+          var dropdown = document.querySelector('.nav-dropdown');
+
+          if (!navItem || !trigger || !dropdown) return;
+
+          var closeTimer = null;
+
+          function openMenu() {
+            if (closeTimer) {
+              clearTimeout(closeTimer);
+              closeTimer = null;
+            }
+            navItem.classList.add('is-open');
+            trigger.setAttribute('aria-expanded', 'true');
+          }
+
+          function closeMenu() {
+            closeTimer = setTimeout(function() {
+              navItem.classList.remove('is-open');
+              trigger.setAttribute('aria-expanded', 'false');
+            }, 200);
+          }
+
+          navItem.addEventListener('mouseenter', openMenu);
+          navItem.addEventListener('mouseleave', closeMenu);
+          dropdown.addEventListener('mouseenter', openMenu);
+          dropdown.addEventListener('mouseleave', closeMenu);
+          trigger.addEventListener('focus', openMenu);
+
+          // Click toggle support (for touch devices and desktop click)
+          trigger.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (navItem.classList.contains('is-open')) {
+              closeMenu();
+            } else {
+              openMenu();
+            }
+          });
+
+          // Close on click outside
+          document.addEventListener('click', function(e) {
+            if (!navItem.contains(e.target)) {
+              navItem.classList.remove('is-open');
+              trigger.setAttribute('aria-expanded', 'false');
+            }
+          });
+
+          // Close on escape key
+          document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+              navItem.classList.remove('is-open');
+              trigger.setAttribute('aria-expanded', 'false');
+            }
+          });
+
+          // Switch category panes on hover or click
+          var catButtons = dropdown.querySelectorAll('.dropdown-cat-btn');
+          var panes = dropdown.querySelectorAll('.dropdown-cat-pane');
+
+          catButtons.forEach(function(btn) {
+            function activate() {
+              var catId = btn.getAttribute('data-cat-id');
+              catButtons.forEach(function(b) {
+                b.classList.remove('is-active');
+                b.setAttribute('aria-selected', 'false');
+              });
+              panes.forEach(function(p) {
+                p.classList.remove('is-active');
+              });
+
+              btn.classList.add('is-active');
+              btn.setAttribute('aria-selected', 'true');
+              var targetPane = document.getElementById('pane-' + catId);
+              if (targetPane) {
+                targetPane.classList.add('is-active');
+              }
+            }
+
+            btn.addEventListener('mouseenter', activate);
+            btn.addEventListener('click', activate);
+          });
+        }
+
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', initNav);
+        } else {
+          initNav();
+        }
+      })();
+    </script>
+  </body>
+</html>

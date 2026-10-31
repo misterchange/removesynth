@@ -1,0 +1,93 @@
+---
+import Base from '../../layouts/Base.astro';
+import Faq from '@removesynth/shared/components/Faq.astro';
+import { faqSchema, breadcrumbSchema, type FaqItem } from '@removesynth/shared/lib/faq';
+import { SITE } from '../../site';
+
+const title = 'SynthID aus einem Bild entfernen: Anleitung';
+const description =
+  'So entfernst du SynthID aus einem KI-Bild oder -Video in fünf Schritten, warum Zuschneiden und Screenshots nicht helfen und worauf du achten solltest.';
+
+const steps = [
+  { name: 'SynthID Remover öffnen', text: 'Öffne den SynthID Remover auf der Startseite von removesynth.com.' },
+  { name: 'Datei hochladen', text: 'Ziehe ein Bild, Video oder eine Audiodatei ins Feld oder klicke zum Auswählen.' },
+  { name: 'Rechte bestätigen', text: 'Bestätige per Häkchen, dass dir die Datei gehört oder du sie bearbeiten darfst.' },
+  { name: 'Datei bearbeiten', text: 'Klicke auf „Datei bearbeiten“ und warte, bis der Server fertig ist.' },
+  { name: 'Ergebnis herunterladen', text: 'Vergleiche Vorher und Nachher und klicke auf „Herunterladen“.' },
+];
+
+const faqs: FaqItem[] = [
+  {
+    q: 'Entfernt Photoshop oder ein anderes Bildprogramm SynthID?',
+    a: 'Meist nicht. SynthID ist so gebaut, dass es Zuschneiden, Skalieren, Filter und Komprimierung übersteht.',
+  },
+  {
+    q: 'Entfernt ein Screenshot SynthID?',
+    a: 'Nicht zuverlässig. Das Wasserzeichen steckt in den Pixeln, also wird es beim Screenshot mitkopiert.',
+  },
+  {
+    q: 'Hilft es, die Metadaten zu löschen?',
+    a: 'Nein. Das entfernt höchstens EXIF- oder C2PA-Daten. SynthID liegt nicht in den Metadaten, sondern im Inhalt.',
+  },
+  {
+    q: 'Wie lange dauert es?',
+    a: 'Bilder sind meist nach wenigen Sekunden fertig. Bei Videos hängt es von Länge und Auflösung ab.',
+  },
+];
+
+const schema = [
+  breadcrumbSchema([
+    { name: 'Start', url: `${SITE.url}/de/` },
+    { name: 'Anleitung', url: `${SITE.url}/de/synthid-entfernen-anleitung/` },
+  ]),
+  {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    name: 'SynthID aus einem Bild entfernen',
+    inLanguage: 'de',
+    description,
+    step: steps.map((s, i) => ({ '@type': 'HowToStep', position: i + 1, name: s.name, text: s.text })),
+  },
+  faqSchema(faqs),
+];
+---
+
+<Base title={title} description={description} schema={schema} ogType="article">
+  <article class="prose">
+    <header class="hero" style="text-align:left;padding-bottom:0">
+      <span class="eyebrow">Anleitung</span>
+      <h1>SynthID aus einem Bild entfernen</h1>
+      <p class="lead" style="margin-left:0">
+        SynthID steckt in den Pixeln von KI-Bildern und -Videos, deshalb hilft normales Bearbeiten
+        nicht. So bearbeitest du eine Datei mit RemoveSynth in fünf Schritten.
+      </p>
+    </header>
+
+    <h2>Schritt für Schritt</h2>
+    <ol class="steps">
+      {steps.map((s) => (
+        <li>
+          <strong>{s.name}.</strong> {s.text}
+        </li>
+      ))}
+    </ol>
+    <p><a class="btn" href="/de/">SynthID Remover öffnen</a></p>
+
+    <h2>Warum normale Bearbeitung nicht reicht</h2>
+    <p>
+      Google hat SynthID so entwickelt, dass es die üblichen Bearbeitungen übersteht: Zuschneiden,
+      Skalieren, Filter, Farbänderungen, Komprimieren und erneutes Speichern. Auch das Löschen von
+      Metadaten bringt nichts, weil SynthID dort gar nicht gespeichert ist. Mehr dazu unter
+      <a href="/de/was-ist-synthid/">Was ist SynthID?</a>
+    </p>
+
+    <h2>Vorher und nachher</h2>
+    <ul>
+      <li><strong>Vorher:</strong> Behalte eine Kopie des Originals und stelle sicher, dass du die Rechte an der Datei hast.</li>
+      <li><strong>Nachher:</strong> Prüfe in der Vorschau, ob die Datei so aussieht, wie du es erwartest.</li>
+      <li><strong>Immer:</strong> Sei ehrlich darüber, wie deine Inhalte entstanden sind.</li>
+    </ul>
+
+    <Faq items={faqs} heading="Häufige Fragen" />
+  </article>
+</Base>

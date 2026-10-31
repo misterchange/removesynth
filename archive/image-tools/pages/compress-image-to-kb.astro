@@ -1,0 +1,109 @@
+---
+import Base from '../layouts/Base.astro';
+import ImageTool from '../components/ImageTool.astro';
+import Faq from '@removesynth/shared/components/Faq.astro';
+import { faqSchema, breadcrumbSchema, type FaqItem } from '@removesynth/shared/lib/faq';
+import { SITE } from '../site';
+import { SIZES } from '../data/image-tools';
+
+const title = 'Compress Image to KB: Reduce Photo Size to 20KB, 50KB, 100KB Online';
+const description =
+  'Compress a photo to an exact size in KB: 20KB, 50KB, 100KB, 200KB or any size you need. Free, works on phone and PC, batch up to 30, and nothing is uploaded.';
+
+const faqs: FaqItem[] = [
+  {
+    q: 'How do I reduce a photo to a specific size in KB?',
+    a: 'Drop the photo into the box above, type the size you need or tap a preset like 50 KB, and download the result. The tool picks the highest quality that fits under your limit.',
+  },
+  {
+    q: 'What if the photo can’t reach the size?',
+    a: 'Very small targets on very large photos may need the image to be scaled down. The tool does that automatically, and tells you if a target is impossible.',
+  },
+  {
+    q: 'Which format should I use?',
+    a: 'JPG for forms and anywhere you’re not sure; it’s accepted everywhere. WebP keeps more detail at the same size, but some sites don’t accept it.',
+  },
+  {
+    q: 'Is 1 KB 1000 or 1024 bytes?',
+    a: 'We use 1000 bytes, the stricter reading, so your file is under the limit either way.',
+  },
+  {
+    q: 'Are my photos uploaded?',
+    a: 'No. Everything happens in your browser and your photos never leave your device.',
+  },
+];
+
+const schema = [
+  breadcrumbSchema([
+    { name: 'Home', url: `${SITE.url}/` },
+    { name: 'Tools', url: `${SITE.url}/tools/` },
+    { name: 'Compress image to KB', url: `${SITE.url}/compress-image-to-kb/` },
+  ]),
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: 'Compress Image to KB',
+    url: `${SITE.url}/compress-image-to-kb/`,
+    applicationCategory: 'MultimediaApplication',
+    operatingSystem: 'Any (web browser)',
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+  },
+  faqSchema(faqs),
+];
+---
+
+<Base title={title} description={description} schema={schema}>
+  <section class="hero">
+    <div class="container">
+      <span class="eyebrow">Free · Batch up to 30 · No upload</span>
+      <h1>Compress image to <span class="accent">KB</span></h1>
+      <p class="lead">Reduce any photo to the exact size a form or website asks for, from 20 KB to a few MB.</p>
+      <ImageTool mode="compress" targetKb={50} title="Drop photos to compress" sub="Pick a target size, then download." />
+    </div>
+  </section>
+
+  <article class="prose">
+    <h2>Common sizes</h2>
+    <table>
+      <thead><tr><th>Size</th><th>Typically used for</th></tr></thead>
+      <tbody>
+        {SIZES.map((s) => (
+          <tr>
+            <td><a href={`/compress-image-to-${s.slug}/`}>Compress to {s.label}</a></td>
+            <td>{s.uses[0]}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+
+    <h2>How to compress an image to a size in KB</h2>
+    <ol class="steps">
+      <li>Drop one or more photos into the box above, or tap it to choose them.</li>
+      <li>Type the size you need or tap a preset. Results update as you change it.</li>
+      <li>Download each photo, or all of them as a ZIP.</li>
+    </ol>
+
+    <h2>How the size is reached</h2>
+    <p>
+      The tool first lowers the JPG quality step by step and keeps the highest quality that fits under
+      your limit. Only if that isn’t enough does it shrink the image dimensions, and then again only as
+      much as needed. Photos are rotated the right way up, and transparent areas are filled with white
+      because JPG has no transparency.
+    </p>
+
+    <h2>Why so many sites ask for small photos</h2>
+    <p>
+      Application portals, exam registrations and job sites receive thousands of uploads, so they set
+      strict limits, often 20 KB for signatures and 50–100 KB for photos. A phone photo is usually
+      3–5 MB, which is why it gets rejected. Compressing it to the right size fixes that in seconds.
+    </p>
+
+    <p>
+      Need a different format instead? Use the <a href="/image-converter/">image converter</a>. To remove
+      your location and camera details before sharing, use the
+      <a href="/photo-metadata-remover/">photo metadata remover</a>.
+    </p>
+
+    <Faq items={faqs} heading="Compress image to KB FAQ" />
+  </article>
+</Base>

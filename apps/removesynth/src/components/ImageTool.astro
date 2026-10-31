@@ -1,0 +1,378 @@
+---
+// In-browser image compressor ("compress to N KB") and converter ("X to Y"). Batch up to 30, ZIP download.
+import ToolDrop from '@removesynth/shared/components/ToolDrop.astro';
+
+interface Props {
+  mode: 'compress' | 'convert';
+  /** compress: starting target in KB */
+  targetKb?: number;
+  /** convert: starting output format */
+  to?: 'jpg' | 'png' | 'webp';
+  title: string;
+  sub: string;
+}
+
+const { mode, targetKb = 50, to = 'jpg', title, sub } = Astro.props;
+const PRESETS = [20, 50, 100, 200, 500, 1000];
+const ACCEPT = 'image/jpeg,image/png,image/webp,image/avif,image/gif,image/bmp,image/heic,image/heif,.heic,.heif,.avif';
+---
+
+<div class="image-tool" data-mode={mode}>
+  <ToolDrop
+    id="image-tool"
+    accept={ACCEPT}
+    multiple
+    title={title}
+    sub={sub}
+    meta="click to choose or paste · JPG · PNG · WebP · AVIF · HEIC · GIF · up to 30 at once"
+    footnote="Runs in your browser · nothing is uploaded"
+  >
+    <div class="opts">
+      {mode === 'compress' ? (
+        <>
+          <label class="field">
+            <span>Target size</span>
+            <span class="target">
+              <input class="target-num" type="number" min="5" step="1" value={targetKb >= 1000 ? targetKb / 1000 : targetKb} inputmode="numeric" />
+              <select class="target-unit">
+                <option value="kb" selected={targetKb < 1000}>KB</option>
+                <option value="mb" selected={targetKb >= 1000}>MB</option>
+              </select>
+            </span>
+          </label>
+          <div class="presets" role="group" aria-label="Common sizes">
+            {PRESETS.map((p) => (
+              <button type="button" class="chip" data-kb={p} aria-pressed={p === targetKb ? 'true' : 'false'}>
+                {p >= 1000 ? `${p / 1000} MB` : `${p} KB`}
+              </button>
+            ))}
+          </div>
+          <label class="field">
+            <span>Output</span>
+            <select class="out-format">
+              <option value="jpg" selected>JPG</option>
+              <option value="webp">WebP</option>
+            </select>
+          </label>
+        </>
+      ) : (
+        <>
+          <label class="field">
+            <span>Convert to</span>
+            <select class="out-format">
+              <option value="jpg" selected={to === 'jpg'}>JPG</option>
+              <option value="png" selected={to === 'png'}>PNG</option>
+              <option value="webp" selected={to === 'webp'}>WebP</option>
+            </select>
+          </label>
+          <label class="field quality-field">
+            <span>Quality <output class="q-out">92%</output></span>
+            <input class="quality" type="range" min="50" max="100" value="92" />
+          </label>
+        </>
+      )}
+    </div>
+
+    <div class="results" hidden aria-live="polite">
+      <div class="bar">
+        <span class="summary"></span>
+        <div class="bar-actions">
+          <button type="button" class="btn zip">Download all (ZIP)</button>
+          <button type="button" class="btn btn-ghost clear">Clear</button>
+        </div>
+      </div>
+      <ul class="rows"></ul>
+    </div>
+  </ToolDrop>
+</div>
+
+<style>
+  .opts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 18px;
+    align-items: flex-end;
+    justify-content: center;
+    margin-top: 16px;
+  }
+  .field {
+    display: grid;
+    gap: 6px;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+  .target {
+    display: flex;
+    gap: 6px;
+  }
+  input[type='number'],
+  select {
+    font: inherit;
+    font-size: 1rem;
+    color: var(--text);
+    background: var(--bg);
+    border: 1px solid var(--border-strong);
+    border-radius: 10px;
+    padding: 8px 10px;
+  }
+  input[type='number'] {
+    width: 96px;
+  }
+  .quality-field {
+    min-width: 200px;
+  }
+  .quality {
+    accent-color: var(--accent);
+  }
+  .presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .chip {
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 8px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--border-strong);
+    background: var(--bg);
+    color: var(--muted);
+    cursor: pointer;
+  }
+  .chip[aria-pressed='true'] {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+  .results {
+    margin-top: 16px;
+  }
+  .bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .bar-actions {
+    display: flex;
+    gap: 8px;
+  }
+  .bar .btn {
+    padding: 8px 14px;
+    font-size: 0.9rem;
+  }
+  .rows {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 10px;
+  }
+  .rows :global(li) {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 10px 12px;
+    background: var(--bg-elev-2);
+  }
+  .rows :global(img) {
+    width: 56px;
+    height: 56px;
+    object-fit: cover;
+    border-radius: 8px;
+    flex: none;
+    background: var(--bg);
+  }
+  .rows :global(.info) {
+    flex: 1;
+    min-width: 0;
+  }
+  .rows :global(.name) {
+    font-weight: 600;
+    overflow-wrap: anywhere;
+  }
+  .rows :global(.note) {
+    margin: 2px 0 0;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+  .rows :global(.note .ok) {
+    color: var(--ok);
+    font-weight: 600;
+  }
+  .rows :global(.note .warn) {
+    color: var(--err);
+    font-weight: 600;
+  }
+  .rows :global(a.btn) {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    flex: none;
+  }
+</style>
+
+<script>
+  import { zipSync } from 'fflate';
+  import { compressTo, convert, decodeImage, formatSize, canEncode, KB, type OutFormat } from '../lib/image';
+
+  const MAX = 30;
+  const wrap = document.querySelector('.image-tool') as HTMLElement;
+  const root = document.getElementById('image-tool')!;
+  const mode = wrap.dataset.mode as 'compress' | 'convert';
+  const q = <T extends Element>(s: string) => root.querySelector(s) as T | null;
+
+  const results = q<HTMLElement>('.results')!;
+  const rows = q<HTMLUListElement>('.rows')!;
+  const summary = q<HTMLElement>('.summary')!;
+  const zipBtn = q<HTMLButtonElement>('.zip')!;
+  const clearBtn = q<HTMLButtonElement>('.clear')!;
+  const outFormat = q<HTMLSelectElement>('.out-format')!;
+  const targetNum = q<HTMLInputElement>('.target-num');
+  const targetUnit = q<HTMLSelectElement>('.target-unit');
+  const quality = q<HTMLInputElement>('.quality');
+  const qOut = q<HTMLOutputElement>('.q-out');
+  const chips = [...root.querySelectorAll<HTMLButtonElement>('.chip')];
+
+  let files: File[] = [];
+  let outputs: { name: string; blob: Blob }[] = [];
+  let urls: string[] = [];
+  let run = 0;
+
+  const el = <K extends keyof HTMLElementTagNameMap>(tag: K, cls?: string, text?: string) => {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text !== undefined) e.textContent = text;
+    return e;
+  };
+  const targetBytes = () => {
+    const n = Math.max(1, Number(targetNum?.value) || 50);
+    return Math.round(n * (targetUnit?.value === 'mb' ? 1000 : 1) * KB);
+  };
+  const outName = (name: string, ext: string) => {
+    const base = name.replace(/\.[^.]+$/, '');
+    return mode === 'compress' ? `${base}-${Math.round(targetBytes() / KB)}kb.${ext}` : `${base}.${ext}`;
+  };
+
+  const syncChips = () => {
+    const kb = Math.round(targetBytes() / KB);
+    chips.forEach((c) => c.setAttribute('aria-pressed', String(Number(c.dataset.kb) === kb)));
+  };
+
+  async function processAll() {
+    const id = ++run;
+    urls.forEach((u) => URL.revokeObjectURL(u));
+    urls = [];
+    outputs = [];
+    rows.replaceChildren();
+    results.hidden = files.length === 0;
+    const format = outFormat.value as OutFormat;
+    if (format === 'webp' && !(await canEncode('webp'))) {
+      summary.textContent = 'Your browser can’t save WebP. Choose JPG or PNG.';
+      return;
+    }
+    let done = 0;
+    for (const file of files) {
+      if (id !== run) return; // settings changed; a newer run took over
+      const li = el('li');
+      const info = el('div', 'info');
+      const note = el('p', 'note', 'Working…');
+      info.append(el('div', 'name', file.name), note);
+      li.append(info);
+      rows.append(li);
+      summary.textContent = `Working… ${done}/${files.length}`;
+      try {
+        const bitmap = await decodeImage(file);
+        const out =
+          mode === 'compress'
+            ? await compressTo(bitmap, targetBytes(), format === 'webp' ? 'webp' : 'jpg')
+            : await convert(bitmap, format, Number(quality?.value ?? 92) / 100);
+        bitmap.close();
+        if (id !== run) return;
+        const name = outName(file.name, format);
+        outputs.push({ name, blob: out.blob });
+        const url = URL.createObjectURL(out.blob);
+        urls.push(url);
+        const img = el('img') as HTMLImageElement;
+        img.src = url;
+        img.alt = '';
+        li.prepend(img);
+        note.replaceChildren(
+          `${formatSize(file.size)} → `,
+          el('span', mode === 'compress' && out.fits === false ? 'warn' : 'ok', formatSize(out.blob.size)),
+          ` · ${out.width}×${out.height}`,
+          out.quality !== undefined ? ` · quality ${Math.round(out.quality * 100)}%` : '',
+          mode === 'compress' && out.fits === false ? ' · couldn’t reach the target; this is the smallest we could make it' : '',
+        );
+        const a = el('a', 'btn', 'Download') as HTMLAnchorElement;
+        a.href = url;
+        a.download = name;
+        li.append(a);
+      } catch {
+        note.textContent = 'This file couldn’t be read. Try a JPG, PNG, WebP, AVIF or HEIC image.';
+      }
+      done++;
+    }
+    if (id !== run) return;
+    summary.textContent = `${outputs.length} of ${files.length} ready`;
+    zipBtn.disabled = outputs.length < 2;
+  }
+
+  root.addEventListener('files', (e) => {
+    const incoming = (e as CustomEvent<File[]>).detail;
+    files = [...files, ...incoming].slice(0, MAX);
+    processAll();
+  });
+
+  let debounce = 0;
+  const rerun = () => {
+    syncChips();
+    window.clearTimeout(debounce);
+    debounce = window.setTimeout(() => files.length && processAll(), 350);
+  };
+  targetNum?.addEventListener('input', rerun);
+  targetUnit?.addEventListener('change', rerun);
+  outFormat.addEventListener('change', rerun);
+  quality?.addEventListener('input', () => {
+    if (qOut) qOut.textContent = `${quality.value}%`;
+    rerun();
+  });
+  chips.forEach((c) =>
+    c.addEventListener('click', () => {
+      const kb = Number(c.dataset.kb);
+      if (targetNum && targetUnit) {
+        targetUnit.value = kb >= 1000 ? 'mb' : 'kb';
+        targetNum.value = String(kb >= 1000 ? kb / 1000 : kb);
+      }
+      rerun();
+    }),
+  );
+
+  zipBtn.addEventListener('click', async () => {
+    const entries: Record<string, Uint8Array> = {};
+    for (const o of outputs) {
+      let n = o.name;
+      for (let i = 2; entries[n]; i++) n = o.name.replace(/(\.[^.]+)$/, `-${i}$1`);
+      entries[n] = new Uint8Array(await o.blob.arrayBuffer());
+    }
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([zipSync(entries, { level: 0 })], { type: 'application/zip' }));
+    a.download = mode === 'compress' ? 'removesynth-compressed.zip' : 'removesynth-converted.zip';
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 10_000);
+  });
+
+  clearBtn.addEventListener('click', () => {
+    files = [];
+    run++;
+    urls.forEach((u) => URL.revokeObjectURL(u));
+    urls = [];
+    outputs = [];
+    rows.replaceChildren();
+    results.hidden = true;
+  });
+</script>

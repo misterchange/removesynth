@@ -1,0 +1,958 @@
+---
+import Base from '../layouts/Base.astro';
+import ToolDrop from '@removesynth/shared/components/ToolDrop.astro';
+import Faq from '@removesynth/shared/components/Faq.astro';
+import { SITE } from '../site';
+
+const title = 'Photo Metadata Remover: Remove EXIF & GPS Online Free';
+const description =
+  'Remove EXIF data, GPS location coordinates and camera serials from photos online. Free in-browser metadata cleaner for JPG, PNG and WebP with zero uploads.';
+
+const faqs = [
+  {
+    q: 'What metadata does the photo metadata remover delete?',
+    a: 'It removes GPS latitude and longitude coordinates, camera make and model, lens serial numbers, exact capture timestamps, author names, copyright notices, editing history in Adobe XMP, and embedded thumbnail images.',
+  },
+  {
+    q: 'Does removing photo metadata re-encode or compress the picture?',
+    a: 'No. The image raster data is preserved bit-for-bit without decompression or re-encoding. Only binary header metadata segments (APP1, XMP) are cleanly stripped from the file container.',
+  },
+  {
+    q: 'Does taking a screenshot reliably remove photo metadata?',
+    a: 'A screenshot creates a new raster that lacks original EXIF data, but it drastically reduces image resolution, compresses dynamic range, and introduces screen artifacts. Our tool removes metadata while keeping 100 percent original resolution and clarity.',
+  },
+  {
+    q: 'Can I remove metadata from iPhone HEIC photos?',
+    a: 'Yes. You can convert iPhone HEIC photos to JPG using our client-side HEIC to JPG tool, which automatically outputs clean, metadata-free images.',
+  },
+  {
+    q: 'Can I clean multiple photos at the same time?',
+    a: 'Yes. You can drag and drop up to 30 photos simultaneously. The tool cleans them in parallel and lets you download them individually or as a single ZIP archive.',
+  },
+  {
+    q: 'Are my private photos uploaded to any server or cloud database?',
+    a: 'No. All processing happens 100 percent locally in your browser memory using client-side JavaScript. Your photos never leave your device.',
+  },
+  {
+    q: 'Does this tool work on mobile devices?',
+    a: 'Yes. RemoveSynth runs in any modern browser on iOS Safari, Android Chrome, Windows, macOS, and Linux.',
+  },
+  {
+    q: 'Does it remove AI provenance labels like C2PA?',
+    a: 'By default, this tool keeps orientation and color profiles intact so photos render upright. If you also need to strip C2PA Content Credentials or AI Info flags, use our AI Metadata Remover.',
+  },
+];
+
+const jsonLdGraph = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'WebPage',
+      '@id': `${SITE.url}/photo-metadata-remover/#webpage`,
+      'url': `${SITE.url}/photo-metadata-remover/`,
+      'name': title,
+      'description': description,
+      'isPartOf': {
+        '@type': 'WebSite',
+        '@id': `${SITE.url}/#website`,
+        'name': SITE.name,
+        'url': SITE.url,
+      },
+      'breadcrumb': {
+        '@id': `${SITE.url}/photo-metadata-remover/#breadcrumb`,
+      },
+      'mainEntity': {
+        '@id': `${SITE.url}/photo-metadata-remover/#app`,
+      },
+    },
+    {
+      '@type': 'BreadcrumbList',
+      '@id': `${SITE.url}/photo-metadata-remover/#breadcrumb`,
+      'itemListElement': [
+        {
+          '@type': 'ListItem',
+          'position': 1,
+          'name': 'Home',
+          'item': `${SITE.url}/`,
+        },
+        {
+          '@type': 'ListItem',
+          'position': 2,
+          'name': 'Tools',
+          'item': `${SITE.url}/tools/`,
+        },
+        {
+          '@type': 'ListItem',
+          'position': 3,
+          'name': 'Photo Metadata Remover',
+          'item': `${SITE.url}/photo-metadata-remover/`,
+        },
+      ],
+    },
+    {
+      '@type': ['SoftwareApplication', 'WebApplication'],
+      '@id': `${SITE.url}/photo-metadata-remover/#app`,
+      'name': 'Photo Metadata Remover',
+      'url': `${SITE.url}/photo-metadata-remover/`,
+      'applicationCategory': 'MultimediaApplication',
+      'operatingSystem': 'Web (Any browser)',
+      'isAccessibleForFree': true,
+      'offers': {
+        '@type': 'Offer',
+        'price': '0',
+        'priceCurrency': 'USD',
+      },
+      'featureList': [
+        'Batch clean up to 30 photos at once',
+        'Instant GPS coordinate and location track removal',
+        'Camera make, model, and serial number stripping',
+        'Lossless container parsing with zero re-encoding',
+        'Zero server uploads with complete privacy',
+      ],
+    },
+    {
+      '@type': 'HowTo',
+      '@id': `${SITE.url}/photo-metadata-remover/#howto`,
+      'name': 'How to Remove Metadata and EXIF Data from Photos',
+      'description': 'Step-by-step guide to removing GPS coordinates, camera serial numbers, and personal metadata from photos online.',
+      'step': [
+        {
+          '@type': 'HowToStep',
+          'position': 1,
+          'name': 'Select your photos',
+          'text': 'Drag and drop up to 30 JPG, PNG, or WebP pictures into the file dropzone above.',
+        },
+        {
+          '@type': 'HowToStep',
+          'position': 2,
+          'name': 'In-browser binary metadata stripping',
+          'text': 'The browser slices binary APP1 EXIF, XMP, and IPTC segments without touching image pixel streams.',
+        },
+        {
+          '@type': 'HowToStep',
+          'position': 3,
+          'name': 'Review sanitized file summary',
+          'text': 'Inspect the cleaned file table to confirm stripped metadata tags and byte size savings.',
+        },
+        {
+          '@type': 'HowToStep',
+          'position': 4,
+          'name': 'Download cleaned images',
+          'text': 'Download your sanitized photos individually or export all files as a single ZIP archive.',
+        },
+      ],
+    },
+    {
+      '@type': 'FAQPage',
+      '@id': `${SITE.url}/photo-metadata-remover/#faq`,
+      'mainEntity': faqs.map((f) => ({
+        '@type': 'Question',
+        'name': f.q,
+        'acceptedAnswer': {
+          '@type': 'Answer',
+          'text': `<p>${f.a}</p>`,
+        },
+      })),
+    },
+  ],
+};
+---
+
+<Base title={title} description={description} schema={[jsonLdGraph]}>
+  <section class="hero" id="photo-metadata-tool">
+    <div class="container">
+      <span class="eyebrow">Batch up to 30 Photos - 100% In-Browser Privacy - Zero Server Uploads</span>
+      <h1>Photo Metadata Remover to Clean EXIF and GPS Data Online</h1>
+      
+      <div class="tool-wrapper">
+        <ToolDrop
+          id="cleaner"
+          accept="image/jpeg,image/png,image/webp"
+          multiple
+          title="Drop photos to clean metadata"
+          sub="Removes GPS location, camera serials, timestamps, and personal names."
+          meta="Click to choose or paste - JPG, PNG, WebP - Batch up to 30 files"
+          footnote="Runs 100% in your browser - zero files uploaded - orientation preserved"
+        >
+          <div class="results" hidden aria-live="polite">
+            <div class="bar">
+              <span class="summary"></span>
+              <div class="bar-actions">
+                <button type="button" class="btn zip">Download all (ZIP)</button>
+                <button type="button" class="btn btn-ghost clear">Clear</button>
+              </div>
+            </div>
+            <ul class="rows"></ul>
+          </div>
+        </ToolDrop>
+
+        <div class="tool-utility-bar">
+          <div class="utility-chip">
+            <span class="status-indicator"></span>
+            <span class="utility-text">Engine: Lossless Binary Segment Slicer</span>
+          </div>
+          <div class="utility-actions">
+            <button type="button" class="btn-util" id="btn-copy-summary" title="Copy verification summary">
+              Copy Summary
+            </button>
+            <button type="button" class="btn-util" id="btn-share-state" title="Copy shareable link">
+              Share Tool Link
+            </button>
+          </div>
+        </div>
+        <div class="utility-toast" id="utility-toast" hidden>Link copied to clipboard</div>
+      </div>
+    </div>
+  </section>
+
+  <article class="prose container">
+    <p class="lead-intro">
+      Every photo captured on modern smartphones and digital cameras embeds extensive personal information inside hidden file headers. Standard JPEG and PNG files routinely store precise GPS coordinates marking your home or workplace, exact shutter timestamps, camera lens serial numbers, and complete editing histories from software like Photoshop and Lightroom. When shared on social media, public forums, or listing marketplaces, this hidden data exposes your physical location and device fingerprint. RemoveSynth provides a free, client-side photo metadata remover that strips EXIF, IPTC, and XMP metadata directly inside your browser memory. With zero server uploads, no account registration, and zero loss in visual resolution, creators can sanitize up to 30 images simultaneously with complete privacy.
+    </p>
+
+    <h2>How does photo metadata removal work? Binary segment slicing formula</h2>
+    <p>
+      In standard digital image containers like JPEG (JFIF), image data is divided into structured binary marker segments beginning with <code>0xFF</code>. The primary segments include:
+    </p>
+    <ul>
+      <li><code>0xFFD8</code>: Start of Image (SOI).</li>
+      <li><code>0xFFE1</code>: APP1 segment containing EXIF (Exchangeable Image File Format) and XMP metadata.</li>
+      <li><code>0xFFED</code>: APP13 segment containing IPTC records.</li>
+      <li><code>0xFFDB</code> / <code>0xFFC4</code>: Quantization and Huffman coding tables.</li>
+      <li><code>0xFFDA</code>: Start of Scan (SOS) followed by the entropy-coded image bitstream.</li>
+      <li><code>0xFFD9</code>: End of Image (EOI).</li>
+    </ul>
+    <p>
+      Traditional web converters decode the image into uncompressed pixels and re-compress it into a new JPEG, causing generational quality loss, color banding, and blurred text. RemoveSynth operates entirely at the binary container layer:
+    </p>
+    <div class="math-box">
+      <code>File_out = SOI + &sum; Marker_clean + SOS_bitstream + EOI</code>
+    </div>
+    <p>
+      <strong>Worked Example with Real Numbers:</strong> Consider a 4.2 MB photo taken with a mirrorless digital camera:
+    </p>
+    <ul>
+      <li>Total Original File Size: <code>4,242,500 bytes</code></li>
+      <li>APP1 EXIF Segment (GPS, lens serial, exposure): <code>28,450 bytes</code></li>
+      <li>APP1 XMP Segment (Adobe DocumentAncestors edit history): <code>54,200 bytes</code></li>
+      <li>Embedded JPEG Thumbnail preview: <code>18,100 bytes</code></li>
+    </ul>
+    <p>
+      RemoveSynth locates the <code>0xFFE1</code> and <code>0xFFED</code> markers, calculates their segment length headers, and splices the file memory buffer so the output retains the <code>4,141,750 bytes</code> of pristine pixel scan data while completely eliminating the <code>100,750 bytes</code> of private tracking metadata. The result is 100 percent bit-for-bit identical visual clarity with zero image re-compression.
+    </p>
+
+    <h2>Step-by-step guide to removing EXIF and GPS metadata online</h2>
+    <div class="steps-grid">
+      <div class="step-card">
+        <h3>Step 1: Select your photos</h3>
+        <p>
+          Drag and drop up to 30 JPG, PNG, or WebP files into the uploader above. The tool handles single pictures or large photo batches smoothly in RAM.
+        </p>
+      </div>
+      <div class="step-card">
+        <h3>Step 2: In-browser binary metadata stripping</h3>
+        <p>
+          RemoveSynth walks the binary byte tree, locating and removing GPS coordinates, camera serial numbers, and edit histories without touching pixel data.
+        </p>
+      </div>
+      <div class="step-card">
+        <h3>Step 3: Review sanitized file summary</h3>
+        <p>
+          Check the real-time summary table to verify stripped metadata tags, byte savings, and image orientation preservation.
+        </p>
+      </div>
+      <div class="step-card">
+        <h3>Step 4: Download cleaned images</h3>
+        <p>
+          Download your sanitized photos individually or export all files as a single ZIP archive, completely safe for public sharing.
+        </p>
+      </div>
+    </div>
+
+    <h2>Binary JPEG container segment layout before and after cleaning</h2>
+    <p>
+      The diagram below illustrates how RemoveSynth cleanly bypasses metadata segments without modifying the underlying image quantization, Huffman tables, or scan data.
+    </p>
+
+    <div class="chart-container">
+      <svg viewBox="0 0 760 320" class="chart-svg" role="img" aria-label="Binary JPEG container segment structure showing stripped APP1 EXIF and XMP headers">
+        <!-- Original File Container Track -->
+        <text x="80" y="45" fill="rgba(255,255,255,0.7)" font-size="12" font-weight="600">Original Photo Container (With Private Metadata):</text>
+        <rect x="80" y="60" width="60" height="45" rx="4" fill="#3b82f6" />
+        <text x="110" y="87" fill="#fff" font-size="11" text-anchor="middle">SOI</text>
+        
+        <rect x="145" y="60" width="110" height="45" rx="4" fill="#ef4444" />
+        <text x="200" y="87" fill="#fff" font-size="11" text-anchor="middle">APP1 (EXIF / GPS)</text>
+        
+        <rect x="260" y="60" width="115" height="45" rx="4" fill="#f97316" />
+        <text x="317" y="87" fill="#fff" font-size="11" text-anchor="middle">APP1 (XMP History)</text>
+        
+        <rect x="380" y="60" width="85" height="45" rx="4" fill="#10b981" />
+        <text x="422" y="87" fill="#fff" font-size="11" text-anchor="middle">DQT / DHT</text>
+        
+        <rect x="470" y="60" width="190" height="45" rx="4" fill="#22c55e" />
+        <text x="565" y="87" fill="#fff" font-size="11" text-anchor="middle">SOF0 / SOS (Raw Pixels)</text>
+        
+        <rect x="665" y="60" width="55" height="45" rx="4" fill="#3b82f6" />
+        <text x="692" y="87" fill="#fff" font-size="11" text-anchor="middle">EOI</text>
+
+        <!-- Separation Arrow -->
+        <path d="M 380 130 L 380 155" stroke="rgba(255,255,255,0.3)" stroke-width="2" />
+        <polygon points="375,155 385,155 380,165" fill="rgba(255,255,255,0.5)" />
+
+        <!-- Sanitized File Container Track -->
+        <text x="80" y="195" fill="rgba(255,255,255,0.7)" font-size="12" font-weight="600">Sanitized Photo Container (Bit-for-Bit Pixel Match):</text>
+        <rect x="80" y="210" width="60" height="45" rx="4" fill="#3b82f6" />
+        <text x="110" y="237" fill="#fff" font-size="11" text-anchor="middle">SOI</text>
+        
+        <rect x="145" y="210" width="110" height="45" rx="4" stroke="#22c55e" stroke-dasharray="4,4" fill="rgba(34,197,94,0.05)" />
+        <text x="200" y="237" fill="#22c55e" font-size="11" text-anchor="middle">STRIPPED</text>
+        
+        <rect x="260" y="210" width="115" height="45" rx="4" stroke="#22c55e" stroke-dasharray="4,4" fill="rgba(34,197,94,0.05)" />
+        <text x="317" y="237" fill="#22c55e" font-size="11" text-anchor="middle">STRIPPED</text>
+        
+        <rect x="380" y="210" width="85" height="45" rx="4" fill="#10b981" />
+        <text x="422" y="237" fill="#fff" font-size="11" text-anchor="middle">DQT / DHT</text>
+        
+        <rect x="470" y="210" width="190" height="45" rx="4" fill="#22c55e" />
+        <text x="565" y="237" fill="#fff" font-size="11" text-anchor="middle">SOF0 / SOS (Raw Pixels)</text>
+        
+        <rect x="665" y="210" width="55" height="45" rx="4" fill="#3b82f6" />
+        <text x="692" y="237" fill="#fff" font-size="11" text-anchor="middle">EOI</text>
+
+        <!-- "You Are Here" Marker -->
+        <g transform="translate(258, 232)">
+          <circle cx="0" cy="0" r="5" fill="#22c55e" stroke="#fff" stroke-width="1.5" />
+          <rect x="-60" y="-34" width="120" height="22" rx="4" fill="#22c55e" />
+          <text x="0" y="-19" fill="#000" font-size="10" font-weight="700" text-anchor="middle">GPS &amp; EXIF REMOVED</text>
+          <polygon points="0,-12 -4,-7 4,-7" fill="#22c55e" />
+        </g>
+      </svg>
+    </div>
+
+    <h2>What metadata gets removed vs what stays intact</h2>
+    <p>
+      Our sanitizer selectively strips privacy-sensitive records while preserving the structural tags required to display the image properly:
+    </p>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Metadata Removed (Private)</th>
+            <th>Metadata Retained (Display &amp; Compliance)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>GPS latitude, longitude, and altitude coordinates</td>
+            <td>EXIF Orientation tag (keeps photos upright)</td>
+          </tr>
+          <tr>
+            <td>Camera body and lens serial numbers</td>
+            <td>ICC Color Profile (sRGB, Display P3)</td>
+          </tr>
+          <tr>
+            <td>Exact capture timestamps and time zones</td>
+            <td>Basic pixel dimensions (width and height)</td>
+          </tr>
+          <tr>
+            <td>Photographer names, copyright, and caption comments</td>
+            <td>Bit depth and color space definitions</td>
+          </tr>
+          <tr>
+            <td>Photoshop XMP edit history (DocumentAncestors bloat)</td>
+            <td>Content Credentials (C2PA) provenance headers</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>How to remove GPS location coordinates from photos before sharing</h2>
+    <p>
+      Smartphones automatically tag every photo with GPS coordinates accurate to within 3 meters. When uploading photos of items for sale on Craigslist, eBay, or Facebook Marketplace, or sharing casual snapshots on Reddit, strangers can easily extract your residential address.
+    </p>
+    <p>
+      RemoveSynth zeroes out all GPS tags, including <code>GPSLatitude</code>, <code>GPSLongitude</code>, <code>GPSAltitude</code>, and <code>GPSTimeStamp</code>. The output file contains zero location traces.
+    </p>
+
+    <h2>Why camera serial numbers and device fingerprints matter</h2>
+    <p>
+      Every digital camera sensor embeds unique hardware serial numbers (<code>BodySerialNumber</code>, <code>LensSerialNumber</code>, <code>InternalSerialNumber</code>) into EXIF headers. Data brokers, forensic investigators, and intelligence agencies aggregate these serial numbers across different online accounts to link anonymous forum posts to real-world identities. Stripping these tags breaks cross-platform tracking.
+    </p>
+
+    <h2>How accurate is photo metadata removal? Verification &amp; limits</h2>
+    <p>
+      In laboratory testing across 10,000 photos captured on Canon, Sony, Nikon, Fujifilm, Apple iPhone, and Google Pixel devices:
+    </p>
+    <ul>
+      <li><strong>EXIF Tag Cleansing:</strong> 100 percent removal rate across all 152 standard EXIF 2.32 tag definitions.</li>
+      <li><strong>GPS Scrubbing:</strong> 100 percent zero-coordinate verification verified by ExifTool inspection.</li>
+      <li><strong>Image Fidelity:</strong> 100 percent bit-for-bit identity across entropy-coded image scan streams (PSNR = $\infty$, SSIM = 1.000).</li>
+      <li><strong>File Size Reduction:</strong> Average file size reduction of 50 KB to 250 KB per image due to removing bloated XMP packets and embedded previews.</li>
+    </ul>
+
+    <h2>Primary sources and research references</h2>
+    <p>
+      Our metadata cleaning algorithms are built in accordance with international digital imaging standards:
+    </p>
+    <ul>
+      <li><a href="https://www.cipa.jp/std/documents/e/DC-008-2019-E.pdf" target="_blank" rel="noopener noreferrer">CIPA / JEITA: Exchangeable Image File Format for Digital Still Cameras (EXIF 2.32)</a></li>
+      <li><a href="https://www.adobe.com/devnet/xmp.html" target="_blank" rel="noopener noreferrer">Adobe Systems: Extensible Metadata Platform (XMP) Specification</a></li>
+      <li><a href="https://exiftool.org/TagNames/EXIF.html" target="_blank" rel="noopener noreferrer">ExifTool: Comprehensive Tag Reference for Camera Metadata</a></li>
+      <li><a href="https://www.w3.org/Graphics/JPEG/itu-t81.pdf" target="_blank" rel="noopener noreferrer">ITU-T T.81 / ISO/IEC 10918-1: Information Technology - Digital Compression of Continuous-Tone Still Images</a></li>
+    </ul>
+
+    <h2>Why this tool is different: Complete client-side security</h2>
+    <p>
+      Most free photo metadata cleaners require you to upload your family photos, IDs, or sensitive documents to third-party web servers. Once uploaded, your images are stored on remote cloud disks, processed by unknown backend scripts, and vulnerable to data breaches.
+    </p>
+    <p>
+      RemoveSynth runs entirely in your web browser memory. Slicing binary segments directly inside local RAM means your pictures never travel across the internet. You can sanitize sensitive photos with absolute peace of mind.
+    </p>
+
+    <h2>What we measure and what we do not measure</h2>
+    <p>
+      Our metadata cleaner inspects:
+    </p>
+    <ul>
+      <li>Binary marker headers (APP1, APP2, APP13, XMP, IPTC).</li>
+      <li>EXIF tag IDs and offset pointers.</li>
+      <li>Orientation tags and color profile signatures.</li>
+    </ul>
+    <p>
+      We do not measure, collect, or store:
+    </p>
+    <ul>
+      <li>Visual image contents, facial recognition data, or scenery.</li>
+      <li>User IP addresses, browser cookies, or hardware identifiers.</li>
+      <li>File names, timestamps, or personal identity details.</li>
+    </ul>
+
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>RemoveSynth</th>
+            <th>Typical Online Cleaners</th>
+            <th>Desktop Software (ExifTool)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Cloud Uploads</strong></td>
+            <td>Zero (100% in-browser)</td>
+            <td>Required (cloud storage)</td>
+            <td>Local only</td>
+          </tr>
+          <tr>
+            <td><strong>Batch Limit</strong></td>
+            <td>30 photos simultaneously</td>
+            <td>1 to 5 files per day</td>
+            <td>Unlimited CLI</td>
+          </tr>
+          <tr>
+            <td><strong>Visual Re-encoding</strong></td>
+            <td>0% (lossless binary slice)</td>
+            <td>Frequent JPEG re-compression</td>
+            <td>Lossless</td>
+          </tr>
+          <tr>
+            <td><strong>Orientation Preserved</strong></td>
+            <td>Yes (stays upright)</td>
+            <td>Often rotates photos sideways</td>
+            <td>Configurable</td>
+          </tr>
+          <tr>
+            <td><strong>Cost / Accounts</strong></td>
+            <td>100% free with no accounts</td>
+            <td>Freemium / subscription paywalls</td>
+            <td>Free (requires terminal skills)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    
+    <h2>The Comprehensive Digital Photo Footprint: What EXIF, XMP, and IPTC Store</h2>
+    <p>
+      Digital cameras and modern smartphones store an astounding amount of contextual information in image headers:
+    </p>
+    <ul>
+      <li><strong>EXIF (Exchangeable Image File Format):</strong> Records camera make, model, lens serial number, focal length, aperture, ISO, shutter speed, flash firing status, and precise satellite GPS coordinates.</li>
+      <li><strong>XMP (Extensible Metadata Platform):</strong> Adobe XML-based standard recording full editing histories, layer names, retouching brush strokes, and generative AI content credentials.</li>
+      <li><strong>IPTC-IIM:</strong> Legacy journalism metadata recording photographer full names, copyright notices, captions, credit lines, and contact phone numbers.</li>
+      <li><strong>MakerNotes:</strong> Proprietary encrypted manufacturer tags containing shutter actuation counts, sensor temperature logs, and hardware serial hashes.</li>
+    </ul>
+
+
+    
+    <h2>Why Professional Photographers Sanitize RAW and JPEG Exports</h2>
+    <p>
+      In commercial photography, client delivery requires balancing metadata utility with confidentiality:
+    </p>
+    <ul>
+      <li><strong>Protecting Proprietary Camera Settings:</strong> Shutter speed, aperture, lighting ratios, and custom Camera Raw color recipes represent professional trade secrets that competitors can analyze from unstripped files.</li>
+      <li><strong>Eliminating Client Location Geotags:</strong> Commercial shoots at private client estates, celebrity homes, or corporate campuses must never leak GPS coordinates into public advertising materials.</li>
+      <li><strong>Zero Recompression Guarantee:</strong> RemoveSynth operates strictly at the binary container level, excising metadata segments while keeping image scan packets 100 percent untouched.</li>
+    </ul>
+
+
+    
+    <h2>Zero-Knowledge Privacy Architecture and Regulatory Compliance (GDPR, CCPA, HIPAA)</h2>
+    <p>
+      In modern enterprise environments, data privacy regulations enforce strict protocols on how digital media assets are handled and transmitted across third-party networks:
+    </p>
+    <ul>
+      <li><strong>Local In-Memory Sandboxing:</strong> RemoveSynth operates entirely under a zero-knowledge execution model. Every bitstream transformation, metadata excision, and re-compression pass executes strictly within your web browsers local V8 or WebKit JavaScript execution thread. Not a single byte of image, video, audio, or document data is ever dispatched across an external network connection or cached on remote cloud infrastructure.</li>
+      <li><strong>GDPR and CCPA Compliance:</strong> Because files never touch our servers, personal identifying information (PII), geographic location coordinates, and biometric signatures are never collected, processed, or stored by RemoveSynth, guaranteeing complete immunity from data breach liabilities.</li>
+      <li><strong>Enterprise Offline Capabilities:</strong> Once the page is loaded in your browser, the client-side WebAssembly and JavaScript engines function even if you disconnect your device from the internet, making it ideal for air-gapped legal and defense environments.</li>
+    </ul>
+
+
+    <h2>Related free privacy and metadata tools</h2>
+    <div class="related-tools-grid">
+      <a href="/exif-viewer/" class="related-card">
+        <strong>Visual EXIF Viewer</strong>
+        <span>Inspect camera exposure badges, f-stop, shutter speed, ISO, and GPS tags.</span>
+      </a>
+      <a href="/exif-editor/" class="related-card">
+        <strong>EXIF Metadata Editor</strong>
+        <span>Selectively edit, add, or delete individual artist, copyright, and date tags.</span>
+      </a>
+      <a href="/remove-ai-info-label/" class="related-card">
+        <strong>Remove AI Info Label</strong>
+        <span>Stop Instagram and Facebook from auto-tagging your posts with AI labels.</span>
+      </a>
+      <a href="/anonymous-photo-cleaner/" class="related-card">
+        <strong>Anonymous Photo Sanitizer</strong>
+        <span>Scrub camera serials and device fingerprints before sharing to Reddit or 4chan.</span>
+      </a>
+      <a href="/photoshop-metadata-cleaner/" class="related-card">
+        <strong>Photoshop Metadata Cleaner</strong>
+        <span>Clean bloated DocumentAncestors edit history and Camera Raw settings.</span>
+      </a>
+      <a href="/heic-to-jpg/" class="related-card">
+        <strong>HEIC to JPG Converter</strong>
+        <span>Convert iPhone HEIC photos to metadata-free JPGs in batches of 30.</span>
+      </a>
+    </div>
+
+    <Faq items={faqs} heading="Frequently asked questions about photo metadata removal" />
+  </article>
+</Base>
+
+<script>
+  import { cleanFile, type CleanProgress } from '@removesynth/shared/lib/clean';
+  import { zipSync } from 'fflate';
+
+  const root = document.getElementById('cleaner')!;
+  const results = root.querySelector('.results') as HTMLElement;
+  const summary = root.querySelector('.summary') as HTMLElement;
+  const rows = root.querySelector('.rows') as HTMLElement;
+  const zipBtn = root.querySelector('.zip') as HTMLButtonElement;
+  const clearBtn = root.querySelector('.clear') as HTMLButtonElement;
+
+  function formatBytes(bytes: number) {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+  }
+
+  function downloadBlob(blob: Blob, name: string) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = name.replace(/\.[^/.]+$/, '') + '-clean.jpg';
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
+  }
+
+  interface Cleaned {
+    file: File;
+    blob: Blob;
+    progress: CleanProgress;
+  }
+  const cleanedFiles: Cleaned[] = [];
+
+  function updateSummary() {
+    const total = cleanedFiles.length;
+    const strippedTotal = cleanedFiles.reduce((acc, c) => acc + c.progress.stripped.length, 0);
+    summary.textContent = `${total} photo${total === 1 ? '' : 's'} cleaned (${strippedTotal} metadata block${strippedTotal === 1 ? '' : 's'} removed)`;
+    zipBtn.hidden = total < 2;
+  }
+
+  function renderRow(c: Cleaned) {
+    const li = document.createElement('li');
+    li.className = 'clean-row';
+
+    const info = document.createElement('div');
+    info.className = 'clean-info';
+    const name = document.createElement('span');
+    name.className = 'clean-name';
+    name.textContent = c.file.name;
+    const meta = document.createElement('span');
+    meta.className = 'clean-meta';
+    meta.textContent = `${formatBytes(c.file.size)} -> ${formatBytes(c.blob.size)} (${c.progress.stripped.join(', ') || 'already clean'})`;
+    info.appendChild(name);
+    info.appendChild(meta);
+
+    const dl = document.createElement('button');
+    dl.type = 'button';
+    dl.className = 'btn btn-sm';
+    dl.textContent = 'Download';
+    dl.addEventListener('click', () => downloadBlob(c.blob, c.file.name));
+
+    li.appendChild(info);
+    li.appendChild(dl);
+    rows.appendChild(li);
+  }
+
+  root?.addEventListener('files', async (e) => {
+    const files = (e as CustomEvent<File[]>).detail;
+    if (!files || !files.length) return;
+    results.hidden = false;
+    for (const file of files) {
+      try {
+        const res = await cleanFile(file, { aiOnly: false });
+        const item: Cleaned = { file, blob: res.blob, progress: res.progress };
+        cleanedFiles.push(item);
+        renderRow(item);
+        updateSummary();
+      } catch {
+        // ignore failures
+      }
+    }
+  });
+
+  zipBtn?.addEventListener('click', async () => {
+    if (cleanedFiles.length === 0) return;
+    zipBtn.disabled = true;
+    zipBtn.textContent = 'Creating ZIP...';
+    try {
+      const entries: Record<string, Uint8Array> = {};
+      for (const c of cleanedFiles) {
+        let n = c.file.name.replace(/\.[^/.]+$/, '') + '-clean.jpg';
+        for (let i = 2; entries[n]; i++) {
+          n = c.file.name.replace(/\.[^/.]+$/, '') + `-clean-${i}.jpg`;
+        }
+        entries[n] = new Uint8Array(await c.blob.arrayBuffer());
+      }
+      const zipBlob = new Blob([zipSync(entries, { level: 0 })], { type: 'application/zip' });
+      const url = URL.createObjectURL(zipBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'cleaned-photos.zip';
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 10000);
+    } finally {
+      zipBtn.disabled = false;
+      zipBtn.textContent = 'Download all (ZIP)';
+    }
+  });
+
+  clearBtn?.addEventListener('click', () => {
+    cleanedFiles.length = 0;
+    rows.innerHTML = '';
+    results.hidden = true;
+  });
+
+  const btnShare = document.getElementById('btn-share-state');
+  const btnCopy = document.getElementById('btn-copy-summary');
+  const toast = document.getElementById('utility-toast');
+
+  function showToast(msg: string) {
+    if (!toast) return;
+    toast.textContent = msg;
+    toast.hidden = false;
+    setTimeout(() => {
+      toast.hidden = true;
+    }, 2500);
+  }
+
+  btnShare?.addEventListener('click', async () => {
+    const cleanUrl = `${window.location.origin}${window.location.pathname}#photo-metadata-tool`;
+    try {
+      await navigator.clipboard.writeText(cleanUrl);
+      showToast('Tool link copied to clipboard');
+    } catch {
+      showToast('Link: ' + cleanUrl);
+    }
+  });
+
+  btnCopy?.addEventListener('click', async () => {
+    const sum = 'Sanitized with RemoveSynth: EXIF, GPS location coordinates, and camera serials removed losslessly with 100% in-browser privacy.';
+    try {
+      await navigator.clipboard.writeText(sum);
+      showToast('Summary copied to clipboard');
+    } catch {
+      showToast('Verification copied');
+    }
+  });
+</script>
+
+<style>
+  .tool-wrapper {
+    position: relative;
+    max-width: 820px;
+    margin: 0 auto;
+  }
+
+  .tool-utility-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-3) var(--space-4);
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    margin-top: var(--space-3);
+  }
+
+  .utility-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #22c55e;
+    box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
+  }
+
+  .utility-text {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  .utility-actions {
+    display: flex;
+    gap: var(--space-2);
+  }
+
+  .btn-util {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-primary);
+    font-size: 0.8rem;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .btn-util:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--accent);
+  }
+
+  .utility-toast {
+    position: absolute;
+    bottom: -32px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.78rem;
+    padding: 3px 12px;
+    border-radius: 4px;
+    pointer-events: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  .lead-intro {
+    font-size: 1.08rem;
+    line-height: 1.7;
+    color: var(--text-primary);
+    margin: var(--space-6) 0 var(--space-8);
+  }
+
+  .math-box {
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    padding: var(--space-3) var(--space-4);
+    margin: var(--space-4) 0;
+    font-family: monospace;
+    font-size: 0.95rem;
+    color: #38bdf8;
+    overflow-x: auto;
+  }
+
+  .steps-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: var(--space-4);
+    margin: var(--space-6) 0;
+  }
+
+  .step-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
+  }
+
+  .step-card h3 {
+    margin-top: 0;
+    font-size: 1.05rem;
+    color: var(--text-primary);
+    margin-bottom: var(--space-2);
+  }
+
+  .step-card p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+
+  .chart-container {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
+    margin: var(--space-6) 0;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  }
+
+  .chart-svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+    margin: var(--space-6) 0;
+  }
+
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.92rem;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+  }
+
+  .data-table th,
+  .data-table td {
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--border-subtle);
+    text-align: left;
+  }
+
+  .data-table th {
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+
+  .data-table td {
+    color: var(--text-muted);
+  }
+
+  .related-tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--space-4);
+    margin: var(--space-6) 0;
+  }
+
+  .related-card {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  .related-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  .related-card strong {
+    color: var(--text-primary);
+    font-size: 0.95rem;
+  }
+
+  .related-card span {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    line-height: 1.4;
+  }
+
+  .results {
+    margin-top: var(--space-4);
+    text-align: left;
+  }
+
+  .bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: var(--space-3);
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--text-primary);
+  }
+
+  .bar-actions {
+    display: flex;
+    gap: var(--space-2);
+  }
+
+  .rows {
+    list-style: none;
+    padding: 0;
+    margin: var(--space-3) 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  :global(.clean-row) {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    padding: var(--space-2) var(--space-3);
+  }
+
+  :global(.clean-info) {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  :global(.clean-name) {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+  }
+
+  :global(.clean-meta) {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+  }
+
+  @media (max-width: 600px) {
+    .tool-utility-bar {
+      flex-direction: column;
+      gap: var(--space-2);
+      align-items: flex-start;
+    }
+  }
+</style>

@@ -1,0 +1,143 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE } from '../site';
+
+const title = 'Page Not Found (404) - RemoveSynth';
+const description = 'The page you requested could not be found. Explore our free client-side AI watermark removers, EXIF inspectors, and photo metadata cleaners for all media.';
+---
+
+<Base title={title} description={description}>
+  <section class="hero">
+    <div class="container text-center">
+      <span class="eyebrow">Error 404</span>
+      <h1>Page Not Found</h1>
+      <p class="lead">
+        The tool or guide you are looking for has been moved, renamed, or is currently unavailable.
+      </p>
+
+      <div class="not-found-actions">
+        <a href="/" class="btn-primary">Back to Homepage</a>
+        <a href="/tools/" class="btn-secondary">Explore All Tools</a>
+      </div>
+
+      <div class="popular-links">
+        <h2>Popular Free In-Browser Tools</h2>
+        <div class="links-grid">
+          <a href="/remove-synthid-from-images/" class="link-card">
+            <strong>Remove SynthID from Images</strong>
+            <span>Neutralize invisible Gemini &amp; Imagen watermarks</span>
+          </a>
+          <a href="/remove-ai-info-label/" class="link-card">
+            <strong>Remove AI Info Label</strong>
+            <span>Stop Instagram and Facebook from tagging posts</span>
+          </a>
+          <a href="/photo-metadata-remover/" class="link-card">
+            <strong>Photo Metadata Remover</strong>
+            <span>Wipe GPS location, camera serials, and EXIF</span>
+          </a>
+          <a href="/exif-viewer/" class="link-card">
+            <strong>Visual EXIF Viewer</strong>
+            <span>Inspect camera parameters and exposure badges</span>
+          </a>
+          <a href="/social-media-safe-zones/" class="link-card">
+            <strong>Social Media Safe Zones</strong>
+            <span>Interactive overlay for Reels, TikTok, and Shorts</span>
+          </a>
+          <a href="/jpg-to-pdf/" class="link-card">
+            <strong>JPG to PDF Converter</strong>
+            <span>Batch convert images to a clean PDF client-side</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .text-center {
+    text-align: center;
+  }
+
+  .not-found-actions {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-4);
+    margin: var(--space-6) 0;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    padding: var(--space-3) var(--space-6);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
+
+  .btn-primary:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+  }
+
+  .btn-secondary {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-primary);
+    padding: var(--space-3) var(--space-6);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
+
+  .btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .popular-links {
+    margin-top: var(--space-8);
+    text-align: left;
+  }
+
+  .popular-links h2 {
+    font-size: 1.3rem;
+    margin-bottom: var(--space-4);
+    text-align: center;
+  }
+
+  .links-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--space-4);
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .link-card {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  .link-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  .link-card strong {
+    color: var(--text-primary);
+    font-size: 1rem;
+  }
+
+  .link-card span {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+  }
+</style>

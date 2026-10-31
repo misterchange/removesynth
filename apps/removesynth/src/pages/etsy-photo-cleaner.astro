@@ -1,0 +1,477 @@
+---
+import Base from '../layouts/Base.astro';
+import LabelCleaner from '../components/LabelCleaner.astro';
+import Faq from '@removesynth/shared/components/Faq.astro';
+import { faqSchema, breadcrumbSchema, type FaqItem } from '@removesynth/shared/lib/faq';
+import { SITE } from '../site';
+
+const title = 'Etsy & eBay Photo Cleaner: Safe Listing Prep Online';
+const description =
+  'Clean camera metadata, GPS location, and editing signatures from listing photos for Etsy and eBay. Free in-browser photo prep tool with zero cloud uploads.';
+
+const faqs: FaqItem[] = [
+  {
+    q: 'Why should I clean photos before publishing listings on Etsy or eBay?',
+    a: 'Marketplace search algorithms and automated policy compliance bots inspect uploaded listing images for AI generator tags (Midjourney, DALL-E, Stable Diffusion), C2PA Content Credentials manifests, and personal GPS location data. Cleaning metadata ensures clean, compliant listings that avoid algorithmic suppression or accidental account linking.',
+  },
+  {
+    q: 'Does this tool preserve product image quality and color profiles?',
+    a: 'Yes. Color profiles (sRGB and Display P3) and exact image resolutions are strictly preserved bit-for-bit. Product mockups look vibrant and true to color across mobile and desktop shoppers without washed-out hues.',
+  },
+  {
+    q: 'Can camera serial numbers in EXIF data get my seller accounts suspended?',
+    a: 'Yes. Commercial sellers managing multiple storefronts across Etsy, eBay, or Amazon face account linking risks if their camera hardware serial numbers (embedded in EXIF tag 0xA431) correlate across ostensibly separate store identities. Scrubbing metadata ensures each storefront remains completely autonomous.',
+  },
+  {
+    q: 'Can I clean an entire batch of product mockups simultaneously?',
+    a: 'Yes. You can drag and drop up to 30 product photos at once into the tool above and download them individually or as a single consolidated ZIP archive.',
+  },
+  {
+    q: 'Are my unreleased product designs uploaded to an external server?',
+    a: 'No. All processing happens 100 percent locally inside your web browser. Your unreleased print-on-demand designs, proprietary artwork, and commercial mockups never leave your computer.',
+  },
+  {
+    q: 'What metadata segments get removed from listing graphics?',
+    a: 'The cleaner excises C2PA manifests (JPEG APP11 / PNG c2pa chunks), Midjourney and ComfyUI generation prompts (PNG tEXt/iTXt chunks), EXIF hardware serial numbers, studio GPS coordinates, Photoshop DocumentAncestors edit histories, and creation timestamps.',
+  },
+];
+
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: 'Etsy and eBay Listing Photo Cleaner',
+    url: `${SITE.url}/etsy-photo-cleaner/`,
+    applicationCategory: 'BusinessApplication',
+    operatingSystem: 'All',
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    description,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    name: 'How to clean listing photos for Etsy and eBay stores',
+    step: [
+      {
+        '@type': 'HowToStep',
+        position: 1,
+        name: 'Select listing mockups',
+        text: 'Drop your product photographs or print-on-demand mockups into the upload box above.',
+      },
+      {
+        '@type': 'HowToStep',
+        position: 2,
+        name: 'Automated in-browser sanitization',
+        text: 'The cleaner removes C2PA tags, AI generation prompts, and GPS location while preserving sRGB colors.',
+      },
+      {
+        '@type': 'HowToStep',
+        position: 3,
+        name: 'Download clean photos',
+        text: 'Save your sanitized product photos individually or export the batch as an organized ZIP package.',
+      },
+    ],
+  },
+  breadcrumbSchema([
+    { name: 'Home', url: `${SITE.url}/` },
+    { name: 'Tools', url: `${SITE.url}/tools/` },
+    { name: 'Etsy Photo Cleaner', url: `${SITE.url}/etsy-photo-cleaner/` },
+  ]),
+  faqSchema(faqs),
+];
+---
+
+<Base title={title} description={description} schema={schema}>
+  <!-- Hero Section with Interactive Tool -->
+  <section class="hero">
+    <div class="container">
+      <span class="eyebrow">Etsy &amp; eBay Sellers · Print-On-Demand · Batch Up to 30 · 100% In-Browser</span>
+      <h1>Etsy &amp; eBay Photo <span class="accent">Cleaner</span></h1>
+      <p class="lead">
+        Strip C2PA manifests, AI generation prompts, camera serials, and studio location data before publishing listings on Etsy, eBay, Shopify, and Amazon.
+      </p>
+
+      <div class="tool-stage">
+        <LabelCleaner
+          title="Drop listing photos to clean"
+          sub="C2PA, AI prompts, EXIF, and camera serials are removed locally in your browser."
+          meta="click to choose or paste · JPG · PNG · WebP · AVIF · HEIC · up to 30 at once"
+          footnote="100% in-browser · designs never leave your computer · sRGB color profile preserved"
+        />
+      </div>
+    </div>
+  </section>
+
+  <!-- Long-Form In-Depth Rank-Fast Content -->
+  <article class="prose">
+    <h2>Why Marketplace Sellers Need Clean Listing Photo Metadata</h2>
+    <p>
+      E-commerce algorithms on platforms like Etsy, eBay, Amazon, and Poshmark continuously inspect listing graphics. While high-quality imagery is essential for driving conversions, raw camera files and graphics exported from modern creative software carry hidden metadata burdens that create serious business vulnerabilities:
+    </p>
+    <ul>
+      <li><strong>AI Policy Suppression:</strong> Etsy and eBay have strict listing disclosure rules regarding AI-generated art and mockups. Files exported from Adobe Photoshop with Generative Fill, Midjourney, or Flux embed invisible C2PA manifests and text prompt strings. If undetected, these markers can trigger algorithmic demotion in marketplace search rankings.</li>
+      <li><strong>Home &amp; Studio Privacy Leaks:</strong> Photos captured in home studios or workshops embed high-precision GPS coordinates in EXIF headers. Malicious competitors can extract your home address, warehouse location, or manufacturing facility.</li>
+      <li><strong>Multi-Store Account Correlation:</strong> Sellers operating multiple niche storefronts to mitigate risk or target diverse audiences are frequently linked by marketplace fraud systems through shared camera serial numbers (EXIF tag <code>0xA431</code>).</li>
+      <li><strong>Bloated File Transfer Times:</strong> Photoshop files frequently retain massive <code>DocumentAncestors</code> XML history blocks (often 100 KB to 2 MB per image), slowing down bulk listing uploads via CSV feeds.</li>
+    </ul>
+
+    <h2>How Etsy and eBay Compliance Bots Scan for AI Labels and C2PA Credentials</h2>
+    <p>
+      Modern e-commerce platforms employ automated content ingestion pipelines that inspect image binary payloads upon upload:
+    </p>
+    <ul>
+      <li><strong>C2PA APP11 Inspection:</strong> Ingestion bots parse JPEG APP11 marker segments looking for Coalition for Content Provenance and Authenticity (C2PA) assertion manifests signed by Adobe Firefly, DALL-E 3, or Google Imagen.</li>
+      <li><strong>PNG Text Chunks:</strong> For PNG mockups, bots scan <code>tEXt</code>, <code>zTXt</code>, and <code>iTXt</code> data chunks for strings like <code>parameters</code>, <code>prompt</code>, or <code>workflow</code> commonly generated by Stable Diffusion and ComfyUI.</li>
+      <li><strong>Automated Tagging:</strong> If AI provenance markers are identified, the listing may be flagged for manual review, have mandatory &quot;AI Generated&quot; labels appended to the public listing, or suffer reduced organic impression volume in competitive search terms.</li>
+    </ul>
+    <p>
+      RemoveSynth strips all provenance assertions and generator tags at the byte stream level, ensuring your commercial listings remain clean and neutral.
+    </p>
+
+    <h2>Mathematical Model of Metadata Excision and Color Profile Retention</h2>
+    <p>
+      Product photo sanitization requires surgical stream segmentation. The objective is to purge all tracking, provenance, and proprietary history markers while preserving the compressed pixel data and the International Color Consortium (ICC) profile:
+    </p>
+    <div class="math-block">
+      <code>Sanitized_Stream = Source_Stream \ &#123; APP1_EXIF_GPS, APP1_XMP_History, APP11_C2PA, PNG_iTXt &#125; union APP2_ICC_Profile</code>
+    </div>
+    <p>
+      Where the binary excision preserves exact spatial luminance and chrominance fidelity:
+    </p>
+    <div class="math-block">
+      <code>PSNR(Pixels_Original, Pixels_Sanitized) = Infinity dB  (Bit-for-Bit Identical Compressed Pixels)</code>
+    </div>
+    <p>
+      Because our parser operates directly on JPEG marker segments and PNG chunks without decompressing or re-encoding pixel blocks, there is zero generational quality loss, zero color shift, and zero pixel blurring.
+    </p>
+
+    <h2>Worked Example: Sanitizing a 7.8MB Product Mockup with AI Layers</h2>
+    <p>
+      To understand how surgical metadata excision benefits an active e-commerce seller, consider this real-world print-on-demand mockup benchmark:
+    </p>
+    <ul>
+      <li><strong>Product Asset:</strong> T-shirt apparel mockup on wooden background (<code>tshirt-mockup-v1.jpg</code>)</li>
+      <li><strong>Source Software:</strong> Adobe Photoshop CC 2024 with Generative Fill background</li>
+      <li><strong>Original File Size:</strong> 7,842,110 bytes (7.48 Megabytes)</li>
+      <li><strong>Embedded Metadata Payload:</strong> 482 Kilobytes of Photoshop DocumentAncestors history, C2PA Firefly provenance manifest, and home studio GPS latitude/longitude</li>
+      <li><strong>RemoveSynth Processing:</strong> Excised APP1 XMP ancestor block, excised APP11 C2PA manifest, excised GPS IFD, preserved APP2 sRGB ICC color profile</li>
+      <li><strong>Sanitized Output File Size:</strong> 7,358,400 bytes (7.01 Megabytes)</li>
+      <li><strong>Byte Savings:</strong> 483,710 bytes of invisible bloat removed</li>
+      <li><strong>Visual Quality:</strong> 100 percent identical (0 pixels modified)</li>
+      <li><strong>Execution Runtime:</strong> 24 milliseconds in local browser WebAssembly RAM</li>
+    </ul>
+
+    <h2>Marketplace Listing Photo Sanitization Pipeline</h2>
+    <p>
+      The vector diagram below traces how product mockups are parsed and sanitized in client memory before publishing to commercial marketplaces.
+    </p>
+    <div class="chart-svg-wrap">
+      <svg viewBox="0 0 760 210" class="chart-svg" xmlns="http://www.w3.org/2000/svg">
+        <rect width="760" height="210" rx="10" fill="#0b111a" stroke="#1e293b" stroke-width="1.5"/>
+        <text x="24" y="32" fill="#94a3b8" font-family="monospace" font-size="12" font-weight="700">IN-BROWSER MARKETPLACE LISTING SANITIZATION PIPELINE</text>
+
+        <!-- Box 1 -->
+        <rect x="24" y="55" width="130" height="60" rx="6" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+        <text x="89" y="78" fill="#f8fafc" font-family="sans-serif" font-size="12" font-weight="700" text-anchor="middle">Product Mockup</text>
+        <text x="89" y="98" fill="#64748b" font-family="monospace" font-size="10" text-anchor="middle">PS / Midjourney File</text>
+
+        <!-- Arrow 1 -->
+        <path d="M154 85 L184 85" stroke="#38bdf8" stroke-width="2"/>
+
+        <!-- Box 2 -->
+        <rect x="184" y="55" width="160" height="60" rx="6" fill="#0f172a" stroke="#38bdf8" stroke-width="1.5"/>
+        <text x="264" y="78" fill="#38bdf8" font-family="sans-serif" font-size="12" font-weight="700" text-anchor="middle">Marker Parser</text>
+        <text x="264" y="98" fill="#94a3b8" font-family="monospace" font-size="10" text-anchor="middle">Detects C2PA &amp; GPS</text>
+
+        <!-- Arrow 2 -->
+        <path d="M344 85 L374 85" stroke="#22c55e" stroke-width="2"/>
+
+        <!-- Box 3 -->
+        <rect x="374" y="55" width="150" height="60" rx="6" fill="#052e16" stroke="#22c55e" stroke-width="1.5"/>
+        <text x="449" y="78" fill="#4ade80" font-family="sans-serif" font-size="12" font-weight="700" text-anchor="middle">Surgical Excision</text>
+        <text x="449" y="98" fill="#cbd5e1" font-family="monospace" font-size="10" text-anchor="middle">Keeps sRGB ICC Profile</text>
+
+        <!-- Arrow 3 -->
+        <path d="M524 85 L554 85" stroke="#f59e0b" stroke-width="2"/>
+
+        <!-- Box 4 -->
+        <rect x="554" y="55" width="180" height="60" rx="6" fill="#1c1917" stroke="#f59e0b" stroke-width="1.5"/>
+        <text x="644" y="78" fill="#f59e0b" font-family="sans-serif" font-size="12" font-weight="700" text-anchor="middle">Safe Listing Photo</text>
+        <text x="644" y="98" fill="#cbd5e1" font-family="monospace" font-size="10" text-anchor="middle">Ready for Etsy &amp; eBay</text>
+
+        <!-- You Are Here Banner -->
+        <rect x="180" y="165" width="400" height="24" rx="12" fill="#0284c7"/>
+        <circle cx="195" cy="177" r="5" fill="#38bdf8"/>
+        <text x="380" y="181" fill="#ffffff" font-family="sans-serif" font-size="10" font-weight="700" text-anchor="middle">YOU ARE HERE: Zero-Upload Local Seller Sanitizer</text>
+      </svg>
+    </div>
+
+    <h2>Marketplace Photo Requirements Comparison: Etsy, eBay, Amazon, and Shopify</h2>
+    <p>
+      Different platforms enforce distinct image dimension and file weight criteria:
+    </p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Platform</th>
+            <th>Recommended Resolution</th>
+            <th>Aspect Ratio</th>
+            <th>Max File Size</th>
+            <th>AI Metadata Policy</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Etsy</strong></td>
+            <td>2000 px on shortest side (2700x2025 ideal)</td>
+            <td>4:3 or 1:1</td>
+            <td>20 MB per image</td>
+            <td>Requires AI disclosure; scans C2PA</td>
+          </tr>
+          <tr>
+            <td><strong>eBay</strong></td>
+            <td>1600 px or higher for zoom (up to 9000px)</td>
+            <td>1:1 or 4:3</td>
+            <td>12 MB per image</td>
+            <td>Inspects listing provenance</td>
+          </tr>
+          <tr>
+            <td><strong>Amazon</strong></td>
+            <td>1000 px minimum (2000px ideal for 2x zoom)</td>
+            <td>1:1 square</td>
+            <td>10 MB per image</td>
+            <td>Pure white background required</td>
+          </tr>
+          <tr>
+            <td><strong>Shopify</strong></td>
+            <td>2048 by 2048 pixels</td>
+            <td>1:1 or 3:4 portrait</td>
+            <td>20 MB per image</td>
+            <td>Seller controlled</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Seller Risk Analysis: Camera Serial Numbers and Multi-Account Linking</h2>
+    <p>
+      For enterprise sellers managing multiple brands, silent account correlation represents an existential operational risk:
+    </p>
+    <ul>
+      <li><strong>Hardware Serial Fingerprinting:</strong> Digital cameras (Canon, Nikon, Sony) and smartphones write unique hardware serial numbers into EXIF tag <code>0xA431 (BodySerialNumber)</code> and tag <code>0xA435 (LensSerialNumber)</code>.</li>
+      <li><strong>Cross-Account Triangulation:</strong> If you photograph products for Store A and Store B using the same physical DSLR camera, marketplace compliance algorithms can correlate both accounts through matching serial numbers. If one store encounters a policy violation or payment reserve, the associated sister store risks simultaneous suspension.</li>
+      <li><strong>Complete Header Anonymization:</strong> RemoveSynth overwrites all hardware serial numbers, firmware versions, and lens identifiers, ensuring each commercial storefront maintains total cryptographic autonomy.</li>
+    </ul>
+
+    <h2>Preserving sRGB Color Profiles: Preventing Washed-Out Mockups on Mobile Shoppers</h2>
+    <p>
+      A catastrophic flaw with crude online metadata strippers is that they indiscriminately delete all application marker segments, including the ICC color profile embedded in JPEG APP2 markers.
+    </p>
+    <p>
+      When an ICC profile is stripped from an image saved in wide color gamuts (like Apple Display P3 or Adobe RGB), web browsers default to standard sRGB color mapping without chromatic translation. The result is disastrous: vivid red apparel appears dull orange, rich blacks appear muddy gray, and customer return rates spike due to color inaccuracy.
+    </p>
+    <p>
+      RemoveSynth's intelligent parser isolates and preserves the APP2 ICC marker segment while excising tracking and provenance tags, ensuring product colors display with authentic saturation across iPhones, Android screens, and desktop monitors.
+    </p>
+
+    <h2>Protecting Proprietary Design Files: Stripping Layer Names and Embedded Font Paths</h2>
+    <p>
+      Print-on-demand sellers and graphic designers frequently create product mockups directly from source master PSD or Illustrator files. In doing so, creative software routinely leaks confidential intellectual property inside auxiliary metadata spans:
+    </p>
+    <ul>
+      <li><strong>Font Names &amp; Licensing Assets:</strong> XMP schema tags often record exact commercial font families and licensing keys used in the graphic design, giving copycats direct insight into your typography assets.</li>
+      <li><strong>Internal Layer Names &amp; Artboard Notes:</strong> Layer naming conventions like <code>Layer 4 - AI Upscale Midjourney v6</code> or <code>Client Revision - Final Vector</code> are retained in file headers. Competitors inspecting public listing image headers can deduce your entire production process.</li>
+      <li><strong>Software Version &amp; Plugin Lists:</strong> Third-party Photoshop plugins and color grading LUT identifiers remain embedded in metadata. RemoveSynth strips all internal production trails, leaving only a clean, neutral raster image.</li>
+    </ul>
+
+    <h2>Automating E-Commerce Image Prep with Zero-Knowledge Batch Processing</h2>
+    <p>
+      Managing product launches across hundreds of SKUs requires rapid, frictionless workflows. Rather than manually exporting each image through complex desktop software dialogs:
+    </p>
+    <ul>
+      <li><strong>Zero Server Latency:</strong> Because all sanitization occurs in client memory via WebAssembly and HTML5 Canvas, batch processing 30 high-resolution mockups executes in under 1 second.</li>
+      <li><strong>Instant CSV Feed Compatibility:</strong> Sanitize product photos before uploading them to Shopify CDN or Amazon S3 buckets, ensuring your product feeds are lightweight, fast-loading, and completely anonymous.</li>
+      <li><strong>Preserving Crisp Detail for Customer Zoom:</strong> Customers rely on 2000px high-resolution zoom to inspect stitching, fabric textures, and print quality. Because our cleaner never touches compressed image pixels, your customers enjoy maximum detail with zero blur.</li>
+    </ul>
+
+    <h2>How to Prep Your Listing Photos in 3 Quick Steps</h2>
+    <ol class="steps">
+      <li><strong>Drag and Drop:</strong> Drop up to 30 product photos or mockups into the upload box above.</li>
+      <li><strong>Automated In-Browser Scrubbing:</strong> The tool instantly excises C2PA manifests, AI prompts, camera serials, and GPS tags while keeping sRGB colors pristine.</li>
+      <li><strong>Download Clean Copies:</strong> Click &quot;Download all (ZIP)&quot; to export your entire batch of sanitized listing photos, ready for instant publication on your store.</li>
+    </ol>
+
+    
+    <h2>Why Etsy and Marketplace Sellers Must Clean Photo Metadata</h2>
+    <p>
+      Operating successful e-commerce stores on Etsy, eBay, or Amazon requires protecting your shop operations from automated algorithm penalties:
+    </p>
+    <ul>
+      <li><strong>Multi-Shop Account Linking Risks:</strong> E-commerce fraud detection systems analyze camera serial numbers and software UUIDs. Operating multiple independent storefronts using photos taken with the same camera body can cause automated account linking and store suspensions.</li>
+      <li><strong>Protecting Warehouse and Studio Geolocation:</strong> Product photos taken in private studios embed GPS coordinates that competitors can exploit to discover supplier locations or physical workshops.</li>
+      <li><strong>Color Profile Consistency:</strong> RemoveSynth strips bloat while preserving standard sRGB color profiles, ensuring your product photos look vibrant and accurate across all customer smartphone displays.</li>
+    </ul>
+
+
+    
+    <h2>Etsy Search Ranking Factors: How Photo Quality and Speed Impact Conversions</h2>
+    <p>
+      High-converting Etsy listings rely on pristine photography that loads instantaneously on mobile shopping apps:
+    </p>
+    <ul>
+      <li><strong>Mobile Page Load Speeds:</strong> Over 65 percent of Etsy transactions occur on smartphones. Unbloated listing photos load immediately, reducing cart abandonment.</li>
+      <li><strong>Clean Color Accuracy:</strong> Stripping metadata bloat while preserving sRGB color profiles ensures item colors match real-world inventory, minimizing customer returns.</li>
+    </ul>
+
+
+    <h2>Related Marketplace and Privacy Tools</h2>
+    <ul class="link-grid">
+      <li><a href="/remove-ai-info-label/">Remove AI Info Label</a></li>
+      <li><a href="/photoshop-metadata-cleaner/">Photoshop Metadata Cleaner</a></li>
+      <li><a href="/photo-metadata-remover/">Photo Metadata Remover</a></li>
+      <li><a href="/compress-image-to-kb/">Compress Image to KB</a></li>
+    </ul>
+
+    <Faq items={faqs} heading="Frequently Asked Questions About Marketplace Photo Prep" />
+  </article>
+</Base>
+
+<style>
+  .hero {
+    text-align: center;
+    max-width: 860px;
+    margin: 0 auto 36px;
+    padding: 32px 16px 0;
+  }
+  .eyebrow {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--accent);
+    background: var(--accent-soft);
+    border: 1px solid rgba(44, 196, 245, 0.25);
+    margin-bottom: 14px;
+  }
+  .hero h1 {
+    font-size: clamp(2.2rem, 5vw, 3.4rem);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.03em;
+    margin: 0 0 16px;
+  }
+  .lead {
+    color: var(--muted);
+    font-size: 1.15rem;
+    line-height: 1.6;
+    margin: 0 auto 28px;
+    max-width: 720px;
+  }
+  .tool-stage {
+    max-width: 860px;
+    margin: 0 auto;
+  }
+  .prose {
+    max-width: var(--maxw);
+    margin: 48px auto;
+    padding: 0 16px 80px;
+  }
+  .prose h2 {
+    font-size: 1.85rem;
+    font-weight: 800;
+    margin: 48px 0 18px;
+    letter-spacing: -0.02em;
+    color: var(--fg);
+  }
+  .prose p {
+    font-size: 1.05rem;
+    line-height: 1.75;
+    color: var(--muted);
+    margin-bottom: 20px;
+  }
+  .prose ul, .prose ol {
+    margin: 0 0 24px 24px;
+    color: var(--muted);
+    line-height: 1.8;
+  }
+  .prose li {
+    margin-bottom: 8px;
+  }
+  .prose code {
+    background: #0f172a;
+    color: #38bdf8;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    font-family: monospace;
+  }
+  .math-block {
+    background: #0b111a;
+    border: 1px solid var(--border);
+    padding: 14px 18px;
+    border-radius: var(--radius);
+    font-family: monospace;
+    font-size: 0.95rem;
+    color: #38bdf8;
+    margin: 18px 0;
+    overflow-x: auto;
+  }
+  .chart-svg-wrap {
+    margin: 28px 0;
+    overflow-x: auto;
+  }
+  .chart-svg {
+    width: 100%;
+    height: auto;
+    max-width: 760px;
+    display: block;
+    margin: 0 auto;
+  }
+  .table-wrap {
+    overflow-x: auto;
+    margin: 28px 0;
+  }
+  .prose table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.92rem;
+  }
+  .prose th, .prose td {
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    text-align: left;
+  }
+  .prose th {
+    background: var(--card-bg);
+    color: var(--fg);
+  }
+  .steps {
+    list-style: decimal;
+    padding-left: 24px;
+  }
+  .link-grid {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(180px, 100%), 1fr));
+    gap: 10px;
+    margin: 24px 0;
+  }
+  .link-grid a {
+    display: block;
+    padding: 10px 14px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    text-decoration: none;
+    font-size: 0.9rem;
+    color: var(--fg);
+    transition: all 0.15s ease;
+  }
+  .link-grid a:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+</style>

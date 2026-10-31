@@ -1,0 +1,50 @@
+// Small byte helpers shared by the metadata reader and cleaner.
+
+export const ascii = (b: Uint8Array, start: number, len: number) =>
+  String.fromCharCode(...b.subarray(start, start + len));
+
+export const latin1 = (b: Uint8Array) => {
+  let s = '';
+  for (let i = 0; i < b.length; i += 8192) s += String.fromCharCode(...b.subarray(i, i + 8192));
+  return s;
+};
+
+export const utf8 = (b: Uint8Array) => new TextDecoder('utf-8', { fatal: false }).decode(b);
+
+export const u16be = (b: Uint8Array, o: number) => (b[o] << 8) | b[o + 1];
+export const u32be = (b: Uint8Array, o: number) => ((b[o] << 24) >>> 0) + ((b[o + 1] << 16) | (b[o + 2] << 8) | b[o + 3]);
+export const u32le = (b: Uint8Array, o: number) => (b[o] | (b[o + 1] << 8) | (b[o + 2] << 16)) + ((b[o + 3] << 24) >>> 0);
+
+export function concat(parts: Uint8Array[]): Uint8Array {
+  const out = new Uint8Array(parts.reduce((n, p) => n + p.length, 0));
+  let o = 0;
+  for (const p of parts) {
+    out.set(p, o);
+    o += p.length;
+  }
+  return out;
+}
+
+export function indexOf(hay: Uint8Array, needle: string, from = 0): number {
+  const n = [...needle].map((c) => c.charCodeAt(0));
+  outer: for (let i = from; i <= hay.length - n.length; i++) {
+    for (let j = 0; j < n.length; j++) if (hay[i + j] !== n[j]) continue outer;
+    return i;
+  }
+  return -1;
+}
+
+let crcTable: Uint32Array | undefined;
+export function crc32(bytes: Uint8Array): number {
+  if (!crcTable) {
+    crcTable = new Uint32Array(256);
+    for (let n = 0; n < 256; n++) {
+      let c = n;
+      for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+      crcTable[n] = c >>> 0;
+    }
+  }
+  let c = 0xffffffff;
+  for (let i = 0; i < bytes.length; i++) c = crcTable[(c ^ bytes[i]) & 0xff] ^ (c >>> 8);
+  return (c ^ 0xffffffff) >>> 0;
+}

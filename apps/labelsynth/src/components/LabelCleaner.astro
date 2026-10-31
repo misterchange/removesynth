@@ -1,0 +1,226 @@
+---
+import ToolDrop from '@removesynth/shared/components/ToolDrop.astro';
+
+interface Props {
+  id?: string;
+  title?: string;
+  sub?: string;
+  meta?: string;
+  footnote?: string;
+}
+const {
+  id = 'cleaner',
+  title = 'Drop images to strip AI labels',
+  sub = 'C2PA, XMP, EXIF, IPTC and PNG text are removed in your browser.',
+  meta = 'click to choose or paste · JPG · PNG · WebP · AVIF · HEIC · up to 30 at once',
+  footnote = 'Runs in your browser · nothing is uploaded · pixels are untouched',
+} = Astro.props;
+---
+
+<ToolDrop id={id} accept="image/jpeg,image/png,image/webp,image/avif,image/heic,image/heif,.avif,.heic,.heif" multiple title={title} sub={sub} meta={meta} footnote={footnote}>
+  <div class="results" hidden aria-live="polite">
+    <div class="bar">
+      <span class="summary"></span>
+      <div class="bar-actions">
+        <button type="button" class="btn zip">Download all (ZIP)</button>
+        <button type="button" class="btn btn-ghost clear">Clear</button>
+      </div>
+    </div>
+    <ul class="rows"></ul>
+  </div>
+</ToolDrop>
+
+<style>
+  .results {
+    margin-top: 16px;
+  }
+  .bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .bar-actions {
+    display: flex;
+    gap: 8px;
+  }
+  .bar .btn {
+    padding: 8px 14px;
+    font-size: 0.9rem;
+  }
+  .rows {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 10px;
+  }
+  .rows :global(li) {
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 12px 14px;
+    background: var(--bg-elev-2);
+  }
+  .rows :global(.head) {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .rows :global(.name) {
+    font-weight: 600;
+    overflow-wrap: anywhere;
+  }
+  .rows :global(.head a) {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+  }
+  .rows :global(.tags) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+    font-size: 0.8rem;
+  }
+  .rows :global(.tag) {
+    padding: 2px 8px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+  .rows :global(.tag.removed) {
+    color: var(--err);
+    border-color: rgba(248, 113, 113, 0.35);
+  }
+  .rows :global(.tag.kept) {
+    color: var(--ok);
+    border-color: rgba(52, 211, 153, 0.35);
+  }
+  .rows :global(.note) {
+    margin: 6px 0 0;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+</style>
+
+<script>
+  import { zipSync } from 'fflate';
+  import { stripLabels, UnsupportedFormat } from '../lib/labelclean';
+
+  const MAX = 30;
+  const root = document.getElementById('cleaner') as HTMLElement;
+  const results = root.querySelector('.results') as HTMLElement;
+  const rows = root.querySelector('.rows') as HTMLUListElement;
+  const summary = root.querySelector('.summary') as HTMLElement;
+  const zipBtn = root.querySelector('.zip') as HTMLButtonElement;
+  const clearBtn = root.querySelector('.clear') as HTMLButtonElement;
+
+  let outputs: { name: string; bytes: Uint8Array }[] = [];
+  let urls: string[] = [];
+
+  const el = <K extends keyof HTMLElementTagNameMap>(tag: K, cls?: string, text?: string) => {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text !== undefined) e.textContent = text;
+    return e;
+  };
+  const kb = (n: number) => `${(n / 1024).toFixed(n < 10240 ? 1 : 0)} KB`;
+  const cleanName = (name: string, ext?: string) => {
+    const dot = name.lastIndexOf('.');
+    const base = dot > 0 ? name.slice(0, dot) : name;
+    return `${base}-clean${ext ?? (dot > 0 ? name.slice(dot) : '')}`;
+  };
+  const mime = (name: string) => (/\.png$/i.test(name) ? 'image/png' : /\.webp$/i.test(name) ? 'image/webp' : 'image/jpeg');
+
+  // HEIC/HEIF/AVIF aren't header-strippable here: re-encode to PNG, which drops all metadata.
+  const reencode = async (file: File) => {
+    const bitmap = await createImageBitmap(file);
+    const canvas = document.createElement('canvas');
+    canvas.width = bitmap.width;
+    canvas.height = bitmap.height;
+    const ctx = canvas.getContext('2d')!;
+    ctx.drawImage(bitmap, 0, 0);
+    bitmap.close?.();
+    const blob = await new Promise<Blob | null>((res) => canvas.toBlob(res, 'image/png'));
+    if (!blob) throw new Error('encode failed');
+    return { blob, width: bitmap.width, height: bitmap.height };
+  };
+
+  const reset = () => {
+    urls.forEach((u) => URL.revokeObjectURL(u));
+    urls = [];
+    outputs = [];
+    rows.replaceChildren();
+    results.hidden = true;
+  };
+
+  const updateSummary = () => {
+    summary.textContent = `${outputs.length} file${outputs.length === 1 ? '' : 's'} cleaned`;
+    zipBtn.disabled = outputs.length < 2;
+  };
+
+  root.addEventListener('files', async (e) => {
+    const files = (e as CustomEvent<File[]>).detail;
+    results.hidden = false;
+    const room = MAX - rows.children.length;
+    for (const file of files.slice(0, Math.max(0, room))) {
+      const li = el('li');
+      const head = el('div', 'head');
+      head.append(el('span', 'name', file.name));
+      li.append(head);
+      rows.append(li);
+      try {
+        let bytes: Uint8Array;
+        let removed: string[];
+        let name = cleanName(file.name);
+        let type = mime(file.name);
+        try {
+          const res = stripLabels(new Uint8Array(await file.arrayBuffer()));
+          bytes = res.bytes;
+          removed = res.removed;
+        } catch (err) {
+          if (!(err instanceof UnsupportedFormat)) throw err;
+          const { blob } = await reencode(file);
+          bytes = new Uint8Array(await blob.arrayBuffer());
+          removed = ['Re-encoded to PNG (all metadata dropped)'];
+          name = cleanName(file.name, '.png');
+          type = 'image/png';
+        }
+        outputs.push({ name, bytes });
+        const url = URL.createObjectURL(new Blob([bytes], { type }));
+        urls.push(url);
+        const a = el('a', 'btn', 'Download') as HTMLAnchorElement;
+        a.href = url;
+        a.download = name;
+        head.append(a);
+        const tags = el('div', 'tags');
+        if (!removed.length) tags.append(el('span', 'tag', 'No AI metadata found — still cleaned'));
+        removed.forEach((t) => tags.append(el('span', 'tag removed', `− ${t}`)));
+        li.append(tags, el('p', 'note', `${kb(file.size)} → ${kb(bytes.length)}`));
+      } catch {
+        li.append(el('p', 'note', 'This file couldn’t be read. Try JPG, PNG, WebP, AVIF or HEIC.'));
+      }
+    }
+    updateSummary();
+    if (files.length > room) summary.textContent += ` · only ${MAX} at a time, the rest were skipped`;
+  });
+
+  zipBtn.addEventListener('click', () => {
+    const entries: Record<string, Uint8Array> = {};
+    for (const o of outputs) {
+      let n = o.name;
+      for (let i = 2; entries[n]; i++) n = o.name.replace(/(\.[^.]+)?$/, `-${i}$1`);
+      entries[n] = o.bytes;
+    }
+    const zip = zipSync(entries, { level: 0 });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([zip], { type: 'application/zip' }));
+    a.download = 'labelsynth-clean-images.zip';
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 10_000);
+  });
+  clearBtn.addEventListener('click', reset);
+</script>

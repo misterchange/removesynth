@@ -1,0 +1,105 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { POSTS } from '../../data/blog';
+
+interface UnifiedPost {
+  slug: string;
+  title: string;
+  description: string;
+  dateStr: string;
+  timestamp: number;
+}
+
+const collectionPosts = (await getCollection('blog', ({ data }) => !data.draft)).map((p) => ({
+  slug: p.id,
+  title: p.data.title,
+  description: p.data.description,
+  dateStr: p.data.pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
+  timestamp: p.data.pubDate.valueOf(),
+}));
+
+const collectionSlugs = new Set(collectionPosts.map((c) => c.slug));
+
+const jsonPosts: UnifiedPost[] = POSTS.filter((p) => !collectionSlugs.has(p.slug)).map((p) => {
+  const d = p.published ? new Date(p.published) : new Date(0);
+  const ts = Number.isNaN(d.getTime()) ? 0 : d.valueOf();
+  return {
+    slug: p.slug,
+    title: p.title,
+    description: p.description,
+    dateStr: ts > 0 ? d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '',
+    timestamp: ts,
+  };
+});
+
+const allPosts: UnifiedPost[] = [...collectionPosts, ...jsonPosts].sort((a, b) => b.timestamp - a.timestamp);
+---
+
+<Base
+  title="RemoveSynth Blog: SynthID & AI Watermark Guides"
+  description="Comprehensive guides on removing SynthID, stripping AI metadata (C2PA, XMP, EXIF), solving social media Made with AI label issues, and creator workflows."
+>
+  <div class="prose">
+    <header class="hero" style="text-align:left;padding-bottom:0">
+      <span class="eyebrow">Blog &amp; Knowledge Base</span>
+      <h1>SynthID &amp; AI watermark guides</h1>
+      <p class="lead" style="margin-left:0">
+        In-depth technical guides, tutorials, and practical checklists for creators, photographers, and developers handling AI watermarks and metadata labels.
+      </p>
+    </header>
+
+    <div class="stats-bar">
+      <span>Showing {allPosts.length} guides &amp; articles</span>
+    </div>
+
+    <ul class="post-list">
+      {allPosts.map((post) => (
+        <li>
+          <h2><a href={`/blog/${post.slug}/`}>{post.title}</a></h2>
+          {post.dateStr && <p class="muted small">{post.dateStr}</p>}
+          <p>{post.description}</p>
+        </li>
+      ))}
+    </ul>
+  </div>
+</Base>
+
+<style>
+  .stats-bar {
+    font-size: 0.88rem;
+    color: var(--muted);
+    padding: 8px 0 16px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 24px;
+  }
+  .post-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+  .post-list li {
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .post-list h2 {
+    font-size: 1.35rem;
+    margin: 0 0 6px;
+    line-height: 1.25;
+  }
+  .post-list h2 a {
+    color: var(--text);
+  }
+  .post-list h2 a:hover {
+    color: var(--accent);
+    text-decoration: none;
+  }
+  .post-list p {
+    margin: 6px 0 0;
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+</style>

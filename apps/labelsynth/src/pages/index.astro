@@ -1,0 +1,55 @@
+---
+import Base from '../layouts/Base.astro';
+import DocBlocks from '../components/DocBlocks.astro';
+import LabelCleaner from '../components/LabelCleaner.astro';
+import { PAGES } from '../data/registry';
+import { SITE } from '../site';
+import { splitHero, extractFaq } from '../lib/doc';
+import { renderInline } from '../lib/inline';
+import { faqSchema, breadcrumbSchema, type FaqItem } from '@removesynth/shared/lib/faq';
+
+const doc = PAGES.home;
+const { h1, lead, rest } = splitHero(doc.blocks, doc.title);
+const faq = extractFaq(doc.blocks);
+
+const schema = [
+  { '@context': 'https://schema.org', '@type': 'WebSite', name: SITE.name, url: SITE.url },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: `${SITE.name} — AI label & metadata remover`,
+    url: `${SITE.url}/`,
+    applicationCategory: 'MultimediaApplication',
+    operatingSystem: 'Any (web browser)',
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    description: SITE.description,
+  },
+  breadcrumbSchema([{ name: 'Home', url: `${SITE.url}/` }]),
+  ...(faq.length ? [faqSchema(faq as FaqItem[])] : []),
+];
+---
+
+<Base title={doc.title} description={doc.description} schema={schema}>
+  <section class="hero">
+    <div class="container">
+      <span class="eyebrow">Free · Batch up to 30 · Nothing uploaded</span>
+      <h1 set:html={renderInline(h1)} />
+      <p class="lead">
+        Drop your photos to strip C2PA Content Credentials, XMP, EXIF, IPTC and PNG AI metadata before you
+        upload to Instagram, TikTok, Pinterest, Facebook and more. The pixels aren’t touched, and nothing
+        leaves your browser.
+      </p>
+      {lead.map((b) => <p set:html={renderInline(b.text)} />)}
+      <LabelCleaner />
+      <ul class="checks">
+        <li>C2PA Content Credentials</li>
+        <li>XMP &amp; EXIF</li>
+        <li>PNG AI chunks</li>
+      </ul>
+    </div>
+  </section>
+
+  <article class="prose">
+    <DocBlocks blocks={rest} />
+  </article>
+</Base>

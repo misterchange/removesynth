@@ -1,0 +1,163 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE } from '../site';
+
+const title = 'About RemoveSynth: Client-Side AI Watermark Cleaning';
+const description =
+  'The story and technical architecture behind RemoveSynth: 100% client-side AI watermark neutralization, photo metadata cleaning, and creator data privacy.';
+
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'AboutPage',
+    name: title,
+    url: `${SITE.url}/about/`,
+    description,
+    mainEntity: {
+      '@type': 'Organization',
+      name: 'RemoveSynth',
+      url: SITE.url,
+      foundingDate: '2024',
+      description: 'Privacy-first media sanitization and AI watermark neutralization tools running 100% in the web browser.',
+      sameAs: [
+        'https://github.com/removesynth',
+        'https://x.com/FutureCompile',
+      ],
+    },
+  },
+];
+---
+
+<Base title={title} description={description} schema={schema}>
+  <section class="hero">
+    <div class="container">
+      <span class="eyebrow">Our Mission - Zero Server Uploads - Creator Privacy</span>
+      <h1>About RemoveSynth</h1>
+      <p class="lead">
+        We build zero-upload, client-side tools that give artists, photographers, and digital creators full ownership over their media metadata and AI watermarks.
+      </p>
+    </div>
+  </section>
+
+  <article class="prose container">
+    <h2>The Origin Story</h2>
+    <p>
+      RemoveSynth began with a frustratingly common creator experience in late 2024. A digital artist created an original photographic illustration using a combination of hand-drawn digital sketches and a subtle generative background touch-up using Google Gemini. Upon uploading the finished piece to Instagram, the post was immediately stamped with a permanent, unremovable "AI Info" pill, suppressing organic engagement and categorizing the entire work as synthetic.
+    </p>
+    <p>
+      When we researched existing metadata cleaners, every single online tool demanded that users upload their private, high-resolution original files to an opaque cloud server. Those servers re-encoded the images, crushed the color fidelity, watermarked the outputs behind paywalls, and retained user creations on remote disks.
+    </p>
+    <p>
+      We built RemoveSynth to provide a completely different alternative: a professional suite of media sanitizers that execute 100 percent locally in your browser memory, with zero uploads, zero accounts, and zero quality loss.
+    </p>
+
+    <h2>The One Thing We Genuinely Do Differently</h2>
+    <p>
+      <strong>True In-Browser Execution.</strong> When you drop a 50 MB photo or video into RemoveSynth, your internet connection is never used to transmit the file. All file decoders, Discrete Cosine Transform (DCT) analyzers, MP4 container atom parsers, and EXIF binary scrubbers run directly on your device's CPU and GPU via modern WebAssembly and HTML5 Canvas 2D.
+    </p>
+    <p>
+      You can disconnect your Wi-Fi after opening any tool page, and the tool will continue to clean your photos and videos flawlessly offline.
+    </p>
+
+    <h2>Our Methodology &amp; Standards</h2>
+    <p>
+      Our tools are designed around published open standards and scientific peer-reviewed research:
+    </p>
+    <ul>
+      <li><strong>C2PA (Coalition for Content Provenance and Authenticity):</strong> We parse JUMBF box hierarchies to safely neutralize tracking assertions without corrupting file bitstreams.</li>
+      <li><strong>DeepMind SynthID:</strong> We analyze spatial frequency coefficients and apply localized dispersion algorithms to decouple detector correlation scores.</li>
+      <li><strong>ISO/IEC 14496-12 (MPEG-4 Part 12):</strong> Our lossless video container sanitizers walk MP4 atom trees, cleanly converting <code>udta</code> and provenance UUID boxes to neutral <code>free</code> space.</li>
+      <li><strong>ExifTool &amp; IPTC Photo Metadata:</strong> We scrub camera serial numbers, GPS coordinates, and generative flags following standardized tag dictionaries.</li>
+    </ul>
+
+    <h2>Our Tool Directory</h2>
+    <p>
+      Each tool in the RemoveSynth suite serves a dedicated media privacy purpose:
+    </p>
+    <div class="tool-list">
+      <div class="tool-entry">
+        <h3><a href="/remove-synthid-from-images/">Remove SynthID from Images</a></h3>
+        <p>Neutralizes invisible Google DeepMind SynthID frequency watermarks from Gemini and Imagen images with zero resolution loss.</p>
+      </div>
+      <div class="tool-entry">
+        <h3><a href="/remove-ai-info-label/">Remove AI Info Label</a></h3>
+        <p>Strips C2PA manifests and IPTC digital source tags to prevent Instagram, Facebook, and Threads from auto-tagging posts.</p>
+      </div>
+      <div class="tool-entry">
+        <h3><a href="/photo-metadata-remover/">Photo Metadata Remover</a></h3>
+        <p>Wipes GPS latitude/longitude coordinates, camera make and model, timestamps, and camera serial numbers before sharing.</p>
+      </div>
+      <div class="tool-entry">
+        <h3><a href="/exif-viewer/">Visual EXIF Viewer</a></h3>
+        <p>Displays camera exposure badges (f-stop, shutter speed, ISO, focal length) and embedded GPS locations with a 1-click cleaner.</p>
+      </div>
+      <div class="tool-entry">
+        <h3><a href="/exif-editor/">EXIF Metadata Editor</a></h3>
+        <p>Enables selective, tag-by-tag editing or removal of artist, copyright, camera, and date fields without re-encoding image pixels.</p>
+      </div>
+      <div class="tool-entry">
+        <h3><a href="/social-media-safe-zones/">Social Media Safe Zones</a></h3>
+        <p>Simulates live interface overlays for Instagram Reels, TikTok, YouTube Shorts, and Snapchat to keep text and faces visible.</p>
+      </div>
+      <div class="tool-entry">
+        <h3><a href="/runway-ai/">Runway AI Video Cleaner</a></h3>
+        <p>Sanitizes Runway Gen-3 Alpha, Turbo, and Gen-2 MP4 containers and C2PA credentials losslessly in seconds.</p>
+      </div>
+      <div class="tool-entry">
+        <h3><a href="/seedance/">SeedDance AI Video Cleaner</a></h3>
+        <p>Removes ByteDance SeedDance 2.0, 2.1, and 2.2 MP4 container tags and metadata for social publishing.</p>
+      </div>
+      <div class="tool-entry">
+        <h3><a href="/dola-ai/">Dola AI Video Watermark Remover</a></h3>
+        <p>Cleans Dola AI short-form video watermarks, MP4 user-data atoms, and provenance tags client-side.</p>
+      </div>
+      <div class="tool-entry">
+        <h3><a href="/jpg-to-pdf/">JPG to PDF Converter</a></h3>
+        <p>Batch converts single or multiple JPG, PNG, and WebP images into a single clean PDF document in your browser.</p>
+      </div>
+    </div>
+
+    <h2>Accuracy Note &amp; How to Report Issues</h2>
+    <p>
+      Synthetic media detection algorithms and social platform ingestion systems are continually updated. We regularly benchmark our sanitizers against live platform checks to ensure clean social delivery. If you encounter a file format, container box, or platform flag that is not resolved, please reach out to our team at <code>support@removesynth.com</code> or submit a technical issue via our official GitHub repository.
+    </p>
+  </article>
+</Base>
+
+<style>
+  .tool-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    margin: var(--space-6) 0;
+  }
+
+  .tool-entry {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: var(--space-4) var(--space-5);
+  }
+
+  .tool-entry h3 {
+    margin-top: 0;
+    font-size: 1.1rem;
+    margin-bottom: var(--space-1);
+  }
+
+  .tool-entry h3 a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .tool-entry h3 a:hover {
+    text-decoration: underline;
+  }
+
+  .tool-entry p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.92rem;
+    line-height: 1.5;
+  }
+</style>

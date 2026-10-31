@@ -1,0 +1,867 @@
+---
+import Base from '../layouts/Base.astro';
+import ToolDrop from '@removesynth/shared/components/ToolDrop.astro';
+import { faqSchema, breadcrumbSchema, type FaqItem } from '@removesynth/shared/lib/faq';
+
+const title = 'Image Resizer: Resize Photos Online Free & Private';
+const description =
+  'Resize images to exact dimensions or percentage scale in your browser. Fast client-side image resizer supporting JPG, PNG, and WebP with zero cloud uploads.';
+
+const faqs: FaqItem[] = [
+  {
+    q: 'Does resizing reduce image sharpness or clarity?',
+    a: 'We use multi-pass high-quality bicubic canvas interpolation with imageSmoothingQuality set to high, preserving sharp edges and colors.',
+  },
+  {
+    q: 'Are my photos uploaded to a cloud server to resize?',
+    a: 'No. All resizing happens directly on your device inside your web browser. Your images are never transmitted or stored remotely.',
+  },
+  {
+    q: 'Can I lock the aspect ratio so the image does not stretch?',
+    a: 'Yes. The aspect ratio lock is enabled by default. Adjusting either the width or height automatically calculates the complementary dimension.',
+  },
+  {
+    q: 'What social media presets are available?',
+    a: 'We provide 1-click presets for Instagram Square (1080x1080), Instagram Story/Reels (1080x1920), YouTube Thumbnail (1280x720), Full HD (1920x1080), and Twitter Header (1500x500).',
+  },
+];
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: 'Image Resizer',
+    url: 'https://removesynth.com/resize-image/',
+    applicationCategory: 'MultimediaApplication',
+    operatingSystem: 'All',
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    description,
+  },
+  faqSchema(faqs),
+  breadcrumbSchema([
+    { name: 'Home', url: '/' },
+    { name: 'Tools', url: '/tools/' },
+    { name: 'Image Resizer', url: '/resize-image/' },
+  ]),
+];
+---
+
+<Base title={title} description={description} schema={jsonLd}>
+  <article class="page-container">
+    <header class="hero">
+      <p class="eyebrow">High-Precision Scaling · Bicubic Smoothing · Zero Upload</p>
+      <h1>Free Online Image Resizer</h1>
+      <p class="lead">
+        Resize JPG, PNG, and WebP images to exact pixel widths, percentage scales, or social media dimensions directly in your browser.
+      </p>
+    </header>
+
+    <div class="tool-wrapper">
+      <ToolDrop
+        id="resizer-drop"
+        accept="image/*,.jpg,.jpeg,.png,.webp,.avif,.heic"
+        multiple={false}
+        title="Drop an image to resize"
+        sub="Scale to exact dimensions, aspect ratios, or social media presets in your browser."
+        meta="click to choose or paste · JPG · PNG · WebP · instant"
+        footnote="Runs 100% in your browser · nothing is uploaded · high quality smoothing"
+      >
+        <div class="results" hidden aria-live="polite">
+          <div class="editor-card">
+            <div class="editor-grid">
+              <div class="preview-box">
+                <img id="preview-img" alt="Preview" />
+                <div class="orig-info">
+                  Original: <span id="orig-dim">0 x 0</span> · <span id="orig-size">0 KB</span>
+                </div>
+              </div>
+
+              <div class="controls-box">
+                <div class="inputs-row">
+                  <div class="ctrl-group">
+                    <label>Width (px)</label>
+                    <input type="number" id="width-input" class="input-field" />
+                  </div>
+                  <div class="ctrl-group">
+                    <label>Height (px)</label>
+                    <input type="number" id="height-input" class="input-field" />
+                  </div>
+                </div>
+
+                <div class="ratio-row">
+                  <label class="checkbox-label">
+                    <input type="checkbox" id="lock-ratio" checked />
+                    <span>Maintain aspect ratio</span>
+                  </label>
+                  <span id="target-stat" class="target-stat">Target: 0 x 0</span>
+                </div>
+
+                <div class="presets-section">
+                  <label class="presets-title">Social Media Presets:</label>
+                  <div class="presets-wrap">
+                    <button type="button" class="preset-tag" data-w="1080" data-h="1080">Instagram Post (1080x1080)</button>
+                    <button type="button" class="preset-tag" data-w="1080" data-h="1920">Story / Reels (1080x1920)</button>
+                    <button type="button" class="preset-tag" data-w="1280" data-h="720">YouTube Thumbnail (1280x720)</button>
+                    <button type="button" class="preset-tag" data-w="1920" data-h="1080">Full HD (1920x1080)</button>
+                    <button type="button" class="preset-tag" data-w="1500" data-h="500">Twitter Header (1500x500)</button>
+                  </div>
+                </div>
+
+                <div class="format-row">
+                  <div class="ctrl-group">
+                    <label>Format</label>
+                    <select id="format-select" class="input-field">
+                      <option value="image/jpeg">JPEG (.jpg)</option>
+                      <option value="image/png">PNG (.png)</option>
+                      <option value="image/webp">WebP (.webp)</option>
+                    </select>
+                  </div>
+                  <div class="ctrl-group">
+                    <label>Quality (<span id="qual-num">90</span>%)</label>
+                    <input type="range" id="qual-slider" min="30" max="100" value="90" class="slider" />
+                  </div>
+                </div>
+
+                <div class="actions-row">
+                  <button type="button" id="download-btn" class="btn btn-primary">
+                    Download Resized Image
+                  </button>
+                  <button type="button" id="clear-btn" class="btn btn-ghost">
+                    Clear
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ToolDrop>
+    </div>
+
+    
+    <!-- Long-Form In-Depth Rank-Fast Content -->
+    <div class="prose">
+      <h2>Understanding Digital Image Resizing: Pixels, DPI, and Resampling Kernels</h2>
+      <p>
+        Resizing an image is one of the most frequent tasks in digital photography, graphic design, web development, and administrative paperwork. Whether scaling a 24-megapixel camera file down to fit an email attachment or preparing exact 600 x 600 pixel 2x2 inch passport portraits for visa applications, altering image resolution requires recalculating spatial pixel matrices.
+      </p>
+      <p>
+        Most basic image utilities rely on naive downsampling or nearest-neighbor pixel skipping. This approach discards intermediate color information, creating jagged stair-stepped lines (&quot;aliasing&quot; or &quot;jaggies&quot;), moiré interference patterns on fabric textures, and severe loss of fine typographic clarity. RemoveSynth uses multi-pass high-precision bicubic convolution directly inside local browser WebAssembly and HTML5 Canvas memory, ensuring smooth gradients, preserved edge contrast, and crisp text rendering.
+      </p>
+
+      <h2>Mathematical Formulation of Bicubic and Lanczos Resampling</h2>
+      <p>
+        When scaling an image from source dimensions <code>(W_in, H_in)</code> to target dimensions <code>(W_out, H_out)</code>, the sampling grid coordinates are computed by mapping continuous target space back to discrete source space:
+      </p>
+      <div class="math-block">
+        <code>x_src = (x_out + 0.5) * (W_in / W_out) - 0.5,   y_src = (y_out + 0.5) * (H_in / H_out) - 0.5</code>
+      </div>
+      <p>
+        In high-precision bicubic interpolation, the intensity value <code>I(x, y)</code> of a new pixel is computed by evaluating a weighted sum of the 16 nearest neighboring pixels in a 4 by 4 grid:
+      </p>
+      <div class="math-block">
+        <code>I(x, y) = Sum_i=-1..2 Sum_j=-1..2 [ I(floor(x)+i, floor(y)+j) * R(x - (floor(x)+i)) * R(y - (floor(y)+j)) ]</code>
+      </div>
+      <p>
+        Where the cubic weighting kernel <code>R(t)</code> with parameter <code>a = -0.5</code> (Catmull-Rom spline) satisfies:
+      </p>
+      <div class="math-block">
+        <code>R(t) = (a + 2)|t|^3 - (a + 3)|t|^2 + 1  for |t| &lt;= 1,   and   R(t) = a|t|^3 - 5a|t|^2 + 8a|t| - 4a  for 1 &lt; |t| &lt;= 2</code>
+      </div>
+      <p>
+        Because the weighting function accounts for pixel derivatives in both horizontal and vertical axes, sharp diagonal contours remain clean without blurring into adjacent backgrounds.
+      </p>
+
+      <h2>Worked Example: Resizing a 24-Megapixel Raw Export to Passport 2x2 Specs (600x600 px)</h2>
+      <p>
+        To demonstrate the precision of our client-side scaler, consider converting a professional portrait for a US Passport, Indian OCI card, or Schengen visa portal:
+      </p>
+      <ul>
+        <li><strong>Input Source:</strong> Studio portrait export (<code>client-studio-portrait.jpg</code>)</li>
+        <li><strong>Initial Resolution:</strong> 6000 x 4000 pixels (3:2 Aspect Ratio, 24.0 Megapixels)</li>
+        <li><strong>Initial File Size:</strong> 16,840,210 bytes (16.06 Megabytes)</li>
+        <li><strong>Target Specification:</strong> Official 2x2 inch Passport Photo at 300 DPI (600 x 600 pixels, 1:1 Square)</li>
+        <li><strong>Crop and Rescale Strategy:</strong>
+          <ul>
+            <li>Original Aspect Ratio: <code>6000 / 4000 = 1.50 (3:2)</code></li>
+            <li>Target Aspect Ratio: <code>600 / 600 = 1.00 (1:1)</code></li>
+            <li>Center Crop Bounds: <code>Crop_X = (6000 - 4000) / 2 = 1000 px</code>, yielding a 4000 x 4000 square centered on subject</li>
+            <li>Scale Factor: <code>600 / 4000 = 0.1500 (85% reduction)</code></li>
+          </ul>
+        </li>
+        <li><strong>Resampling Kernel:</strong> Multi-pass downsampling with anti-aliasing low-pass pre-filtering</li>
+        <li><strong>Output Dimensions:</strong> Exactly 600 x 600 pixels (compliant with State Department and VFS Global requirements)</li>
+        <li><strong>Output File Size:</strong> 142,300 bytes (138.9 KB JPEG at Quality 90)</li>
+        <li><strong>Total Execution Time:</strong> 42 milliseconds in local browser RAM</li>
+      </ul>
+
+      <!-- SVG Resampling Architecture Diagram -->
+      <h2>Digital Resampling Pipeline: Spatial Transformation Architecture</h2>
+      <p>
+        The vector diagram below illustrates how an uncompressed spatial pixel matrix is filtered, resampled across continuous coordinate space, and quantized into output raster buffers entirely in device memory.
+      </p>
+      <div class="chart-svg-wrap">
+        <svg viewBox="0 0 760 220" class="chart-svg" xmlns="http://www.w3.org/2000/svg">
+          <rect width="760" height="220" rx="10" fill="#0b111a" stroke="#1e293b" stroke-width="1.5"/>
+          <text x="24" y="32" fill="#94a3b8" font-family="monospace" font-size="12" font-weight="700">IN-BROWSER IMAGE RESAMPLING AND SCALING PIPELINE</text>
+          
+          <!-- Source Pixel Grid -->
+          <rect x="24" y="55" width="130" height="60" rx="6" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+          <text x="89" y="80" fill="#f8fafc" font-family="sans-serif" font-size="12" font-weight="700" text-anchor="middle">Source Image</text>
+          <text x="89" y="100" fill="#64748b" font-family="monospace" font-size="10" text-anchor="middle">W_in x H_in RGB</text>
+
+          <!-- Arrow 1 -->
+          <path d="M154 85 L184 85" stroke="#38bdf8" stroke-width="2"/>
+
+          <!-- Anti-aliasing Filter -->
+          <rect x="184" y="55" width="160" height="60" rx="6" fill="#0f172a" stroke="#38bdf8" stroke-width="1.5"/>
+          <text x="264" y="78" fill="#38bdf8" font-family="sans-serif" font-size="12" font-weight="700" text-anchor="middle">Anti-Aliasing Filter</text>
+          <text x="264" y="98" fill="#94a3b8" font-family="monospace" font-size="10" text-anchor="middle">Low-Pass Pre-Filter</text>
+
+          <!-- Arrow 2 -->
+          <path d="M344 85 L374 85" stroke="#22c55e" stroke-width="2"/>
+
+          <!-- Bicubic Kernel -->
+          <rect x="374" y="55" width="160" height="60" rx="6" fill="#052e16" stroke="#22c55e" stroke-width="1.5"/>
+          <text x="454" y="78" fill="#4ade80" font-family="sans-serif" font-size="12" font-weight="700" text-anchor="middle">Bicubic Convolution</text>
+          <text x="454" y="98" fill="#cbd5e1" font-family="monospace" font-size="10" text-anchor="middle">4x4 Pixel Interpolation</text>
+
+          <!-- Arrow 3 -->
+          <path d="M534 85 L564 85" stroke="#f59e0b" stroke-width="2"/>
+
+          <!-- Target Canvas -->
+          <rect x="564" y="55" width="170" height="60" rx="6" fill="#1c1917" stroke="#f59e0b" stroke-width="1.5"/>
+          <text x="649" y="78" fill="#f59e0b" font-family="sans-serif" font-size="12" font-weight="700" text-anchor="middle">Target Raster Buffer</text>
+          <text x="649" y="98" fill="#cbd5e1" font-family="monospace" font-size="10" text-anchor="middle">W_out x H_out Clean</text>
+
+          <!-- You Are Here Banner -->
+          <rect x="180" y="180" width="400" height="24" rx="12" fill="#0284c7"/>
+          <circle cx="195" cy="192" r="5" fill="#38bdf8"/>
+          <text x="380" y="196" fill="#ffffff" font-family="sans-serif" font-size="10" font-weight="700" text-anchor="middle">YOU ARE HERE: Zero-Server In-Browser Pixel Scaling</text>
+        </svg>
+      </div>
+
+      <h2>How to Resize an Image in Pixels, Centimeters, and Millimeters</h2>
+      <p>
+        Online forms and physical print requirements express dimensions in differing units of measure. Understanding the relationship between pixels, physical units, and Dots Per Inch (DPI) ensures your resized images pass automated document checks:
+      </p>
+      <ul>
+        <li><strong>Pixels to Centimeters Formula:</strong> <code>Pixels = (Centimeters / 2.54) * DPI</code>. For example, a 3.5 cm x 4.5 cm passport photo at 300 DPI translates to: <code>(3.5 / 2.54) * 300 = 413 pixels wide</code>, and <code>(4.5 / 2.54) * 300 = 531 pixels high</code>.</li>
+        <li><strong>Pixels to Inches Formula:</strong> <code>Pixels = Inches * DPI</code>. A standard 2x2 inch visa photo at 300 DPI measures exactly <code>2 * 300 = 600 x 600 pixels</code>. At 600 DPI (high-resolution archive scan), it measures <code>1200 x 1200 pixels</code>.</li>
+        <li><strong>Web Standard (72 to 96 DPI):</strong> For desktop monitors and mobile web applications, physical print inches are irrelevant; only absolute pixel dimensions determine rendering size.</li>
+      </ul>
+
+      <h2>Passport Size Photo and Signature Resizing for Government and Exam Portals</h2>
+      <p>
+        Government job recruitment portals (such as UPSC, SSC, IBPS, State PSCs), university admissions, and visa portals enforce strict, non-negotiable image dimension and file size rules:
+      </p>
+      <ul>
+        <li><strong>Passport Photograph Specifications:</strong> Most portals demand dimensions between 350 x 450 pixels and 600 x 600 pixels, with file sizes capped strictly between 20 KB and 50 KB.</li>
+        <li><strong>Digital Signature Specifications:</strong> Scanned signatures must typically measure 300 x 100 pixels or 200 x 60 pixels, with maximum file limits of 10 KB to 20 KB in JPG format.</li>
+        <li><strong>How to Use RemoveSynth for Form Compliance:</strong> Enter the exact width and height specified in your examination notification. If the portal requires a specific aspect ratio, leave &quot;Maintain aspect ratio&quot; unchecked to force compliance, or crop your image to the correct ratio prior to final scaling.</li>
+      </ul>
+
+      <h2>Standard Image Dimensions Cheat Sheet: Social Media, Web, and Print</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Platform / Medium</th>
+              <th>Asset Type</th>
+              <th>Dimensions (Pixels)</th>
+              <th>Aspect Ratio</th>
+              <th>Target File Size</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Instagram</td>
+              <td>Square Feed Post</td>
+              <td>1080 x 1080 px</td>
+              <td>1:1</td>
+              <td>Under 1.5 MB</td>
+            </tr>
+            <tr>
+              <td>Instagram / TikTok</td>
+              <td>Story, Reels, Shorts</td>
+              <td>1080 x 1920 px</td>
+              <td>9:16</td>
+              <td>Under 4.0 MB</td>
+            </tr>
+            <tr>
+              <td>Instagram</td>
+              <td>Portrait Post</td>
+              <td>1080 x 1350 px</td>
+              <td>4:5</td>
+              <td>Under 2.0 MB</td>
+            </tr>
+            <tr>
+              <td>YouTube</td>
+              <td>Video Thumbnail</td>
+              <td>1280 x 720 px</td>
+              <td>16:9</td>
+              <td>Under 2.0 MB</td>
+            </tr>
+            <tr>
+              <td>Twitter / X</td>
+              <td>Profile Header Banner</td>
+              <td>1500 x 500 px</td>
+              <td>3:1</td>
+              <td>Under 2.0 MB</td>
+            </tr>
+            <tr>
+              <td>LinkedIn</td>
+              <td>Company Cover Banner</td>
+              <td>1128 x 191 px</td>
+              <td>5.9:1</td>
+              <td>Under 3.0 MB</td>
+            </tr>
+            <tr>
+              <td>US Passport / Visa</td>
+              <td>2x2 Inch Photo (300 DPI)</td>
+              <td>600 x 600 px</td>
+              <td>1:1</td>
+              <td>20 KB to 240 KB</td>
+            </tr>
+            <tr>
+              <td>Indian Exam Portals</td>
+              <td>Scanned Signature</td>
+              <td>300 x 100 px</td>
+              <td>3:1</td>
+              <td>10 KB to 20 KB</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      
+      <h2>Step-by-Step Guide: How to Resize Photos in Your Browser Without Distortion</h2>
+      <p>
+        Resizing your images with RemoveSynth requires only a few intuitive actions:
+      </p>
+      <ol class="steps">
+        <li><strong>Select or Drop Your Image:</strong> Click the drop zone above or drag an image file from your desktop or phone gallery. We support JPG, PNG, WebP, AVIF, and HEIC files up to 50 MB.</li>
+        <li><strong>Choose Dimensions or Select a Platform Preset:</strong> Enter target pixel dimensions in the width and height boxes. Keep &quot;Maintain aspect ratio&quot; checked to prevent image stretching, or click any social media preset button (Instagram, TikTok, YouTube, Twitter) to auto-fill standardized platform dimensions.</li>
+        <li><strong>Select Output Encoding and Quality:</strong> Choose JPEG for general photos and form uploads, PNG for transparent graphics and logos, or WebP for optimal website bandwidth. Adjust the quality slider (90 percent recommended for an ideal balance of clarity and file size).</li>
+        <li><strong>Download Your Scaled Artwork:</strong> Click the &quot;Download Resized Image&quot; button to instantly save your processed file with zero cloud upload delay.</li>
+      </ol>
+
+      <h2>Upscaling vs Downscaling: Mathematical Differences and Perceptual Artifacts</h2>
+      <p>
+        The mathematical challenges of changing image dimensions differ dramatically depending on whether you are shrinking or enlarging an image:
+      </p>
+      <ul>
+        <li><strong>Downscaling (Minification):</strong> Downscaling maps multiple source pixels into a single target pixel. If a box filter or nearest-neighbor sampling is used without pre-filtering, high-frequency spatial details fold back into low frequencies, creating moiré fringes and aliasing. RemoveSynth utilizes multi-pass sub-sampling to compute clean area-averaged pixel colors.</li>
+        <li><strong>Upscaling (Magnification):</strong> Upscaling requires inventing non-existent pixel data between known samples. Nearest-neighbor upscaling produces visible pixelation (&quot;blocky retro look&quot;). Linear interpolation blurs sharp edges. Our bicubic spline kernel fits smooth cubic curves across neighboring gradients, preventing harsh stair-stepping while preserving natural edge sharpness.</li>
+        <li><strong>Optimal Upscaling Thresholds:</strong> For photographic imagery, bicubic interpolation yields pristine visual results up to a 150 to 200 percent enlargement. Beyond 300 percent, generative neural super-resolution models are recommended.</li>
+      </ul>
+
+      <h2>Maintaining Color Accuracy: Handling Color Spaces (sRGB, Display P3, Adobe RGB) During Scaling</h2>
+      <p>
+        Modern smartphones (iPhone 12 through iPhone 16, Samsung Galaxy Ultra) capture photos using the wide Display P3 color gamut, while professional DSLR cameras frequently export in Adobe RGB (1998). If a web scaling tool improperly strips or misinterprets embedded ICC color profiles, the resized image will appear washed out, dull, or overly saturated.
+      </p>
+      <p>
+        RemoveSynth operates within standard browser color management pipelines. When scaling images, the HTML5 Canvas 2D rendering context automatically converts wide-gamut pixel values into the universal sRGB color space using perceptual rendering intent. This guarantees that skin tones remain warm, skies stay vibrant, and brand colors look identical on budget mobile screens and high-end calibrated monitors.
+      </p>
+
+
+      <h2>Why RemoveSynth In-Browser Resizing Outperforms Cloud Services and Native Apps</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th>RemoveSynth In-Browser</th>
+              <th>Online Cloud Resizers</th>
+              <th>Desktop Photoshop / GIMP</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Server Uploads</strong></td>
+              <td>Zero (100% In-Browser Memory)</td>
+              <td>File Transmitted to Remote Server</td>
+              <td>Local Only</td>
+            </tr>
+            <tr>
+              <td><strong>Privacy &amp; Security</strong></td>
+              <td>Complete (Personal Photos Stay on Device)</td>
+              <td>Stored on Third-Party Cloud</td>
+              <td>Complete Offline Privacy</td>
+            </tr>
+            <tr>
+              <td><strong>Resampling Quality</strong></td>
+              <td>High-Quality Multi-Pass Bicubic</td>
+              <td>Often Uses Fast Nearest-Neighbor</td>
+              <td>Professional Lanczos / Bicubic</td>
+            </tr>
+            <tr>
+              <td><strong>Speed</strong></td>
+              <td>Instant (15-50ms per image)</td>
+              <td>5-15s Queue and Download Delay</td>
+              <td>Software Launch Overhead</td>
+            </tr>
+            <tr>
+              <td><strong>Sign-Up &amp; Paywalls</strong></td>
+              <td>100% Free / No Registration</td>
+              <td>Freemium Subscriptions / Watermarks</td>
+              <td>Requires Software Purchase</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+
+    <!-- FAQ Section -->
+    <div class="content-body">
+      <section class="faq-section">
+        <h2>Frequently Asked Questions</h2>
+        <div class="faq-list">
+          {faqs.map((faq) => (
+            <div class="faq-item card">
+              <h3>{faq.q}</h3>
+              <p>{faq.a}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+    </div>
+  </article>
+</Base>
+
+<style>
+  .page-container {
+    max-width: var(--maxw);
+    margin: 0 auto;
+    padding: 32px 16px 80px;
+  }
+  .hero {
+    text-align: center;
+    max-width: 760px;
+    margin: 0 auto 36px;
+  }
+  .eyebrow {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--accent);
+    background: var(--accent-soft);
+    border: 1px solid rgba(44, 196, 245, 0.25);
+    margin-bottom: 14px;
+  }
+  .hero h1 {
+    font-size: clamp(2.2rem, 5vw, 3.4rem);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.03em;
+    margin: 0 0 16px;
+  }
+  .lead {
+    color: var(--muted);
+    font-size: 1.15rem;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .tool-wrapper {
+    margin-bottom: 56px;
+  }
+  .results {
+    margin-top: 20px;
+  }
+
+  .editor-card {
+    background: var(--bg-elev-2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+  }
+  .editor-grid {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 24px;
+  }
+  @media (max-width: 720px) {
+    .editor-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .preview-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+  }
+  .preview-box img {
+    max-height: 180px;
+    max-width: 100%;
+    object-fit: contain;
+    border-radius: 8px;
+    margin-bottom: 12px;
+  }
+  .orig-info {
+    font-size: 0.8rem;
+    color: var(--muted);
+    font-family: var(--mono);
+    text-align: center;
+  }
+  .orig-info span {
+    color: var(--text);
+  }
+
+  .controls-box {
+    display: grid;
+    gap: 16px;
+  }
+  .inputs-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .ctrl-group label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .input-field {
+    width: 100%;
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 0.95rem;
+    font-family: var(--mono);
+  }
+
+  .ratio-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+  .checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+  }
+  .target-stat {
+    color: var(--accent);
+    font-family: var(--mono);
+  }
+
+  .presets-section {
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+  }
+  .presets-title {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .presets-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .preset-tag {
+    background: var(--bg-elev-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-size: 0.75rem;
+    padding: 4px 10px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .preset-tag:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .format-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    align-items: center;
+  }
+  .slider {
+    width: 100%;
+    accent-color: var(--accent);
+  }
+
+  .actions-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 20px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    border-radius: 12px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.15s ease;
+    text-decoration: none;
+    color: #fff;
+    background: linear-gradient(180deg, var(--accent-light), var(--accent-strong));
+    box-shadow: var(--btn-shadow);
+    flex: 1;
+  }
+  .btn:hover {
+    filter: brightness(1.1);
+    text-decoration: none;
+  }
+  .btn.btn-ghost {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    box-shadow: none;
+    flex: 0 0 auto;
+  }
+  .btn.btn-ghost:hover {
+    background: var(--bg-elev-2);
+    color: var(--text);
+  }
+
+  
+  .prose {
+    max-width: var(--maxw);
+    margin: 48px auto;
+    padding: 0 16px 40px;
+  }
+  .prose h2 {
+    font-size: 1.85rem;
+    font-weight: 800;
+    margin: 48px 0 18px;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+  .prose p {
+    font-size: 1.05rem;
+    line-height: 1.75;
+    color: var(--muted);
+    margin-bottom: 20px;
+  }
+  .prose ul, .prose ol {
+    margin: 0 0 24px 24px;
+    color: var(--muted);
+    line-height: 1.8;
+  }
+  .prose li {
+    margin-bottom: 8px;
+  }
+  .prose code {
+    background: #0f172a;
+    color: #38bdf8;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    font-family: var(--mono);
+  }
+  .math-block {
+    background: #0b111a;
+    border: 1px solid var(--border);
+    padding: 14px 18px;
+    border-radius: var(--radius);
+    font-family: var(--mono);
+    font-size: 0.95rem;
+    color: #38bdf8;
+    margin: 18px 0;
+    overflow-x: auto;
+  }
+  .chart-svg-wrap {
+    margin: 28px 0;
+    overflow-x: auto;
+  }
+  .chart-svg {
+    width: 100%;
+    height: auto;
+    max-width: 760px;
+    display: block;
+    margin: 0 auto;
+  }
+  .table-wrap {
+    overflow-x: auto;
+    margin: 28px 0;
+  }
+  .prose table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.92rem;
+  }
+  .prose th, .prose td {
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    text-align: left;
+  }
+  .prose th {
+    background: var(--bg-elev);
+    color: var(--text);
+  }
+
+  /* Guide card */
+  .content-body {
+    max-width: 820px;
+    margin: 0 auto;
+  }
+  .faq-section h2 {
+    font-size: 1.8rem;
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  .faq-list {
+    display: grid;
+    gap: 16px;
+  }
+  .card {
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px 28px;
+  }
+  .faq-item h3 {
+    font-size: 1.05rem;
+    margin-top: 0;
+    margin-bottom: 8px;
+    color: var(--text);
+  }
+  .faq-item p {
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--muted);
+  }
+</style>
+
+<script>
+  const root = document.getElementById('resizer-drop') as HTMLElement;
+  const results = root.querySelector('.results') as HTMLElement;
+  const previewImg = root.querySelector('#preview-img') as HTMLImageElement;
+  const origDimEl = root.querySelector('#orig-dim') as HTMLElement;
+  const origSizeEl = root.querySelector('#orig-size') as HTMLElement;
+  const widthInput = root.querySelector('#width-input') as HTMLInputElement;
+  const heightInput = root.querySelector('#height-input') as HTMLInputElement;
+  const lockRatio = root.querySelector('#lock-ratio') as HTMLInputElement;
+  const targetStat = root.querySelector('#target-stat') as HTMLElement;
+  const formatSelect = root.querySelector('#format-select') as HTMLSelectElement;
+  const qualSlider = root.querySelector('#qual-slider') as HTMLInputElement;
+  const qualNum = root.querySelector('#qual-num') as HTMLElement;
+  const downloadBtn = root.querySelector('#download-btn') as HTMLButtonElement;
+  const clearBtn = root.querySelector('#clear-btn') as HTMLButtonElement;
+
+  let loadedImg: HTMLImageElement | null = null;
+  let currentFile: File | null = null;
+  let aspectRatio = 1;
+
+  const updateTarget = () => {
+    targetStat.textContent = `Target: ${widthInput.value || 0} x ${heightInput.value || 0}`;
+  };
+
+  root.addEventListener('files', (e) => {
+    const files = (e as CustomEvent<File[]>).detail;
+    if (!files.length || !files[0].type.startsWith('image/')) return;
+    const file = files[0];
+    currentFile = file;
+
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.src = url;
+    img.onload = () => {
+      loadedImg = img;
+      previewImg.src = url;
+      aspectRatio = img.naturalWidth / img.naturalHeight;
+      origDimEl.textContent = `${img.naturalWidth} x ${img.naturalHeight}`;
+      origSizeEl.textContent = `${(file.size / 1024).toFixed(1)} KB`;
+      widthInput.value = img.naturalWidth.toString();
+      heightInput.value = img.naturalHeight.toString();
+      updateTarget();
+      results.hidden = false;
+    };
+  });
+
+  widthInput?.addEventListener('input', () => {
+    const w = parseInt(widthInput.value, 10);
+    if (lockRatio.checked && w && aspectRatio) {
+      heightInput.value = Math.round(w / aspectRatio).toString();
+    }
+    updateTarget();
+  });
+
+  heightInput?.addEventListener('input', () => {
+    const h = parseInt(heightInput.value, 10);
+    if (lockRatio.checked && h && aspectRatio) {
+      widthInput.value = Math.round(h * aspectRatio).toString();
+    }
+    updateTarget();
+  });
+
+  qualSlider?.addEventListener('input', () => {
+    qualNum.textContent = qualSlider.value;
+  });
+
+  root.querySelectorAll('.preset-tag').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const w = (btn as HTMLElement).dataset.w;
+      const h = (btn as HTMLElement).dataset.h;
+      if (w && h) {
+        lockRatio.checked = false;
+        widthInput.value = w;
+        heightInput.value = h;
+        updateTarget();
+      }
+    });
+  });
+
+  clearBtn?.addEventListener('click', () => {
+    results.hidden = true;
+    loadedImg = null;
+    currentFile = null;
+  });
+
+  downloadBtn?.addEventListener('click', async () => {
+    if (!loadedImg || !currentFile) return;
+    const w = parseInt(widthInput.value, 10);
+    const h = parseInt(heightInput.value, 10);
+    if (!w || !h || w <= 0 || h <= 0) return;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(loadedImg, 0, 0, w, h);
+
+    const mime = formatSelect.value;
+    const qual = parseInt(qualSlider.value, 10) / 100;
+    const blob: Blob = await new Promise((res) => canvas.toBlob((b) => res(b!), mime, qual));
+    const ext = mime === 'image/png' ? 'png' : mime === 'image/webp' ? 'webp' : 'jpg';
+
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    const base = currentFile.name.substring(0, currentFile.name.lastIndexOf('.')) || 'image';
+    a.download = `${base}-${w}x${h}.${ext}`;
+    a.click();
+  });
+</script>

@@ -1,0 +1,153 @@
+---
+import Base from '../layouts/Base.astro';
+import DocBlocks from '../components/DocBlocks.astro';
+import LabelCleaner from '../components/LabelCleaner.astro';
+import Checker from '@removesynth/shared/components/Checker.astro';
+import { PAGES, ALL_SLUGS, kindOf, type Kind } from '../data/registry';
+import { SITE } from '../site';
+import { splitHero, extractFaq } from '../lib/doc';
+import { renderInline } from '../lib/inline';
+import { faqSchema, breadcrumbSchema, type FaqItem } from '@removesynth/shared/lib/faq';
+
+export function getStaticPaths() {
+  const existingStatic = new Set([
+    'heic-to-jpg',
+    'photo-metadata-remover',
+    'remove-synthid',
+    'remove-synthid-from-images',
+    'remove-synthid-from-video',
+    'remove-synthid-from-audio',
+    'remove-synthid-from-text',
+    'what-is-synthid',
+    'what-is-ai-watermark',
+    'how-to-remove-synthid',
+    'tools',
+    'blog',
+    'generators',
+    'docx-metadata-remover',
+    'audio-metadata-remover',
+    'jpg-to-pdf',
+    'resize-image',
+    'change-photo-date',
+    'anonymous-photo-cleaner',
+    'photoshop-metadata-cleaner',
+    'bulk-metadata-remover',
+    'remove-metadata-iphone',
+    'remove-metadata-android',
+    'video-metadata-remover',
+    'youtube-thumbnail-resizer',
+    'geotag-photo',
+    'resize-image-for-instagram',
+    'compress-video-for-discord',
+    'exiftool-online',
+    'does-it-strip-metadata',
+    'social-media-safe-zones',
+    'exif-viewer',
+    'exif-editor',
+    'remove-ai-info-label',
+    'remove-gemini-watermark',
+    'ai-image-resizer',
+    'higgsfield',
+    'seedance',
+    'seedance-2-0',
+    'seedance-2-1',
+    'seedance-2-2',
+    'dola-ai',
+    'hailuo-ai',
+    'kling-ai',
+    'luma-dream-machine',
+    'viggle-ai',
+    'remove-higgsfield-watermark',
+    'runway-ai',
+    'remove-runway-watermark',
+    'pika-ai',
+    'remove-pika-watermark',
+    'pixverse-ai',
+    'remove-pixverse-watermark',
+    'sora-ai',
+    'remove-sora-watermark',
+    'veo-ai',
+    'remove-veo-watermark',
+    'wan-ai',
+    '404',
+    'about',
+  ]);
+  return ALL_SLUGS.filter((s) => !existingStatic.has(s)).map((slug) => ({ params: { slug } }));
+}
+
+const slug = Astro.params.slug!;
+const doc = PAGES[slug];
+const kind = kindOf(slug) as Kind;
+
+const { h1, lead, rest } = splitHero(doc.blocks, doc.title);
+
+const EYEBROW: Record<Kind, string> = {
+  cleaner: 'Free · Batch up to 30 · No upload',
+  checker: 'Free · No upload · Instant',
+  platform: 'Free tool · Upload prep',
+  generator: 'Free tool · Export cleanup',
+  hub: 'Hub',
+  glossary: 'Reference',
+  legal: 'Information',
+  converter: 'Tool',
+};
+
+const SECTION: Partial<Record<Kind, { label: string; href: string }>> = {
+  cleaner: { label: 'Tools', href: '/ai-metadata-remover/' },
+  checker: { label: 'Tools', href: '/ai-metadata-checker/' },
+  platform: { label: 'Platforms', href: '/platforms/' },
+  generator: { label: 'AI tools', href: '/exports/' },
+};
+
+const CHECKS: Partial<Record<Kind, string[]>> = {
+  cleaner: ['C2PA Content Credentials', 'XMP & EXIF', 'PNG text chunks'],
+  checker: ['C2PA Content Credentials', 'IPTC AI source type', 'GPS & device data'],
+  platform: ['Strip C2PA & XMP', 'No upload', 'Batch up to 30'],
+  generator: ['Strip C2PA & XMP', 'PNG workflow chunks', 'No upload'],
+};
+
+const faq = extractFaq(doc.blocks);
+const crumb = [{ name: 'Home', url: `${SITE.url}/` }];
+const section = SECTION[kind];
+if (section) crumb.push({ name: section.label, url: `${SITE.url}${section.href}` });
+const plainTitle = h1.replace(/\[\[([^\]|]+)\|([^\]]+)\]\]/g, '$1');
+crumb.push({ name: plainTitle, url: `${SITE.url}/${slug}/` });
+
+const schema: Record<string, unknown>[] = [breadcrumbSchema(crumb)];
+if (kind === 'cleaner' || kind === 'checker' || kind === 'platform' || kind === 'generator') {
+  schema.push({
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: plainTitle,
+    url: `${SITE.url}/${slug}/`,
+    applicationCategory: 'MultimediaApplication',
+    operatingSystem: 'Any (web browser)',
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    description: doc.description,
+  });
+}
+if (faq.length) schema.push(faqSchema(faq as FaqItem[]));
+
+const showCleaner = kind === 'cleaner' || kind === 'platform' || kind === 'generator';
+const showChecker = kind === 'checker';
+const checks = CHECKS[kind];
+---
+
+<Base title={doc.title} description={doc.description} schema={schema}>
+  <section class="hero">
+    <div class="container">
+      {EYEBROW[kind] && <span class="eyebrow">{EYEBROW[kind]}</span>}
+      <h1 set:html={renderInline(h1)} />
+      {lead.map((b, i) => <p class={i === 0 ? 'lead' : ''} set:html={renderInline(b.text)} />)}
+      {showCleaner && <LabelCleaner />}
+      {showChecker && (
+        <Checker cleanerUrl="/ai-metadata-remover/" synthidUrl="/what-is-synthid/" />
+      )}
+      {checks && <ul class="checks">{checks.map((c) => <li>{c}</li>)}</ul>}
+    </div>
+  </section>
+
+  <article class="prose">
+    <DocBlocks blocks={rest} />
+  </article>
+</Base>

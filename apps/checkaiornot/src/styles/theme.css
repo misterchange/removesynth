@@ -1,0 +1,13 @@
+/* CheckAIorNot: same design system as RemoveSynth, with a teal accent. */
+:root {
+  --accent: #2dd4bf;
+  --accent-strong: #0d9488;
+  --accent-light: #14b8a6;
+  --accent-soft: rgba(45, 212, 191, 0.12);
+  --accent-faint: rgba(45, 212, 191, 0.05);
+  --accent-glow: rgba(20, 184, 166, 0.38);
+  --top-glow: rgba(20, 184, 166, 0.2);
+  --top-tint: #07140f;
+  --btn-shadow: 0 6px 18px rgba(13, 148, 136, 0.3);
+  --shadow-lg: 0 30px 80px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(45, 212, 191, 0.04);
+}
