@@ -352,16 +352,27 @@ export async function cleanFile(
   options: CleanOptions = { removeSynthID: true, removeSynthIDText: true, removeSynthIDAudio: true }
 ): Promise<{ blob: Blob; progress: CleanProgress }> {
   const buf = new Uint8Array(await file.arrayBuffer());
-  const res = cleanImage(buf);
+  let finalBytes = buf;
+  const removed: string[] = [];
+  const kept: string[] = [];
 
-  let finalBytes = res.bytes;
-  const removed = [...res.removed];
-  const kept = [...res.kept];
+  try {
+    const res = cleanImage(buf);
+    finalBytes = res.bytes;
+    removed.push(...res.removed);
+    kept.push(...res.kept);
+  } catch (_e) {
+    finalBytes = buf;
+  }
 
   if (options.removeSynthID ?? true) {
-    finalBytes = await reverseSynthID(res.bytes, 0.85, file.type || 'image/jpeg');
-    removed.push('DeepMind SynthID carrier frequency pattern (48x88 grid)');
-    removed.push('SynthID pixel steganographic watermark');
+    try {
+      finalBytes = await reverseSynthID(finalBytes, 0.85, file.type || 'image/jpeg');
+      removed.push('DeepMind SynthID carrier frequency pattern (48x88 grid)');
+      removed.push('SynthID pixel steganographic watermark');
+    } catch (_e) {
+      // Keep sanitized bytes
+    }
   }
 
   const blob = new Blob([finalBytes], { type: file.type || 'image/jpeg' });
