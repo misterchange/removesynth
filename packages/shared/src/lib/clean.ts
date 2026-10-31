@@ -92,7 +92,7 @@ function jpegSegment(marker: number, payload: Uint8Array): Uint8Array {
   return concat([Uint8Array.from([0xff, marker, len >> 8, len & 0xff]), payload]);
 }
 
-function cleanJpeg(b: Uint8Array): CleanResult {
+function cleanJpeg(b: Uint8Array, stripAi = false): CleanResult {
   const { segments, trailing } = jpegSegments(b);
   const removed = new Set<string>();
   const kept = new Set<string>();
@@ -127,8 +127,12 @@ function cleanJpeg(b: Uint8Array): CleanResult {
       continue;
     }
     if (s.marker === 0xeb) {
-      out.push(raw);
-      kept.add('Content Credentials (C2PA)');
+      if (stripAi) {
+        removed.add('Content Credentials (C2PA)');
+      } else {
+        out.push(raw);
+        kept.add('Content Credentials (C2PA)');
+      }
       continue;
     }
     if (s.marker === 0xee && head.startsWith('Adobe')) {
@@ -155,11 +159,13 @@ function cleanJpeg(b: Uint8Array): CleanResult {
     extra.push(jpegSegment(0xe1, concat([bin(EXIF_HEADER), orientationTiff(orientation)])));
     kept.add('Orientation');
   }
-  const xmp = minimalXmp(provenance);
-  if (xmp) {
-    extra.push(jpegSegment(0xe1, concat([bin(XMP_HEADER), enc(xmp)])));
-    if (provenance.sourceType) kept.add('AI source type (IPTC)');
-    if (provenance.credit) kept.add('AI credit line');
+  if (!stripAi) {
+    const xmp = minimalXmp(provenance);
+    if (xmp) {
+      extra.push(jpegSegment(0xe1, concat([bin(XMP_HEADER), enc(xmp)])));
+      if (provenance.sourceType) kept.add('AI source type (IPTC)');
+      if (provenance.credit) kept.add('AI credit line');
+    }
   }
   const insertAt = out.length > 1 && out[1][1] === 0xe0 ? 2 : 1;
   out.splice(insertAt, 0, ...extra);
@@ -182,7 +188,7 @@ function pngChunk(type: string, data: Uint8Array): Uint8Array {
 const PNG_KEEP = new Set(['IHDR', 'PLTE', 'IDAT', 'IEND', 'tRNS', 'gAMA', 'cHRM', 'sRGB', 'iCCP', 'sBIT', 'pHYs', 'bKGD', 'acTL', 'fcTL', 'fdAT', 'cICP', 'mDCv', 'cLLi']);
 const PNG_AI_TEXT = new Set(['parameters', 'prompt', 'workflow', 'invokeai_metadata', 'sd-metadata', 'dream']);
 
-function cleanPng(b: Uint8Array): CleanResult {
+function cleanPng(b: Uint8Array, stripAi = false): CleanResult {
   const removed = new Set<string>();
   const kept = new Set<string>();
   const out: Uint8Array[] = [b.subarray(0, 8)];
@@ -197,9 +203,13 @@ function cleanPng(b: Uint8Array): CleanResult {
       out.push(raw);
       continue;
     }
-    if (c.type === 'caBX') {
-      out.push(raw);
-      kept.add('Content Credentials (C2PA)');
+    if (c.type === 'caBX' || c.type === 'caPI' || c.type === 'caXf') {
+      if (stripAi) {
+        removed.add('Content Credentials (C2PA)');
+      } else {
+        out.push(raw);
+        kept.add('Content Credentials (C2PA)');
+      }
       continue;
     }
     if (c.type === 'tEXt' || c.type === 'zTXt' || c.type === 'iTXt') {
@@ -208,8 +218,12 @@ function cleanPng(b: Uint8Array): CleanResult {
         provenance = { ...provenance, ...provenanceFromXmp(t.text) };
         removed.add('XMP (editing history, names, tools)');
       } else if (t && PNG_AI_TEXT.has(t.keyword.toLowerCase())) {
-        out.push(raw);
-        kept.add('AI generation parameters');
+        if (stripAi) {
+          removed.add('AI generation parameters');
+        } else {
+          out.push(raw);
+          kept.add('AI generation parameters');
+        }
       } else {
         removed.add('Text fields (author, comments, dates)');
       }
@@ -220,12 +234,14 @@ function cleanPng(b: Uint8Array): CleanResult {
     else removed.add(`Other data (${c.type})`);
   }
 
-  const xmp = minimalXmp(provenance);
-  if (xmp) {
-    const data = concat([bin('XML:com.adobe.xmp'), Uint8Array.from([0, 0, 0, 0, 0]), enc(xmp)]);
-    out.splice(xmpIndex < 0 ? 2 : xmpIndex, 0, pngChunk('iTXt', data));
-    if (provenance.sourceType) kept.add('AI source type (IPTC)');
-    if (provenance.credit) kept.add('AI credit line');
+  if (!stripAi) {
+    const xmp = minimalXmp(provenance);
+    if (xmp) {
+      const data = concat([bin('XML:com.adobe.xmp'), Uint8Array.from([0, 0, 0, 0, 0]), enc(xmp)]);
+      out.splice(xmpIndex < 0 ? 2 : xmpIndex, 0, pngChunk('iTXt', data));
+      if (provenance.sourceType) kept.add('AI source type (IPTC)');
+      if (provenance.credit) kept.add('AI credit line');
+    }
   }
   return { bytes: concat(out), removed: [...removed], kept: [...kept] };
 }
@@ -236,7 +252,7 @@ function webpChunk(type: string, data: Uint8Array): Uint8Array {
   return concat([bin(type), Uint8Array.from([len & 0xff, (len >>> 8) & 0xff, (len >>> 16) & 0xff, (len >>> 24) & 0xff]), data, pad]);
 }
 
-function cleanWebp(b: Uint8Array): CleanResult {
+function cleanWebp(b: Uint8Array, stripAi = false): CleanResult {
   const removed = new Set<string>();
   const kept = new Set<string>();
   const chunks = webpChunks(b);
@@ -258,7 +274,15 @@ function cleanWebp(b: Uint8Array): CleanResult {
       continue;
     }
     if (c.type === 'ICCP') kept.add('Color profile');
-    if (c.type === 'C2PA') kept.add('Content Credentials (C2PA)');
+    if (c.type === 'C2PA') {
+      if (stripAi) {
+        removed.add('Content Credentials (C2PA)');
+      } else {
+        kept.add('Content Credentials (C2PA)');
+        body.push({ type: c.type, bytes: b.subarray(c.start, c.end) });
+      }
+      continue;
+    }
     body.push({ type: c.type, bytes: b.subarray(c.start, c.end) });
   }
 
@@ -267,11 +291,13 @@ function cleanWebp(b: Uint8Array): CleanResult {
     tail.push(webpChunk('EXIF', orientationTiff(orientation)));
     kept.add('Orientation');
   }
-  const xmp = minimalXmp(provenance);
-  if (xmp) {
-    tail.push(webpChunk('XMP ', enc(xmp)));
-    if (provenance.sourceType) kept.add('AI source type (IPTC)');
-    if (provenance.credit) kept.add('AI credit line');
+  if (!stripAi) {
+    const xmp = minimalXmp(provenance);
+    if (xmp) {
+      tail.push(webpChunk('XMP ', enc(xmp)));
+      if (provenance.sourceType) kept.add('AI source type (IPTC)');
+      if (provenance.credit) kept.add('AI credit line');
+    }
   }
 
   const parts = body.map((c) => {
@@ -279,7 +305,7 @@ function cleanWebp(b: Uint8Array): CleanResult {
     const copy = c.bytes.slice();
     let flags = copy[8] & ~0x0c;
     if (orientation !== 1) flags |= 0x08;
-    if (xmp) flags |= 0x04;
+    if (!stripAi && minimalXmp(provenance)) flags |= 0x04;
     copy[8] = flags;
     return copy;
   });
@@ -289,11 +315,11 @@ function cleanWebp(b: Uint8Array): CleanResult {
   return { bytes: concat([header, payload]), removed: [...removed], kept: [...kept] };
 }
 
-export function cleanImage(b: Uint8Array): CleanResult {
+export function cleanImage(b: Uint8Array, stripAi = false): CleanResult {
   const format = detectFormat(b);
-  if (format === 'jpeg') return cleanJpeg(b);
-  if (format === 'png') return cleanPng(b);
-  if (format === 'webp') return cleanWebp(b);
+  if (format === 'jpeg') return cleanJpeg(b, stripAi);
+  if (format === 'png') return cleanPng(b, stripAi);
+  if (format === 'webp') return cleanWebp(b, stripAi);
   throw new UnsupportedFormat(format);
 }
 
@@ -357,7 +383,7 @@ export async function cleanFile(
   const kept: string[] = [];
 
   try {
-    const res = cleanImage(buf);
+    const res = cleanImage(buf, true);
     finalBytes = res.bytes;
     removed.push(...res.removed);
     kept.push(...res.kept);
