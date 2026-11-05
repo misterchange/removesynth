@@ -1,0 +1,65 @@
+[
+  {
+    "id": "square_1024x1024",
+    "file": "/templates/square_1024x1024.bin",
+    "width": 1024,
+    "height": 1024,
+    "aspectRatio": 1.0,
+    "scale": 64.0,
+    "sizeKb": 1433.7
+  },
+  {
+    "id": "portrait_896x1195",
+    "file": "/templates/portrait_896x1195.bin",
+    "width": 1024,
+    "height": 1024,
+    "aspectRatio": 1.0,
+    "scale": 64.0,
+    "sizeKb": 1433.7
+  },
+  {
+    "id": "landscape_1195x896",
+    "file": "/templates/landscape_1195x896.bin",
+    "width": 1195,
+    "height": 896,
+    "aspectRatio": 1.3337,
+    "scale": 64.0,
+    "sizeKb": 1369.6
+  },
+  {
+    "id": "tall_768x1365",
+    "file": "/templates/tall_768x1365.bin",
+    "width": 768,
+    "height": 1365,
+    "aspectRatio": 0.5626,
+    "scale": 64.0,
+    "sizeKb": 1435.8
+  },
+  {
+    "id": "wide_1365x768",
+    "file": "/templates/wide_1365x768.bin",
+    "width": 1365,
+    "height": 768,
+    "aspectRatio": 1.7773,
+    "scale": 64.0,
+    "sizeKb": 1349.7
+  },
+  {
+    "id": "banner_tall_720x1440",
+    "file": "/templates/banner_tall_720x1440.bin",
+    "width": 720,
+    "height": 1440,
+    "aspectRatio": 0.5,
+    "scale": 64.0,
+    "sizeKb": 1502.5
+  },
+  {
+    "id": "banner_wide_1440x720",
+    "file": "/templates/banner_wide_1440x720.bin",
+    "width": 1440,
+    "height": 720,
+    "aspectRatio": 2.0,
+    "scale": 64.0,
+    "sizeKb": 1274.0
+  }
+]

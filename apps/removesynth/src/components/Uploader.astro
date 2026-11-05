@@ -76,6 +76,12 @@ const ICONS: Record<Kind, string> = {
     <strong class="dz-title">{t.drop[first]}</strong>
     <span class="dz-sub">{t.sub}</span>
     <span class="dz-meta small">{t.browse} · <span class="dz-formats">{KINDS[first].formats}</span> · {t.upTo} {maxMb} MB</span>
+    <span class="dz-privacy-badge">
+      <svg viewBox="0 0 24 24" aria-hidden="true" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+      <span>100% Private (Runs locally in your browser · Images never leave your device) · 100% Free</span>
+    </span>
   </label>
 
   <div class="panel" hidden>
@@ -220,6 +226,24 @@ const ICONS: Record<Kind, string> = {
     color: var(--muted);
     opacity: 0.85;
     margin-top: 4px;
+  }
+  .dz-privacy-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 10px;
+    padding: 5px 14px;
+    background: rgba(34, 197, 94, 0.12);
+    color: #16a34a;
+    border: 1px solid rgba(34, 197, 94, 0.28);
+    border-radius: 9999px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .dz-privacy-badge svg {
+    color: #16a34a;
+    flex-shrink: 0;
   }
   .footnote {
     display: flex;

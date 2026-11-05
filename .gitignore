@@ -9,3 +9,12 @@ dist/
 .venv/
 __pycache__/
 .pytest_cache/
+reverse-SynthID/
+clean_synthid.py
+launch_gui.bat
+scratch/*.bin
+scratch/export_cup.py
+scratch/verify_*.py
+scratch/test_*.mjs
+apps/removesynth/public/codebook.bin
+
