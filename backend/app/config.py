@@ -3,7 +3,10 @@ from dataclasses import dataclass, field
 
 
 def _list(name: str, default: str) -> list[str]:
-    return [v.strip() for v in os.getenv(name, default).split(",") if v.strip()]
+    raw = os.getenv(name, default)
+    if raw.strip() == "*":
+        return ["*"]
+    return [v.strip() for v in raw.split(",") if v.strip()]
 
 
 @dataclass(frozen=True)
@@ -11,7 +14,7 @@ class Settings:
     allowed_origins: list[str] = field(
         default_factory=lambda: _list(
             "ALLOWED_ORIGINS",
-            "https://removesynth.com,https://www.removesynth.com,http://localhost:4321,http://localhost:4322",
+            "*",
         )
     )
     max_upload_mb: int = int(os.getenv("MAX_UPLOAD_MB", "50"))
